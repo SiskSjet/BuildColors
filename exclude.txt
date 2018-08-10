@@ -1,0 +1,13 @@
+\.git
+\.vs
+
+\bin
+\obj
+\Properties
+\packages
+
+.csproj
+.git
+.sln
+
+App.config
