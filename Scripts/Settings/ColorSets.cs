@@ -1,15 +1,17 @@
-﻿using ProtoBuf;
+﻿using System.Collections.Generic;
+using System.Xml.Serialization;
+using ProtoBuf;
 using Sisk.BuildColors.Settings.Models;
 
 // ReSharper disable ExplicitCallerInfoArgument
 
 namespace Sisk.BuildColors.Settings {
     [ProtoContract]
-    public class ModSettings {
+    [XmlRoot(nameof(ColorSets))]
+    public class ColorSets : HashSet<ColorSet> {
         public const int VERSION = 1;
 
-        [ProtoMember(2)]
-        public PlayerColors[] Colors { get; set; }
+        public ColorSets() : base(new ColorSetComparer()) { }
 
         [ProtoMember(1)]
         public int Version { get; set; } = VERSION;

@@ -2,9 +2,9 @@
 
 // ReSharper disable ExplicitCallerInfoArgument
 
-namespace Sisk.BuildColors.Settings {
+namespace Sisk.BuildColors.Settings.Models {
     [ProtoContract]
-    public class PlayerColors {
+    public struct PlayerColors {
         [ProtoMember(2)]
         public byte[] Colors { get; set; }
 
