@@ -7,7 +7,7 @@ using VRageMath;
 
 namespace Sisk.BuildColors.Net.Messages {
     [ProtoContract]
-    public class BuildColorResponse : IMessage {
+    public class BuildColorMessage : IMessage {
         [ProtoMember(2)]
         public List<Vector3> BuildColors { get; set; }
 
