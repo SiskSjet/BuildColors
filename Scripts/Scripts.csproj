@@ -97,6 +97,19 @@
     <Compile Include="Command.cs" />
     <Compile Include="CommandHandler.cs" />
     <Compile Include="Mod.cs" />
+    <Compile Include="Net\Delegates\EntityMessageHandler.cs" />
+    <Compile Include="Net\Wrapper\MessageHandlerWrapperComparer.cs" />
+    <Compile Include="Net\Messages\BuildColorResponse.cs" />
+    <Compile Include="Net\Messages\EntityMessage.cs" />
+    <Compile Include="Net\Wrapper\EntityMessageWrapper.cs" />
+    <Compile Include="Net\Messages\IEntityMessage.cs" />
+    <Compile Include="Net\Messages\IMessage.cs" />
+    <Compile Include="Net\Delegates\MessageHandler.cs" />
+    <Compile Include="Net\Wrapper\MessageHandlerWrapper.cs" />
+    <Compile Include="Net\Messages\RequestBuildColors.cs" />
+    <Compile Include="Net\Wrapper\MessageWrapper.cs" />
+    <Compile Include="Net\Wrapper\Wrapper.cs" />
+    <Compile Include="Net\Network.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Models\ColorSetComparer.cs" />
     <Compile Include="Settings\Models\Color.cs" />
@@ -106,5 +119,6 @@
     <Compile Include="Settings\ModSettings.cs" />
     <Compile Include="Settings\Models\PlayerColors.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
