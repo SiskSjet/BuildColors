@@ -116,6 +116,7 @@
     <Compile Include="Settings\Models\ColorExtensions.cs" />
     <Compile Include="Settings\Models\ColorSet.cs" />
     <Compile Include="Settings\ColorSets.cs" />
+    <Compile Include="Settings\Models\PlayerColorComparer.cs" />
     <Compile Include="Settings\ModSettings.cs" />
     <Compile Include="Settings\Models\PlayerColors.cs" />
   </ItemGroup>
