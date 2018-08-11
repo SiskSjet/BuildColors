@@ -99,7 +99,7 @@
     <Compile Include="Mod.cs" />
     <Compile Include="Net\Delegates\EntityMessageHandler.cs" />
     <Compile Include="Net\Wrapper\MessageHandlerWrapperComparer.cs" />
-    <Compile Include="Net\Messages\BuildColorResponse.cs" />
+    <Compile Include="Net\Messages\BuildColorMessage.cs" />
     <Compile Include="Net\Messages\EntityMessage.cs" />
     <Compile Include="Net\Wrapper\EntityMessageWrapper.cs" />
     <Compile Include="Net\Messages\IEntityMessage.cs" />
