@@ -7,7 +7,7 @@
 
 ## Info
 
-This mod will restore you color pallete on dedicated servers and allow to create build color sets.
+This mod will restore your color palette on dedicated servers and allow to create build color sets.
 
 ## Color Sets
 
@@ -23,5 +23,3 @@ This mod will restore you color pallete on dedicated servers and allow to create
 
 Icons used in my mod:
 * [palette](https://fontawesome.com/icons/palette?style=solid) icon by [Font Awesome](https://fontawesome.com) is licensed under [CC BY 4.0](https://fontawesome.com/license)
-
-
