@@ -16,11 +16,14 @@ namespace Sisk.BuildColors {
     [MySessionComponentDescriptor(MyUpdateOrder.NoUpdate)]
     public class Mod : MySessionComponentBase {
         public const string NAME = "BuildColors";
+        private const int COLOR_SEND_DELAY_IN_SECONDS = 300;
         private const string COLOR_SETS_FILE = "ColorSets.xml";
         private const ushort NETWORK_ID = 51500;
         private const string SETTINGS_FILE = "settings.xml";
 
         private readonly CommandHandler _commandHandler = new CommandHandler();
+        private List<Vector3> _lastColorsSend;
+        private DateTime _lasTimeColorSend;
 
         public Mod() {
             _commandHandler.Prefix = $"/{Acronym}";
@@ -63,8 +66,10 @@ namespace Sisk.BuildColors {
             base.Init(sessionComponent);
 
             InitializeNetwork();
+            Network.Register<BuildColorResponse>(OnBuildColorsReceived);
             if (Network.IsClient) {
-                Network.Register<BuildColorResponse>(OnBuildColorsReceived);
+                // todo: check if a manual color sync is needed, else remove AfterSimulation update method.
+                //SetUpdateOrder(MyUpdateOrder.AfterSimulation);
             }
 
             if (Network.IsServer) {
@@ -91,6 +96,23 @@ namespace Sisk.BuildColors {
         public override void SaveData() {
             if (MyAPIGateway.Multiplayer.MultiplayerActive && MyAPIGateway.Multiplayer.IsServer) {
                 SavePlayerColors();
+            }
+        }
+
+        public override void UpdateAfterSimulation() {
+            var now = DateTime.UtcNow;
+            if (now - _lasTimeColorSend > TimeSpan.FromSeconds(COLOR_SEND_DELAY_IN_SECONDS)) {
+                var player = MyAPIGateway.Session.LocalHumanPlayer;
+                if (player == null) {
+                    return;
+                }
+
+                var colors = player.BuildColorSlots;
+                if (!colors.SequenceEqual(_lastColorsSend) && !colors.SequenceEqual(player.DefaultBuildColorSlots)) {
+                    _lastColorsSend = colors;
+                    // todo: send build colors to server if colors never sync automatic.
+                    //Network.SendToServer();
+                }
             }
         }
 
@@ -181,9 +203,11 @@ namespace Sisk.BuildColors {
         }
 
         private void OnBuildColorsReceived(ulong sender, BuildColorResponse message) {
-            var player = MyAPIGateway.Session.LocalHumanPlayer;
-            if (player != null && message.BuildColors != null && message.BuildColors.Any()) {
-                player.BuildColorSlots = message.BuildColors;
+            if (Network.IsClient) {
+                var player = MyAPIGateway.Session.LocalHumanPlayer;
+                if (player != null && message.BuildColors != null && message.BuildColors.Any()) {
+                    player.BuildColorSlots = message.BuildColors;
+                }
             }
         }
 
