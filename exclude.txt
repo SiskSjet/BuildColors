@@ -11,3 +11,6 @@
 .sln
 
 App.config
+
+\Logging
+\Profiler
