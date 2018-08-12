@@ -19,9 +19,9 @@ To save or load a color set you have to type the listed commands below in your c
 
 **Available commands**:
 * **list** *- Lists all available color sets.*
-* **save** [*name*] *- Saves current build colors to set with given name.*
-* **load** [*name*] *- Load color set with given name.*
-* **help** *- Shows a help window with all commands*
+* **save** [*name*] *- Saves a Color Set with the given name.*
+* **load** [*name*] *- Loads a Color Set with the given name.*
+* **help** *- Shows a help window with all commands.*
 
 ## Configs
 

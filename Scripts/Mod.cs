@@ -26,8 +26,8 @@ namespace Sisk.BuildColors {
 
         public Mod() {
             _commandHandler.Prefix = $"/{Acronym}";
-            _commandHandler.Register(new Command { Name = "Save", Description = "Saves current build colors to set with given name.", Execute = SaveColorSet });
-            _commandHandler.Register(new Command { Name = "Load", Description = "Load color set with given name.", Execute = LoadColorSet });
+            _commandHandler.Register(new Command { Name = "Save", Description = "Saves a Color Set with the given name.", Execute = SaveColorSet });
+            _commandHandler.Register(new Command { Name = "Load", Description = "Loads a Color Set with the given name.", Execute = LoadColorSet });
             _commandHandler.Register(new Command { Name = "List", Description = "Lists all available color sets.", Execute = ListColorSets });
         }
 
