@@ -25,16 +25,6 @@ namespace Sisk.BuildColors {
         private readonly List<Vector3> _lastColorsSend = new List<Vector3>();
         private DateTime _lasTimeColorChecked = DateTime.UtcNow;
 
-        public Mod() {
-            BuildColorsText.CreateTranslations();
-            _commandHandler.Prefix = $"/{Acronym}";
-            _commandHandler.Register(new Command { Name = "Save", Description = BuildColorsText.Description_Save.String, Execute = SaveColorSet });
-            _commandHandler.Register(new Command { Name = "Load", Description = BuildColorsText.Description_Load.String, Execute = LoadColorSet });
-            _commandHandler.Register(new Command { Name = "Remove", Description = BuildColorsText.Description_Remove.String, Execute = RemoveColorSet });
-            _commandHandler.Register(new Command { Name = "List", Description = BuildColorsText.Description_List.String, Execute = ListColorSets });
-            _commandHandler.Register(new Command { Name = "Help", Description = BuildColorsText.Description_Help.String, Execute = _commandHandler.ShowHelp });
-        }
-
         /// <summary>
         ///     Mod name to acronym.
         /// </summary>
@@ -87,6 +77,9 @@ namespace Sisk.BuildColors {
         ///     Load mod settings and create localizations.
         /// </summary>
         public override void LoadData() {
+            BuildColorsText.CreateTranslations();
+            CreateCommands();
+
             if (MyAPIGateway.Multiplayer.MultiplayerActive) {
                 InitializeNetwork();
             }
@@ -142,6 +135,18 @@ namespace Sisk.BuildColors {
                 Network.Close();
                 Network = null;
             }
+        }
+
+        /// <summary>
+        ///     Create commands.
+        /// </summary>
+        private void CreateCommands() {
+            _commandHandler.Prefix = $"/{Acronym}";
+            _commandHandler.Register(new Command { Name = "Save", Description = BuildColorsText.Description_Save.String, Execute = SaveColorSet });
+            _commandHandler.Register(new Command { Name = "Load", Description = BuildColorsText.Description_Load.String, Execute = LoadColorSet });
+            _commandHandler.Register(new Command { Name = "Remove", Description = BuildColorsText.Description_Remove.String, Execute = RemoveColorSet });
+            _commandHandler.Register(new Command { Name = "List", Description = BuildColorsText.Description_List.String, Execute = ListColorSets });
+            _commandHandler.Register(new Command { Name = "Help", Description = BuildColorsText.Description_Help.String, Execute = _commandHandler.ShowHelp });
         }
 
         /// <summary>
