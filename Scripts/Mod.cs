@@ -28,6 +28,7 @@ namespace Sisk.BuildColors {
             _commandHandler.Prefix = $"/{Acronym}";
             _commandHandler.Register(new Command { Name = "Save", Description = "Saves a Color Set with the given name.", Execute = SaveColorSet });
             _commandHandler.Register(new Command { Name = "Load", Description = "Loads a Color Set with the given name.", Execute = LoadColorSet });
+            _commandHandler.Register(new Command { Name = "Remove", Description = "Removes a Color Set with given name.", Execute = RemoveColorSet });
             _commandHandler.Register(new Command { Name = "List", Description = "Lists all available color sets.", Execute = ListColorSets });
         }
 
@@ -273,6 +274,21 @@ namespace Sisk.BuildColors {
                     _lasTimeColorChecked = DateTime.UtcNow;
                 }
             }
+        }
+
+        /// <summary>
+        ///     Removes a Color Set with given name.
+        /// </summary>
+        /// <param name="name">The name of the color set.</param>
+        private void RemoveColorSet(string name) {
+            var set = new ColorSet { Name = name };
+            if (!ColorSets.Contains(set)) {
+                MyAPIGateway.Utilities.ShowMessage(NAME, $"No color set with name '{name}' found.");
+                return;
+            }
+
+            ColorSets.Remove(set);
+            MyAPIGateway.Utilities.ShowMessage(NAME, $"Color set '{name}' removed.");
         }
 
         /// <summary>
