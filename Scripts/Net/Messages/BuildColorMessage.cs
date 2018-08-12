@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using ProtoBuf;
 using Sandbox.ModAPI;
+using Sisk.Utils.Net.Messages;
 using VRageMath;
 
 // ReSharper disable ExplicitCallerInfoArgument

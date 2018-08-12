@@ -1,0 +1,129 @@
+﻿[h1][b]➤⠀I⠀N⠀F⠀O[/b][/H1]
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
+This mod will restore your color palette in multiplayer and allow to create build color sets.
+Color sets are stored locally and can also be used in single-player mode.
+
+[h1][b]➤⠀C⠀O⠀L⠀O R⠀⠀⠀S⠀E⠀T⠀S[/b][/H1]
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
+To save or load a color set you have to type the listed commands below in your chat box.
+
+[noparse]Usage: /bc [command] [arguments][/noparse]
+
+[b]Available commands[/b]:
+[table]
+[tr]
+	[th]Command[/th]
+	[th]Arguments[/th]
+	[th]Description[/th]
+[/tr]
+[tr]
+	[td]save[/td]
+	[td]name[/td]
+	[td]Saves a Color Set with the given name.[/td]
+[/tr]
+[tr]
+	[td]load[/td]
+	[td]name[/td]
+	[td]Loads a Color Set with the given name.[/td]
+[/tr]
+[tr]
+	[td]remove[/td]
+	[td]name[/td]
+	[td]Removes a Color Set with given name.[/td]
+[/tr]
+[tr]
+	[td]list[/td]
+	[td][/td]
+	[td]Lists all available color sets.[/td]
+[/tr]
+[tr]
+	[td]help[/td]
+	[td][/td]
+	[td]Shows a help window with all commands[/td]
+[/tr]
+[/table]
+
+[h1][b]➤⠀C⠀O⠀N⠀F⠀I⠀G⠀S[/b][/H1]
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
+This mod can create two config files.
+For servers a settings.xml file is created in your world storage.
+Color sets are saved in ColorSets.xml in your global storage:
+"%appdata%\SpaceEngineers\Storage\ColorSets.xml"
+
+[h1][b]➤⠀C⠀R⠀E⠀D⠀I⠀T⠀S[/b][/H1]
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
+Icons used in my mod:
+[url=https://fontawesome.com/icons/palette?style=solid] palette [/url] icon by [url=https://fontawesome.com] Font Awesome [/url] is licensed under [url=https://fontawesome.com/license] CC BY 4.0 [/url]
+
+[h1][b]➤⠀G⠀I⠀T⠀H⠀U⠀B[/b][/H1]
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
+The source for this mod can be found at [url=https://github.com/SiskSjet/BuildColors] BuildColors [/url] and is licensed under [url=https://github.com/SiskSjet/BuildColors/blob/master/LICENSE] MIT [/url]
+You can use my code as you like, just a license and a copyright notice is required, but please do not flood the workshop with copies of this mod.
+If you think some features are missing, try to ask first
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+[h1][b]➤⠀I⠀N⠀F⠀O[/b][/H1]
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
+Dieser Mod stellt deine Farbpalette im Multiplayer wieder her und erlaubt das Erstellen von Color Sets.
+Color Sets werden lokal gespeichert und können auch im Singleplayer verwendet werden.
+
+[h1][b]➤⠀C⠀O⠀L⠀O R⠀⠀⠀S⠀E⠀T⠀S[/b][/H1]
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
+Um einen Color Set zu speichern oder zu laden, müssen Sie die folgenden Befehle in Ihre Chat-Box eingeben.
+
+[noparse]Usage: /bc [befehl] [argument][/noparse]
+
+[b]Available commands[/b]:
+[table]
+[tr]
+	[th]Befehl[/th]
+	[th]Argument[/th]
+	[th]Beschreibung[/th]
+[/tr]
+[tr]
+	[td]save[/td]
+	[td]name[/td]
+	[td]Speichert ein Color Set mit dem angegebenen namen.[/td]
+[/tr]
+[tr]
+	[td]load[/td]
+	[td]name[/td]
+	[td]Lädt ein Color Set mit dem angegebenen Namen.[/td]
+[/tr]
+[tr]
+	[td]remove[/td]
+	[td]name[/td]
+	[td]Entfernt ein Color Set mit dem angegebenen Namen.[/td]
+[/tr]
+[tr]
+	[td]list[/td]
+	[td][/td]
+	[td]Listet alle verfügbaren Color Sets auf.[/td]
+[/tr]
+[tr]
+	[td]help[/td]
+	[td][/td]
+	[td]Zeigt ein Hilfefenster mit allen Befehlen an.[/td]
+[/tr]
+[/table]
+
+[h1][b]➤⠀C⠀O⠀N⠀F⠀I⠀G⠀S[/b][/H1]
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
+Dieser Mod kann zwei Konfigurationsdateien erstellen.
+Für Server wird eine settings.xml-Datei in eurem World Storage erstellt.
+Color Sets werden in ColorSets.xml in Ihrem globalen Speicher gespeichert:
+"%appdata%\SpaceEngineers\Storage\ColorSets.xml"
+
+[h1][b]➤⠀C⠀R⠀E⠀D⠀I⠀T⠀S[/b][/H1]
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
+Icons in meinem Mod:
+[url=https://fontawesome.com/icons/palette?style=solid] palette [/url] icon von [url=https://fontawesome.com] Font Awesome [/url] ist lizenziert unter [url=https://fontawesome.com/license] CC BY 4.0 [/url]
+
+[h1][b]➤⠀G⠀I⠀T⠀H⠀U⠀B[/b][/H1]
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
+Den Source code für diese Mod kann unter [url=https://github.com/SiskSjet/BuildColors] BuildColors [/url] gefunden werden und ist lizenziert unter [url=https://github.com/SiskSjet/BuildColors/blob/master/LICENSE] MIT [/url]
+Du kannst meinen Code benutzen wie du magst, nur ein Lizenz und ein Copyright-Hinweis ist erforderlich, aber bitte überflute den Workshop nicht mit Kopien dieser Mod.
+Wenn ihr der Meinung seid, dass einige Funktionen fehlen, versucht sie zuerst anzufragen
