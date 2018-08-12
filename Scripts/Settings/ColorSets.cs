@@ -14,6 +14,7 @@ namespace Sisk.BuildColors.Settings {
         public ColorSets() : base(new ColorSetComparer()) { }
 
         [ProtoMember(1)]
+        [XmlElement(Order = 1)]
         public int Version { get; set; } = VERSION;
     }
 }
