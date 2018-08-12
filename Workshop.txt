@@ -7,7 +7,7 @@ Color sets are stored locally and can also be used in single-player mode.
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
 To save or load a color set you have to type the listed commands below in your chat box.
 
-[noparse]Usage: /bc [command] [arguments][/noparse]
+[CODE]Usage: /bc [command] [arguments][/CODE]
 
 [b]Available commands[/b]:
 [table]
@@ -67,14 +67,14 @@ If you think some features are missing, try to ask first
 
 [h1][b]➤⠀I⠀N⠀F⠀O[/b][/H1]
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
-Dieser Mod stellt deine Farbpalette im Multiplayer wieder her und erlaubt das Erstellen von Color Sets.
+Diese Mod stellt deine Farbpalette im Multiplayer wieder her und erlaubt das Erstellen von Color Sets.
 Color Sets werden lokal gespeichert und können auch im Singleplayer verwendet werden.
 
 [h1][b]➤⠀C⠀O⠀L⠀O R⠀⠀⠀S⠀E⠀T⠀S[/b][/H1]
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
 Um einen Color Set zu speichern oder zu laden, müssen Sie die folgenden Befehle in Ihre Chat-Box eingeben.
 
-[noparse]Usage: /bc [befehl] [argument][/noparse]
+[CODE]Usage: /bc [command] [arguments][/CODE]
 
 [b]Available commands[/b]:
 [table]
@@ -112,7 +112,7 @@ Um einen Color Set zu speichern oder zu laden, müssen Sie die folgenden Befehle
 
 [h1][b]➤⠀C⠀O⠀N⠀F⠀I⠀G⠀S[/b][/H1]
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
-Dieser Mod kann zwei Konfigurationsdateien erstellen.
+Diese Mod kann zwei Konfigurationsdateien erstellen.
 Für Server wird eine settings.xml-Datei in eurem World Storage erstellt.
 Color Sets werden in ColorSets.xml in Ihrem globalen Speicher gespeichert:
 "%appdata%\SpaceEngineers\Storage\ColorSets.xml"
