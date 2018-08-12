@@ -10,10 +10,6 @@ namespace Sisk.BuildColors {
     public class CommandHandler {
         private readonly Dictionary<string, Command> _commands = new Dictionary<string, Command>();
 
-        public CommandHandler() {
-            Register(new Command { Name = "Help", Description = "Shows this help page.", Execute = ShowHelp });
-        }
-
         /// <summary>
         ///     A prefix needed to trigger registered commands.
         /// </summary>

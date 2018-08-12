@@ -96,6 +96,7 @@
   <ItemGroup>
     <Compile Include="Command.cs" />
     <Compile Include="CommandHandler.cs" />
+    <Compile Include="Localization\BuildColorsText.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="Net\Messages\BuildColorMessage.cs" />
     <Compile Include="Net\Messages\RequestBuildColors.cs" />
