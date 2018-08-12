@@ -18,9 +18,10 @@ To save or load a color set you have to type the listed commands below in your c
 `Usage: /bc [command] [arguments]`
 
 **Available commands**:
-* **list** *- Lists all available color sets.*
 * **save** [*name*] *- Saves a Color Set with the given name.*
 * **load** [*name*] *- Loads a Color Set with the given name.*
+* **load** [*name*] *- Removes a Color Set with given name.*
+* **list** *- Lists all available color sets.*
 * **help** *- Shows a help window with all commands.*
 
 ## Configs
