@@ -103,6 +103,9 @@ namespace Sisk.BuildColors {
             }
         }
 
+        /// <summary>
+        ///     Check for color changes if client and send them.
+        /// </summary>
         public override void UpdateAfterSimulation() {
             if (Network == null || !Network.IsClient) {
                 return;
