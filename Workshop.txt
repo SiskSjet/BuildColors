@@ -53,7 +53,7 @@ Color sets are saved in ColorSets.xml in your global storage:
 [h1][b]➤⠀C⠀R⠀E⠀D⠀I⠀T⠀S[/b][/H1]
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
 Icons used in my mod:
-[url=https://fontawesome.com/icons/palette?style=solid] palette [/url] icon by [url=https://fontawesome.com] Font Awesome [/url] is licensed under [url=https://fontawesome.com/license] CC BY 4.0 [/url]
+[url=https://fontawesome.com/icons/palette?style=solid] palette [/url] icon by [url=https://fontawesome.com] Font Awesome [/url] is licensed under [url=https://fontawesome.com/license/free] CC BY 4.0 [/url]
 
 [h1][b]➤⠀G⠀I⠀T⠀H⠀U⠀B[/b][/H1]
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
@@ -120,7 +120,7 @@ Color Sets werden in ColorSets.xml in Ihrem globalen Speicher gespeichert:
 [h1][b]➤⠀C⠀R⠀E⠀D⠀I⠀T⠀S[/b][/H1]
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
 Icons in meinem Mod:
-[url=https://fontawesome.com/icons/palette?style=solid] palette [/url] icon von [url=https://fontawesome.com] Font Awesome [/url] ist lizenziert unter [url=https://fontawesome.com/license] CC BY 4.0 [/url]
+[url=https://fontawesome.com/icons/palette?style=solid] palette [/url] icon von [url=https://fontawesome.com] Font Awesome [/url] ist lizenziert unter [url=https://fontawesome.com/license/free] CC BY 4.0 [/url]
 
 [h1][b]➤⠀G⠀I⠀T⠀H⠀U⠀B[/b][/H1]
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
