@@ -122,10 +122,6 @@ namespace Sisk.BuildColors {
             MyAPIGateway.Utilities.MessageEntered -= OnMessageEntered;
 
             if (Network != null) {
-                if (Network.IsClient) {
-                    SendColors();
-                }
-
                 Network.Unregister<BuildColorMessage>(OnBuildColorsReceived);
 
                 if (Network.IsServer) {
