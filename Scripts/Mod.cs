@@ -6,7 +6,11 @@ using Sisk.BuildColors.Localization;
 using Sisk.BuildColors.Net.Messages;
 using Sisk.BuildColors.Settings;
 using Sisk.BuildColors.Settings.Models;
+using Sisk.Utils.CommandHandler;
+using Sisk.Utils.Localization;
+using Sisk.Utils.Localization.Extensions;
 using Sisk.Utils.Net;
+using VRage;
 using VRage.Game;
 using VRage.Game.Components;
 using VRageMath;
@@ -21,7 +25,7 @@ namespace Sisk.BuildColors {
         private const ushort NETWORK_ID = 51500;
         private const string SETTINGS_FILE = "settings.xml";
 
-        private readonly CommandHandler _commandHandler = new CommandHandler();
+        private readonly CommandHandler _commandHandler = new CommandHandler(NAME);
         private readonly List<Vector3> _lastColorsSend = new List<Vector3>();
         private DateTime _lasTimeColorChecked = DateTime.UtcNow;
 
@@ -77,7 +81,7 @@ namespace Sisk.BuildColors {
         ///     Load mod settings and create localizations.
         /// </summary>
         public override void LoadData() {
-            BuildColorsText.CreateTranslations();
+            LoadTranslation();
             CreateCommands();
 
             if (MyAPIGateway.Multiplayer.MultiplayerActive) {
@@ -138,11 +142,11 @@ namespace Sisk.BuildColors {
         /// </summary>
         private void CreateCommands() {
             _commandHandler.Prefix = $"/{Acronym}";
-            _commandHandler.Register(new Command { Name = "Save", Description = BuildColorsText.Description_Save.String, Execute = SaveColorSet });
-            _commandHandler.Register(new Command { Name = "Load", Description = BuildColorsText.Description_Load.String, Execute = LoadColorSet });
-            _commandHandler.Register(new Command { Name = "Remove", Description = BuildColorsText.Description_Remove.String, Execute = RemoveColorSet });
-            _commandHandler.Register(new Command { Name = "List", Description = BuildColorsText.Description_List.String, Execute = ListColorSets });
-            _commandHandler.Register(new Command { Name = "Help", Description = BuildColorsText.Description_Help.String, Execute = _commandHandler.ShowHelp });
+            _commandHandler.Register(new Command { Name = "Save", Description = ModText.Description_Save.GetString(), Execute = SaveColorSet });
+            _commandHandler.Register(new Command { Name = "Load", Description = ModText.Description_Load.GetString(), Execute = LoadColorSet });
+            _commandHandler.Register(new Command { Name = "Remove", Description = ModText.Description_Remove.GetString(), Execute = RemoveColorSet });
+            _commandHandler.Register(new Command { Name = "List", Description = ModText.Description_List.GetString(), Execute = ListColorSets });
+            _commandHandler.Register(new Command { Name = "Help", Description = ModText.Description_Help.GetString(), Execute = _commandHandler.ShowHelp });
         }
 
         /// <summary>
@@ -157,7 +161,7 @@ namespace Sisk.BuildColors {
         /// </summary>
         /// <param name="arguments"></param>
         private void ListColorSets(string arguments) {
-            MyAPIGateway.Utilities.ShowMessage(NAME, ColorSets.Any() ? string.Join(", ", ColorSets.Select(x => x.Name)) : BuildColorsText.NoColorSetsAvailable.String);
+            MyAPIGateway.Utilities.ShowMessage(NAME, ColorSets.Any() ? string.Join(", ", ColorSets.Select(x => x.Name)) : ModText.NoColorSetsAvailable.GetString());
         }
 
         /// <summary>
@@ -170,7 +174,7 @@ namespace Sisk.BuildColors {
                 set = ColorSets.First(x => StringComparer.InvariantCultureIgnoreCase.Equals(x.Name, name));
                 MyAPIGateway.Session.LocalHumanPlayer.BuildColorSlots = set.Colors.Select(x => (Vector3) x).ToList();
             } else {
-                MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(BuildColorsText.NoColorSetFound.String, name));
+                MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(ModText.NoColorSetFound.GetString(), name));
             }
         }
 
@@ -224,6 +228,50 @@ namespace Sisk.BuildColors {
             }
 
             Settings = settings;
+        }
+
+        /// <summary>
+        ///     Load translations for this mod.
+        /// </summary>
+        private void LoadTranslation() {
+            var currentLanguage = MyAPIGateway.Session.Config.Language;
+            var supportedLanguages = new HashSet<MyLanguagesEnum>();
+
+            switch (currentLanguage) {
+                case MyLanguagesEnum.English:
+                    Lang.Add(MyLanguagesEnum.English, new Dictionary<string, string> {
+                        { nameof(ModText.Description_Save), "Saves a Color Set with the given name." },
+                        { nameof(ModText.Description_Load), "Loads a Color Set with the given name." },
+                        { nameof(ModText.Description_Remove), "Removes a Color Set with given name." },
+                        { nameof(ModText.Description_List), "Lists all available color sets." },
+                        { nameof(ModText.Description_Help), "Shows this help page." },
+                        { nameof(ModText.NoColorSetFound), "No color set with name '{0}' found." },
+                        { nameof(ModText.NoColorSetsAvailable), "No color sets available." },
+                        { nameof(ModText.ColorSetRemoved), "Color set '{0}' removed." },
+                        { nameof(ModText.ColorSetSaved), "Color set '{0}' saved." }
+                    });
+                    break;
+                case MyLanguagesEnum.German:
+                    Lang.Add(MyLanguagesEnum.German, new Dictionary<string, string> {
+                        { nameof(ModText.Description_Save), "Speichert ein Color Set mit dem angegebenen namen." },
+                        { nameof(ModText.Description_Load), "Lädt ein Color Set mit dem angegebenen Namen." },
+                        { nameof(ModText.Description_Remove), "Entfernt ein Color Set mit dem angegebenen Namen." },
+                        { nameof(ModText.Description_List), "Listet alle verfügbaren Color Sets auf." },
+                        { nameof(ModText.Description_Help), "Zeigt diese Hilfe-Seite" },
+                        { nameof(ModText.NoColorSetFound), "Kein Color Set mit dem namen {0} gefunden." },
+                        { nameof(ModText.NoColorSetsAvailable), "Keine Color Sets verfügbar." },
+                        { nameof(ModText.ColorSetRemoved), "Color Set '{0}' entfernt." },
+                        { nameof(ModText.ColorSetSaved), "Color Set '{0}' gespeichert." }
+                    });
+                    break;
+            }
+
+            Texts.LoadSupportedLanguages(supportedLanguages);
+            if (supportedLanguages.Contains(currentLanguage)) {
+                Texts.LoadTexts(currentLanguage);
+            } else if (supportedLanguages.Contains(MyLanguagesEnum.English)) {
+                Texts.LoadTexts();
+            }
         }
 
         private void OnBuildColorsReceived(ulong sender, BuildColorMessage message) {
@@ -287,14 +335,14 @@ namespace Sisk.BuildColors {
         private void RemoveColorSet(string name) {
             var set = new ColorSet { Name = name };
             if (!ColorSets.Contains(set)) {
-                MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(BuildColorsText.NoColorSetFound.String, name));
+                MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(ModText.NoColorSetFound.GetString(), name));
                 return;
             }
 
             ColorSets.Remove(set);
 
             SaveColorSets();
-            MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(BuildColorsText.ColorSetRemoved.String, name));
+            MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(ModText.ColorSetRemoved.GetString(), name));
         }
 
         /// <summary>
@@ -311,7 +359,7 @@ namespace Sisk.BuildColors {
             ColorSets.Add(set);
 
             SaveColorSets();
-            MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(BuildColorsText.ColorSetSaved.String, name));
+            MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(ModText.ColorSetSaved.GetString(), name));
         }
 
         /// <summary>
