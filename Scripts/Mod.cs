@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Sandbox.ModAPI;
@@ -11,7 +11,6 @@ using Sisk.Utils.Localization;
 using Sisk.Utils.Localization.Extensions;
 using Sisk.Utils.Net;
 using VRage;
-using VRage.Game;
 using VRage.Game.Components;
 using VRageMath;
 using Color = Sisk.BuildColors.Settings.Models.Color;
@@ -55,29 +54,6 @@ namespace Sisk.BuildColors {
         public ModSettings Settings { get; private set; }
 
         /// <summary>
-        ///     Initialize components.
-        /// </summary>
-        /// <param name="sessionComponent"></param>
-        public override void Init(MyObjectBuilder_SessionComponent sessionComponent) {
-            base.Init(sessionComponent);
-
-            if (Network != null) {
-                Network.Register<BuildColorMessage>(OnBuildColorsReceived);
-
-                if (Network.IsClient) {
-                    MyAPIGateway.Session.OnSessionReady += OnSessionReady;
-                    SetUpdateOrder(MyUpdateOrder.AfterSimulation);
-                }
-
-                if (Network.IsServer) {
-                    Network.Register<RequestBuildColors>(OnBuilderColorRequest);
-                }
-            }
-
-            MyAPIGateway.Utilities.MessageEntered += OnMessageEntered;
-        }
-
-        /// <summary>
         ///     Load mod settings and create localizations.
         /// </summary>
         public override void LoadData() {
@@ -86,13 +62,24 @@ namespace Sisk.BuildColors {
 
             if (MyAPIGateway.Multiplayer.MultiplayerActive) {
                 InitializeNetwork();
-            }
 
-            if (Network != null && Network.IsServer) {
-                LoadPlayerColors();
+                if (Network != null) {
+                    Network.Register<BuildColorMessage>(OnBuildColorsReceived);
+                    Network.Register<RequestBuildColors>(OnBuilderColorRequest);
+
+                    if (Network.IsServer) {
+                        LoadPlayerColors();
+
+                        if (Network.IsDedicated) {
+                            return;
+                        }
+                    }
+                }
             }
 
             LoadColorSets();
+            MyAPIGateway.Session.OnSessionReady += OnSessionReady;
+            MyAPIGateway.Utilities.MessageEntered += OnMessageEntered;
         }
 
         /// <summary>
@@ -277,7 +264,7 @@ namespace Sisk.BuildColors {
         private void OnBuildColorsReceived(ulong sender, BuildColorMessage message) {
             if (Network.IsClient) {
                 var player = MyAPIGateway.Session.LocalHumanPlayer;
-                if (player != null && message.BuildColors != null && message.BuildColors.Any()) {
+                if (player != null && player.SteamUserId == message.SteamId && message.BuildColors != null && message.BuildColors.Any()) {
                     player.BuildColorSlots = message.BuildColors;
                     _lastColorsSend.Clear();
                     _lastColorsSend.AddRange(player.BuildColorSlots);
@@ -322,9 +309,12 @@ namespace Sisk.BuildColors {
                 var player = MyAPIGateway.Session.LocalHumanPlayer;
                 if (player != null) {
                     Network.SendToServer(new RequestBuildColors { SteamId = player.SteamUserId });
+
                     HasColorRequested = true;
                     _lasTimeColorChecked = DateTime.UtcNow;
                 }
+
+                SetUpdateOrder(MyUpdateOrder.AfterSimulation);
             }
         }
 
