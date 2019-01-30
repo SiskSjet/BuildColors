@@ -6,6 +6,10 @@
 \Properties
 \packages
 
+\Logging
+\Profiler
+\TerminalControls
+
 .csproj
 .git
 .sln

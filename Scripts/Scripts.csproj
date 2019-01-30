@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Sisk.BuildColors</RootNamespace>
     <AssemblyName>BuildColors</AssemblyName>
-    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -94,9 +95,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Command.cs" />
-    <Compile Include="CommandHandler.cs" />
-    <Compile Include="Localization\BuildColorsText.cs" />
+    <Compile Include="Localization\ModText.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="Net\Messages\BuildColorMessage.cs" />
     <Compile Include="Net\Messages\RequestBuildColors.cs" />
@@ -111,6 +110,10 @@
     <Compile Include="Settings\Models\PlayerColors.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Utils\CommandHandler\CommandHandler.csproj">
+      <Project>{f3734666-0aca-4cdc-b1b1-cd955fb6b4a8}</Project>
+      <Name>CommandHandler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Utils\Localization\Localization.csproj">
       <Project>{afc6b29d-80d1-48ab-9b45-7230216c285f}</Project>
       <Name>Localization</Name>

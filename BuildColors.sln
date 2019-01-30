@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2047
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28516.95
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mod", "Mod\Mod.csproj", "{6784E59D-690A-4B96-A7F7-FC193E9D21D8}"
 EndProject
@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net", "Utils\Net\Net.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Localization", "Utils\Localization\Localization.csproj", "{AFC6B29D-80D1-48AB-9B45-7230216C285F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandHandler", "Utils\CommandHandler\CommandHandler.csproj", "{F3734666-0ACA-4CDC-B1B1-CD955FB6B4A8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,10 @@ Global
 		{AFC6B29D-80D1-48AB-9B45-7230216C285F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AFC6B29D-80D1-48AB-9B45-7230216C285F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AFC6B29D-80D1-48AB-9B45-7230216C285F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3734666-0ACA-4CDC-B1B1-CD955FB6B4A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3734666-0ACA-4CDC-B1B1-CD955FB6B4A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3734666-0ACA-4CDC-B1B1-CD955FB6B4A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3734666-0ACA-4CDC-B1B1-CD955FB6B4A8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -54,6 +60,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{2285E3A1-63A2-4632-AA74-CAA8DAC96C71} = {FC71D642-74E9-4212-BE09-55683C784784}
 		{AFC6B29D-80D1-48AB-9B45-7230216C285F} = {FC71D642-74E9-4212-BE09-55683C784784}
+		{F3734666-0ACA-4CDC-B1B1-CD955FB6B4A8} = {FC71D642-74E9-4212-BE09-55683C784784}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0A372AEC-997B-451E-B338-BE75C59A300F}

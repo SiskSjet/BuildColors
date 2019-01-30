@@ -1,3 +1,12 @@
+# [1.1.1](https://github.com/SiskSjet/BuildColors/compare/v1.1.0...v1.1.1) (2019-01-30)
+
+This is just a maintance update. No new functions or fixes are added.
+
+* updated mod utils
+* some code rearrangement
+
+
+
 <a name="1.1.0"></a>
 # [1.1.0](https://github.com/SiskSjet/BuildColors/compare/v1.0.0...v1.1.0) (2018-08-12)
 
