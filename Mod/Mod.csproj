@@ -44,10 +44,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="beta\thumb.png" />
+    <Content Include="dev\thumb.png" />
     <Content Include="thumb.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="dev\modinfo.sbmi" />
     <None Include="modinfo.sbmi" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
