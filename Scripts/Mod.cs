@@ -74,11 +74,11 @@ namespace Sisk.BuildColors {
                             return;
                         }
                     }
+                    MyAPIGateway.Session.OnSessionReady += OnSessionReady;
                 }
             }
 
             LoadColorSets();
-            MyAPIGateway.Session.OnSessionReady += OnSessionReady;
             MyAPIGateway.Utilities.MessageEntered += OnMessageEntered;
         }
 
@@ -113,6 +113,7 @@ namespace Sisk.BuildColors {
             MyAPIGateway.Utilities.MessageEntered -= OnMessageEntered;
 
             if (Network != null) {
+                MyAPIGateway.Session.OnSessionReady -= OnSessionReady;
                 Network.Unregister<BuildColorMessage>(OnBuildColorsReceived);
 
                 if (Network.IsServer) {
@@ -305,6 +306,7 @@ namespace Sisk.BuildColors {
         }
 
         private void OnSessionReady() {
+            MyAPIGateway.Session.OnSessionReady -= OnSessionReady;
             if (!HasColorRequested) {
                 var player = MyAPIGateway.Session.LocalHumanPlayer;
                 if (player != null) {
@@ -313,9 +315,9 @@ namespace Sisk.BuildColors {
                     HasColorRequested = true;
                     _lasTimeColorChecked = DateTime.UtcNow;
                 }
-
-                SetUpdateOrder(MyUpdateOrder.AfterSimulation);
             }
+
+            SetUpdateOrder(MyUpdateOrder.AfterSimulation);
         }
 
         /// <summary>
