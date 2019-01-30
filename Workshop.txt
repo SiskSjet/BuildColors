@@ -7,7 +7,7 @@ Color sets are stored locally and can also be used in single-player mode.
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
 To save or load a color set you have to type the listed commands below in your chat box.
 
-[noparse]Usage: /bc [command] [arguments][/noparse]
+[CODE]Usage: /bc [command] [arguments][/CODE]
 
 [b]Available commands[/b]:
 [table]
@@ -53,7 +53,7 @@ Color sets are saved in ColorSets.xml in your global storage:
 [h1][b]➤⠀C⠀R⠀E⠀D⠀I⠀T⠀S[/b][/H1]
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
 Icons used in my mod:
-[url=https://fontawesome.com/icons/palette?style=solid] palette [/url] icon by [url=https://fontawesome.com] Font Awesome [/url] is licensed under [url=https://fontawesome.com/license] CC BY 4.0 [/url]
+[url=https://fontawesome.com/icons/palette?style=solid] palette [/url] icon by [url=https://fontawesome.com] Font Awesome [/url] is licensed under [url=https://fontawesome.com/license/free] CC BY 4.0 [/url]
 
 [h1][b]➤⠀G⠀I⠀T⠀H⠀U⠀B[/b][/H1]
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
@@ -61,20 +61,24 @@ The source for this mod can be found at [url=https://github.com/SiskSjet/BuildCo
 You can use my code as you like, just a license and a copyright notice is required, but please do not flood the workshop with copies of this mod.
 If you think some features are missing, try to ask first
 
+[h1][b]➤⠀S⠀U⠀P⠀P⠀O⠀R⠀T[/b][/H1]
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
+[img]https://steamuserimages-a.akamaihd.net/ugc/949586220823602248/339F6748C4155B2EC3EDD33FDAF04F1B12A4A500/[/img][url=https://steamcommunity.com/id/sisksjet/myworkshopfiles/?appid=244850][img]https://steamuserimages-a.akamaihd.net/ugc/949586220823603246/BA1A8E6272BE3863194FEDB79F68D3DEACBE0837/[/img][/url][url=https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4BUABNQCJ59CG][img]https://steamuserimages-a.akamaihd.net/ugc/949586220823604755/9492C8834824BCC7FE9EEACAD803F8BA99854E05/[/img][/url]
+
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 [h1][b]➤⠀I⠀N⠀F⠀O[/b][/H1]
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
-Dieser Mod stellt deine Farbpalette im Multiplayer wieder her und erlaubt das Erstellen von Color Sets.
+Diese Mod stellt deine Farbpalette im Multiplayer wieder her und erlaubt das Erstellen von Color Sets.
 Color Sets werden lokal gespeichert und können auch im Singleplayer verwendet werden.
 
 [h1][b]➤⠀C⠀O⠀L⠀O R⠀⠀⠀S⠀E⠀T⠀S[/b][/H1]
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
 Um einen Color Set zu speichern oder zu laden, müssen Sie die folgenden Befehle in Ihre Chat-Box eingeben.
 
-[noparse]Usage: /bc [befehl] [argument][/noparse]
+[CODE]Usage: /bc [command] [arguments][/CODE]
 
 [b]Available commands[/b]:
 [table]
@@ -112,18 +116,22 @@ Um einen Color Set zu speichern oder zu laden, müssen Sie die folgenden Befehle
 
 [h1][b]➤⠀C⠀O⠀N⠀F⠀I⠀G⠀S[/b][/H1]
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
-Dieser Mod kann zwei Konfigurationsdateien erstellen.
+Diese Mod kann zwei Konfigurationsdateien erstellen.
 Für Server wird eine settings.xml-Datei in eurem World Storage erstellt.
 Color Sets werden in ColorSets.xml in Ihrem globalen Speicher gespeichert:
 "%appdata%\SpaceEngineers\Storage\ColorSets.xml"
 
 [h1][b]➤⠀C⠀R⠀E⠀D⠀I⠀T⠀S[/b][/H1]
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
-Icons in meinem Mod:
-[url=https://fontawesome.com/icons/palette?style=solid] palette [/url] icon von [url=https://fontawesome.com] Font Awesome [/url] ist lizenziert unter [url=https://fontawesome.com/license] CC BY 4.0 [/url]
+Icons in meiner Mod:
+[url=https://fontawesome.com/icons/palette?style=solid] palette [/url] icon von [url=https://fontawesome.com] Font Awesome [/url] ist lizenziert unter [url=https://fontawesome.com/license/free] CC BY 4.0 [/url]
 
 [h1][b]➤⠀G⠀I⠀T⠀H⠀U⠀B[/b][/H1]
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
-Den Source code für diese Mod kann unter [url=https://github.com/SiskSjet/BuildColors] BuildColors [/url] gefunden werden und ist lizenziert unter [url=https://github.com/SiskSjet/BuildColors/blob/master/LICENSE] MIT [/url]
+Den Source code dieser Mod kann unter [url=https://github.com/SiskSjet/BuildColors] BuildColors [/url] gefunden werden und ist lizenziert unter [url=https://github.com/SiskSjet/BuildColors/blob/master/LICENSE] MIT [/url]
 Du kannst meinen Code benutzen wie du magst, nur ein Lizenz und ein Copyright-Hinweis ist erforderlich, aber bitte überflute den Workshop nicht mit Kopien dieser Mod.
 Wenn ihr der Meinung seid, dass einige Funktionen fehlen, versucht sie zuerst anzufragen
+
+[h1][b]➤⠀S⠀U⠀P⠀P⠀O⠀R⠀T[/b][/H1]
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
+[img]https://steamuserimages-a.akamaihd.net/ugc/949586220823602248/339F6748C4155B2EC3EDD33FDAF04F1B12A4A500/[/img][url=https://steamcommunity.com/id/sisksjet/myworkshopfiles/?appid=244850][img]https://steamuserimages-a.akamaihd.net/ugc/949586220823603246/BA1A8E6272BE3863194FEDB79F68D3DEACBE0837/[/img][/url][url=https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4BUABNQCJ59CG][img]https://steamuserimages-a.akamaihd.net/ugc/949586220823604755/9492C8834824BCC7FE9EEACAD803F8BA99854E05/[/img][/url]

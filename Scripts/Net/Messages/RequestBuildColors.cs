@@ -10,7 +10,7 @@ namespace Sisk.BuildColors.Net.Messages {
         [ProtoMember(1)]
         public ulong SteamId { get; set; }
 
-        public byte[] Serialze() {
+        public byte[] Serialize() {
             return MyAPIGateway.Utilities.SerializeToBinary(this);
         }
     }
