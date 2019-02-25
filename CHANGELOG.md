@@ -1,3 +1,12 @@
+# [1.1.2](https://github.com/SiskSjet/BuildColors/compare/v1.1.1...v1.1.2) (2019-02-25)
+
+
+### Bug Fixes
+
+* fix a crash when enter a message shorter than command prefix ([13cf082](https://github.com/SiskSjet/BuildColors/commit/13cf082))
+
+
+
 # [1.1.1](https://github.com/SiskSjet/BuildColors/compare/v1.1.0...v1.1.1) (2019-01-30)
 
 This is just a maintance update. No new functions or fixes are added.
