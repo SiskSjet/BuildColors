@@ -31,6 +31,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EmptyKeys.UserInterface">
+      <HintPath>C:\Spiele\Steam\steamapps\common\SpaceEngineers\Bin64\EmptyKeys.UserInterface.dll</HintPath>
+    </Reference>
+    <Reference Include="ProtoBuf.Net">
+      <HintPath>C:\Spiele\Steam\steamapps\common\SpaceEngineers\Bin64\ProtoBuf.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="ProtoBuf.Net.Core">
+      <HintPath>C:\Spiele\Steam\steamapps\common\SpaceEngineers\Bin64\ProtoBuf.Net.Core.dll</HintPath>
+    </Reference>
     <Reference Include="Sandbox.Common">
       <HintPath>C:\Spiele\Steam\steamapps\common\SpaceEngineers\Bin64\Sandbox.Common.dll</HintPath>
     </Reference>
@@ -39,6 +48,9 @@
     </Reference>
     <Reference Include="Sandbox.Graphics">
       <HintPath>C:\Spiele\Steam\steamapps\common\SpaceEngineers\Bin64\Sandbox.Graphics.dll</HintPath>
+    </Reference>
+    <Reference Include="Sandbox.RenderDirect">
+      <HintPath>C:\Spiele\Steam\steamapps\common\SpaceEngineers\Bin64\Sandbox.RenderDirect.dll</HintPath>
     </Reference>
     <Reference Include="SpaceEngineers.Game">
       <HintPath>C:\Spiele\Steam\steamapps\common\SpaceEngineers\Bin64\SpaceEngineers.Game.dll</HintPath>
@@ -81,6 +93,9 @@
     <Reference Include="VRage.Native">
       <HintPath>C:\Spiele\Steam\steamapps\common\SpaceEngineers\Bin64\VRage.Native.dll</HintPath>
     </Reference>
+    <Reference Include="VRage.Network">
+      <HintPath>C:\Spiele\Steam\steamapps\common\SpaceEngineers\Bin64\VRage.Network.dll</HintPath>
+    </Reference>
     <Reference Include="VRage.Render">
       <HintPath>C:\Spiele\Steam\steamapps\common\SpaceEngineers\Bin64\VRage.Render.dll</HintPath>
     </Reference>
@@ -89,6 +104,9 @@
     </Reference>
     <Reference Include="VRage.Scripting">
       <HintPath>C:\Spiele\Steam\steamapps\common\SpaceEngineers\Bin64\VRage.Scripting.dll</HintPath>
+    </Reference>
+    <Reference Include="VRage.Steam">
+      <HintPath>C:\Spiele\Steam\steamapps\common\SpaceEngineers\Bin64\VRage.Steam.dll</HintPath>
     </Reference>
     <Reference Include="VRage.XmlSerializers">
       <HintPath>C:\Spiele\Steam\steamapps\common\SpaceEngineers\Bin64\VRage.XmlSerializers.dll</HintPath>

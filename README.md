@@ -2,6 +2,7 @@
 ![Build Colors](./Mod/thumb.png)
 
 * [Info](#info)
+* [Installation](#installation)
 * [Color Sets](#color-sets)
 * [Configs](#configs)
 * [Credits](#credits)
@@ -10,6 +11,13 @@
 
 This mod will restore your color palette in multiplayer and allow to create build color sets.
 Color sets are stored locally and can also be used in single-player mode.
+
+## Installation
+
+The easiest way is to download it from [SteamWorkshop](https://steamcommunity.com/sharedfiles/filedetails/?id=1475392343).
+
+You can also download the latest zip from releases [BuildColors.1.1.2.zip](https://github.com/SiskSjet/BuildColors/releases/download/v1.1.2/BuildColors.1.1.2.zip)
+and extract it to your '%appdata%\SpaceEngineers\Mods' folder
 
 ## Color Sets
 
