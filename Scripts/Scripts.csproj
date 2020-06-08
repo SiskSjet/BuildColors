@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ProtoBuf.Net.Core">
+      <HintPath>C:\Spiele\Steam\steamapps\common\SpaceEngineers\Bin64\ProtoBuf.Net.Core.dll</HintPath>
+    </Reference>
     <Reference Include="Sandbox.Common">
       <HintPath>C:\Spiele\Steam\steamapps\common\SpaceEngineers\Bin64\Sandbox.Common.dll</HintPath>
     </Reference>
@@ -115,7 +118,7 @@
       <Name>CommandHandler</Name>
     </ProjectReference>
     <ProjectReference Include="..\Utils\Localization\Localization.csproj">
-      <Project>{afc6b29d-80d1-48ab-9b45-7230216c285f}</Project>
+      <Project>{DF40FBDA-5BB9-4DAF-A473-2D2F0A8AEFB5}</Project>
       <Name>Localization</Name>
     </ProjectReference>
     <ProjectReference Include="..\Utils\Net\Net.csproj">
