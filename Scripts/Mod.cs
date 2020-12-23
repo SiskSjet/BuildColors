@@ -9,6 +9,7 @@ using Sisk.BuildColors.Settings.Models;
 using Sisk.Utils.CommandHandler;
 using Sisk.Utils.Localization.Extensions;
 using Sisk.Utils.Net;
+using VRage.Game;
 using VRage.Game.Components;
 using VRageMath;
 using Color = Sisk.BuildColors.Settings.Models.Color;
@@ -25,6 +26,13 @@ namespace Sisk.BuildColors {
         private readonly CommandHandler _commandHandler = new CommandHandler(NAME);
         private readonly List<Vector3> _lastColorsSend = new List<Vector3>();
         private DateTime _lasTimeColorChecked = DateTime.UtcNow;
+
+        /// <summary>
+        ///     Creates a new instance of this component.
+        /// </summary>
+        public Mod() {
+            Static = this;
+        }
 
         /// <summary>
         ///     Mod name to acronym.
@@ -50,6 +58,22 @@ namespace Sisk.BuildColors {
         ///     Mod settings
         /// </summary>
         public ModSettings Settings { get; private set; }
+
+        /// <summary>
+        /// </summary>
+        public static Mod Static { get; private set; }
+
+        public override void Draw() {
+            UI.UI.Draw();
+        }
+
+        /// <summary>
+        ///     The static instance of this component.
+        /// </summary>
+        /// <param name="sessionComponent"></param>
+        public override void Init(MyObjectBuilder_SessionComponent sessionComponent) {
+            UI.UI.Init();
+        }
 
         /// <summary>
         ///     Load mod settings and create localizations.
@@ -136,7 +160,7 @@ namespace Sisk.BuildColors {
         }
 
         /// <summary>
-        ///     Initalize the network system.
+        ///     Initialize the network system.
         /// </summary>
         private void InitializeNetwork() {
             Network = new Network(NETWORK_ID);
