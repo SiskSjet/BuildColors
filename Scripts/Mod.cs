@@ -6,6 +6,7 @@ using Sisk.BuildColors.Localization;
 using Sisk.BuildColors.Net.Messages;
 using Sisk.BuildColors.Settings;
 using Sisk.BuildColors.Settings.Models;
+using Sisk.BuildColors.UI;
 using Sisk.Utils.CommandHandler;
 using Sisk.Utils.Localization.Extensions;
 using Sisk.Utils.Net;
@@ -26,6 +27,7 @@ namespace Sisk.BuildColors {
         private readonly CommandHandler _commandHandler = new CommandHandler(NAME);
         private readonly List<Vector3> _lastColorsSend = new List<Vector3>();
         private DateTime _lasTimeColorChecked = DateTime.UtcNow;
+        private BuildColorHUD _hud;
 
         /// <summary>
         ///     Creates a new instance of this component.
@@ -64,7 +66,10 @@ namespace Sisk.BuildColors {
         public static Mod Static { get; private set; }
 
         public override void Draw() {
-            UI.UI.Draw();
+            if (!MyAPIGateway.Utilities.IsDedicated) {
+                //UI.UI.Draw();
+                _hud.Draw();
+            }
         }
 
         /// <summary>
@@ -72,7 +77,11 @@ namespace Sisk.BuildColors {
         /// </summary>
         /// <param name="sessionComponent"></param>
         public override void Init(MyObjectBuilder_SessionComponent sessionComponent) {
-            UI.UI.Init();
+            if (!MyAPIGateway.Utilities.IsDedicated) {
+                //UI.UI.Init();
+                _hud = UI.BuildColorHUD.Instance;
+                _hud?.Init(NAME);
+            }
         }
 
         /// <summary>
