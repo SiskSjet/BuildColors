@@ -4,7 +4,7 @@ using VRageMath;
 namespace Sisk.BuildColors.UI {
     internal static class Style {
         public static readonly Color BodyBackgroundColor = new Color(37, 46, 53);
-        public static readonly Color BodyTextColor = new Color(232, 232, 232);
+        public static readonly Color BodyTextColor = new Color(242, 242, 242);
         public static readonly Color SelectionBackgroundColor = new Color(60, 76, 82);
         public static readonly Color SeparatorColor = new Color(77, 99, 113);
         public static readonly Color BorderColor = new Color(55, 66, 83);

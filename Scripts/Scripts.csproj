@@ -582,10 +582,9 @@
     <Compile Include="UI\BuildColorHUD.cs" />
     <Compile Include="UI\BuildColorMenu.cs" />
     <Compile Include="UI\BuildColorWindow.cs" />
-    <Compile Include="UI\ColorSetItemHudElement.cs" />
-    <Compile Include="UI\ColorSetHudElement.cs" />
+    <Compile Include="UI\BuildColorWindowOld.cs" />
+    <Compile Include="UI\ColorSetItemElement.cs" />
     <Compile Include="UI\Style.cs" />
-    <Compile Include="UI\UI.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Utils\CommandHandler\CommandHandler.csproj">
