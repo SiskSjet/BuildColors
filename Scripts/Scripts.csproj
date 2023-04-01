@@ -356,6 +356,9 @@
     <Compile Include="..\RichHudFramework\Shared\UI\HUD\HudElements\ClickableHudElements\Buttons\OnOffButton.cs">
       <Link>RichHudFramework\Shared\UI\HUD\HudElements\ClickableHudElements\Buttons\OnOffButton.cs</Link>
     </Compile>
+    <Compile Include="..\RichHudFramework\Shared\UI\HUD\HudElements\ClickableHudElements\ColorPickerHSV.cs">
+      <Link>RichHudFramework\Shared\UI\HUD\HudElements\ClickableHudElements\ColorPickerHSV.cs</Link>
+    </Compile>
     <Compile Include="..\RichHudFramework\Shared\UI\HUD\HudElements\ClickableHudElements\ColorPickerRGB.cs">
       <Link>RichHudFramework\Shared\UI\HUD\HudElements\ClickableHudElements\ColorPickerRGB.cs</Link>
     </Compile>
@@ -582,7 +585,6 @@
     <Compile Include="UI\BuildColorHUD.cs" />
     <Compile Include="UI\BuildColorMenu.cs" />
     <Compile Include="UI\BuildColorWindow.cs" />
-    <Compile Include="UI\BuildColorWindowOld.cs" />
     <Compile Include="UI\ColorSetItemElement.cs" />
     <Compile Include="UI\Style.cs" />
   </ItemGroup>

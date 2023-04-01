@@ -1,80 +1,62 @@
-﻿//using RichHudFramework.UI;
-//using RichHudFramework.UI.Rendering;
-//using Sisk.BuildColors.Settings.Models;
-//using VRage.Utils;
-//using VRageMath;
+﻿using RichHudFramework.UI;
+using RichHudFramework.UI.Rendering;
+using RichHudFramework.UI.Rendering.Client;
+using Sisk.BuildColors.Settings.Models;
+using VRageMath;
 
-//namespace Sisk.BuildColors.UI {
-//    public class ColorSetItemElement : HudElementBase {
-//        private readonly HudChain _layout;
-//        public ColorSetItemElement(ColorSet colorSet, HudParentBase parent = null) : base(parent) {
-//            var label = new Label {
-//                //DimAlignment = DimAlignments.Width,
-//                //ParentAlignment = ParentAlignments.Left | ParentAlignments.InnerH,
-//                Format = Style.BodyText,
-//                Text = colorSet.Name,
-//            };
+namespace Sisk.BuildColors.UI {
+    public class ColorSetItemElement : HudElementBase, IMinLabelElement {
+        private readonly ColorSet _colorSet;
 
-//            var material = new TexturedBox {
-//                Material = new Material(MyStringId.Get("Square"), new Vector2(1)),
-//                Width = 48,
-//                Height = 32
-//            };
+        public ColorSetItemElement(ColorSet colorSet, HudParentBase parent = null) : base(parent) {
+            _colorSet = colorSet;
 
-//            var rowOne = new HudChain(false) {
-//                Spacing = 3
-//            };
 
-//            var rowTwo = new HudChain(false) {
-//                Spacing = 3
-//            };
+            var title = new Label() {
+                Text = _colorSet.Name,
+                ParentAlignment = ParentAlignments.Left
+            };
+            var row1 = new HudChain(false) {
+                SizingMode = HudChainSizingModes.FitMembersOffAxis | HudChainSizingModes.ClampChainAlignAxis,
+                Height = 25
+            };
 
-//            for (var i = 0; i < colorSet.Colors.Length; i++) {
-//                var color = colorSet.Colors[i];
-//                var element = new TexturedBox {
-//                    Color = color,
+            var row2 = new HudChain(false) {
+                SizingMode = HudChainSizingModes.FitMembersOffAxis | HudChainSizingModes.ClampChainAlignAxis,
+                Height = 25
+            };
 
-//                    Width = 48,
-//                    Height = 32
-//                };
+            var vertical = new HudChain(true, this) {
+                SizingMode = HudChainSizingModes.FitMembersOffAxis | HudChainSizingModes.ClampChainAlignAxis,
+                DimAlignment = DimAlignments.Both,
+                ParentAlignment = ParentAlignments.Left | ParentAlignments.InnerH | ParentAlignments.UsePadding,
+                Padding = new Vector2(5),
+                CollectionContainer = { title, row1, row2 }
+            };
 
-//                if (i < 7) {
-//                    rowOne.Add(element);
-//                } else {
-//                    rowTwo.Add(element);
-//                }
-//            }
+            for (var i = 0; i < colorSet.Colors.Length; i++) {
+                var color = colorSet.Colors[i];
+                var element = new TexturedBox {
+                    Color = color,
+                    Padding = new Vector2(5),
+                };
 
-//            var verticalLayout = new HudChain(true) {
-//                ParentAlignment = ParentAlignments.Top | ParentAlignments.Inner,
-//                Size = new Vector2(425, 32),
-//                Spacing = 3,
+                if (i < 7) {
+                    row1.Add(element);
+                } else {
+                    row2.Add(element);
+                }
+            }
 
-//                CollectionContainer = {
-//                    rowOne,
-//                    rowTwo
-//                }
-//            };
+            DimAlignment = DimAlignments.Width;
+            ParentAlignment = ParentAlignments.Left | ParentAlignments.InnerH | ParentAlignments.UsePadding;
+            Height = 75;
 
-//            var horizontalLayout = new HudChain(false) {
-//                Spacing = 3,
-//                CollectionContainer = {
-//                    verticalLayout,
-//                    material
-//                }
-//            };
+            TextBoard = new TextBoard();
+        }
 
-//            _layout = new HudChain(true, this) {
-//                ParentAlignment = ParentAlignments.Top | ParentAlignments.Inner,
-//                Size = new Vector2(425, 68),
-//                Spacing = 3,
-//                MemberMinSize = new Vector2(425, 24f),
-//                SizingMode = HudChainSizingModes.ClampChainBoth,
-//                CollectionContainer = {
-//                    label,
-//                    horizontalLayout
-//                }
-//            };
-//        }
-//    }
-//}
+        public string ColorSet { get; set; }
+
+        public ITextBoard TextBoard { get; }
+    }
+}

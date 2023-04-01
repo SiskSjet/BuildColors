@@ -55,24 +55,35 @@ namespace Sisk.BuildColors.UI {
                 SizingMode = HudChainSizingModes.FitMembersOffAxis | HudChainSizingModes.ClampChainAlignAxis,
                 DimAlignment = DimAlignments.Width | DimAlignments.IgnorePadding,
                 Height = 400,
-                AlignVertical = true
+                AlignVertical = true,
             };
 
+            var colorSetListBox = new ListBox<ColorSet>();
+
             foreach (var colorSet in Mod.Static.ColorSets) {
-                colorSetScrollBox.Add(new ColorSetItemElement(colorSet) {
-                    DimAlignment = DimAlignments.Width,
-                    ParentAlignment = ParentAlignments.Left | ParentAlignments.InnerH | ParentAlignments.UsePadding,
-                    Height = 75
-                });
+                colorSetListBox.Add(colorSet.Name, colorSet);
+                colorSetScrollBox.Add(new ColorSetItemElement(colorSet));
             }
+
+            var loadButton = new BorderedButton() { Text = "Load", Padding = Vector2.Zero };
+            var renameButton = new BorderedButton() { Text = "Rename", Padding = Vector2.Zero };
+            var saveButton = new BorderedButton() { Text = "Save", Padding = Vector2.Zero };
+            var deleteButton = new BorderedButton() { Text = "Delete", Padding = Vector2.Zero };
+
+            var controls = new HudChain(false) {
+                SizingMode = HudChainSizingModes.FitMembersBoth | HudChainSizingModes.FitChainBoth,
+                CollectionContainer = { loadButton, renameButton, saveButton, deleteButton },
+                Spacing = 8f,
+            };
 
             _content = new HudChain(true, body) {
                 SizingMode = HudChainSizingModes.FitMembersOffAxis | HudChainSizingModes.ClampChainAlignAxis,
                 DimAlignment = DimAlignments.Both,
                 ParentAlignment = ParentAlignments.Left | ParentAlignments.InnerH | ParentAlignments.UsePadding,
                 Padding = new Vector2(63, 30),
-
-                CollectionContainer = { colorSetLabel, colorSetScrollBox, seperator }
+                Spacing = 8f,
+                Size = new Vector2(500, 1080),
+                CollectionContainer = { colorSetLabel, colorSetScrollBox, colorSetListBox, seperator, controls }
             };
 
             header.background.Color = Style.BodyBackgroundColor;
@@ -108,50 +119,5 @@ namespace Sisk.BuildColors.UI {
             BodyColor = BodyColor.SetAlphaPct(opacity);
             header.background.Color = BodyColor.SetAlphaPct(opacity);
         }
-    }
-
-    public class ColorSetItemElement : HudElementBase {
-        private readonly ColorSet _colorSet;
-        public ColorSetItemElement(ColorSet colorSet, HudParentBase parent = null) : base(parent) {
-            _colorSet = colorSet;
-
-            var title = new Label() {
-                Text = _colorSet.Name,
-                ParentAlignment = ParentAlignments.Left
-            };
-            var row1 = new HudChain(false) {
-                SizingMode = HudChainSizingModes.FitMembersOffAxis | HudChainSizingModes.ClampChainAlignAxis,
-                Height = 25
-            };
-
-            var row2 = new HudChain(false) {
-                SizingMode = HudChainSizingModes.FitMembersOffAxis | HudChainSizingModes.ClampChainAlignAxis,
-                Height = 25
-            };
-
-            var vertical = new HudChain(true, this) {
-                SizingMode = HudChainSizingModes.FitMembersOffAxis | HudChainSizingModes.ClampChainAlignAxis,
-                DimAlignment = DimAlignments.Both,
-                ParentAlignment = ParentAlignments.Left | ParentAlignments.InnerH | ParentAlignments.UsePadding,
-                Padding = new Vector2(5),
-                CollectionContainer = { title, row1, row2 }
-            };
-
-            for (var i = 0; i < colorSet.Colors.Length; i++) {
-                var color = colorSet.Colors[i];
-                var element = new TexturedBox {
-                    Color = color,
-                    Padding = new Vector2(5),
-                };
-
-                if (i < 7) {
-                    row1.Add(element);
-                } else {
-                    row2.Add(element);
-                }
-            }
-        }
-
-        public string ColorSet { get; set; }
     }
 }
