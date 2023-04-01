@@ -1,5 +1,6 @@
 ﻿using RichHudFramework;
 using RichHudFramework.UI;
+using RichHudFramework.UI.Client;
 using Sandbox.ModAPI;
 using Sisk.BuildColors.Settings.Models;
 using System;
@@ -69,16 +70,28 @@ namespace Sisk.BuildColors.UI {
                 Spacing = 10f,
             };
 
-            var _bodyLayout = new HudChain(true, body) {
+            var bodyLayout = new HudChain(true) {
                 ParentAlignment = ParentAlignments.Top | ParentAlignments.InnerV,
                 CollectionContainer = { headerSeperator, colorSetLabel, _preview, _colorSetList, controls },
                 Spacing = 10f,
             };
 
+            bodyLayout.Register(body);
+
             _colorSetList.SelectionChanged += OnColorSetChanged;
             _loadButton.MouseInput.LeftClicked += OnLoadClicked;
             _removeButton.MouseInput.LeftClicked += OnRemoveClicked;
+            saveButton.MouseInput.LeftClicked += OnSaveClicked;
             LoadColorSets();
+            OnColorSetChanged(null, null);
+        }
+
+        private void OnSaveClicked(object sender, EventArgs e) {
+            var window = new SaveWindow();
+            window.Register(HudMain.HighDpiRoot);
+            window.SaveClicked += (s, args) => {
+                LoadColorSets();
+            };
         }
 
         private void OnRemoveClicked(object sender, EventArgs e) {

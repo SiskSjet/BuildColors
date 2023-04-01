@@ -585,6 +585,7 @@
     <Compile Include="UI\BuildColorHUD.cs" />
     <Compile Include="UI\BuildColorWindow.cs" />
     <Compile Include="UI\ColorSetElement.cs" />
+    <Compile Include="UI\SaveWindow.cs" />
     <Compile Include="UI\Style.cs" />
   </ItemGroup>
   <ItemGroup>
