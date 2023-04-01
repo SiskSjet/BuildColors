@@ -2,16 +2,16 @@
 using RichHudFramework.UI.Rendering;
 using RichHudFramework.UI.Rendering.Client;
 using Sisk.BuildColors.Settings.Models;
+using System.Collections.Generic;
+using System.Xml.Linq;
 using VRageMath;
 
 namespace Sisk.BuildColors.UI {
-    public class ColorSetItemElement : HudElementBase, IMinLabelElement {
-        private readonly ColorSet _colorSet;
+    public class ColorSetElement : HudElementBase {
+        private ColorSet _colorSet;
+        private readonly List<TexturedBox> _textures = new List<TexturedBox>();
 
-        public ColorSetItemElement(ColorSet colorSet, HudParentBase parent = null) : base(parent) {
-            _colorSet = colorSet;
-
-
+        public ColorSetElement(HudParentBase parent = null) : base(parent) {
             var title = new Label() {
                 Text = _colorSet.Name,
                 ParentAlignment = ParentAlignments.Left
@@ -34,12 +34,13 @@ namespace Sisk.BuildColors.UI {
                 CollectionContainer = { title, row1, row2 }
             };
 
-            for (var i = 0; i < colorSet.Colors.Length; i++) {
-                var color = colorSet.Colors[i];
+            for (var i = 0; i < 14; i++) {
                 var element = new TexturedBox {
-                    Color = color,
+                    Color = VRageMath.Color.White,
                     Padding = new Vector2(5),
                 };
+
+                _textures.Add(element);
 
                 if (i < 7) {
                     row1.Add(element);
@@ -49,14 +50,20 @@ namespace Sisk.BuildColors.UI {
             }
 
             DimAlignment = DimAlignments.Width;
-            ParentAlignment = ParentAlignments.Left | ParentAlignments.InnerH | ParentAlignments.UsePadding;
             Height = 75;
-
-            TextBoard = new TextBoard();
         }
 
         public string ColorSet { get; set; }
+        public void SetColorSet(ColorSet colorSet) {
+            _colorSet = colorSet;
 
-        public ITextBoard TextBoard { get; }
+            if (colorSet.Equals(default(ColorSet))) {
+                return;
+            }
+
+            for (var i = 0; i < _textures.Count; i++) {
+                _textures[i].Color = colorSet.Colors[i];
+            }
+        }
     }
 }

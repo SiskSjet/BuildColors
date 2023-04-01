@@ -583,9 +583,8 @@
     <Compile Include="Settings\ModSettings.cs" />
     <Compile Include="Settings\Models\PlayerColors.cs" />
     <Compile Include="UI\BuildColorHUD.cs" />
-    <Compile Include="UI\BuildColorMenu.cs" />
     <Compile Include="UI\BuildColorWindow.cs" />
-    <Compile Include="UI\ColorSetItemElement.cs" />
+    <Compile Include="UI\ColorSetElement.cs" />
     <Compile Include="UI\Style.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -187,7 +187,7 @@ namespace Sisk.BuildColors {
         ///     Load build color set with given name.
         /// </summary>
         /// <param name="name">The name of the build color set.</param>
-        private void LoadColorSet(string name) {
+        public void LoadColorSet(string name) {
             var set = new ColorSet { Name = name };
             if (ColorSets.Contains(set)) {
                 set = ColorSets.First(x => StringComparer.InvariantCultureIgnoreCase.Equals(x.Name, name));
@@ -311,7 +311,7 @@ namespace Sisk.BuildColors {
         ///     Removes a Color Set with given name.
         /// </summary>
         /// <param name="name">The name of the color set.</param>
-        private void RemoveColorSet(string name) {
+        public void RemoveColorSet(string name) {
             var set = new ColorSet { Name = name };
             if (!ColorSets.Contains(set)) {
                 MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(ModText.BC_NoColorSetFound.GetString(), name));
@@ -328,7 +328,7 @@ namespace Sisk.BuildColors {
         ///     Saves or overrides a build color set with current build colors.
         /// </summary>
         /// <param name="name">The name of the build color set.</param>
-        private void SaveColorSet(string name) {
+        public void SaveColorSet(string name) {
             var set = new ColorSet { Name = name };
             if (ColorSets.Contains(set)) {
                 ColorSets.Remove(set);
