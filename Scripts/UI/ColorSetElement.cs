@@ -18,12 +18,12 @@ namespace Sisk.BuildColors.UI {
             };
             var row1 = new HudChain(false) {
                 SizingMode = HudChainSizingModes.FitMembersOffAxis | HudChainSizingModes.ClampChainAlignAxis,
-                Height = 25
+                Height = 40
             };
 
             var row2 = new HudChain(false) {
                 SizingMode = HudChainSizingModes.FitMembersOffAxis | HudChainSizingModes.ClampChainAlignAxis,
-                Height = 25
+                Height = 40
             };
 
             var vertical = new HudChain(true, this) {

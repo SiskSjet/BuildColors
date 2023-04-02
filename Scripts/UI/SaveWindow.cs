@@ -8,30 +8,40 @@ namespace Sisk.BuildColors.UI {
         private readonly TextField _text;
 
         public SaveWindow(HudParentBase parent = null) : base(parent) {
-            Size = new Vector2(400f, 200f);
             BodyColor = new Color(41, 54, 62, 150);
             BorderColor = new Color(58, 68, 77);
             AllowResizing = false;
+            Size = new Vector2(330, 150f);
+            Padding = new Vector2(10f, 10f);
             HeaderText = "Name your color set";
+            ZOffset = 0;
 
             _text = new TextField() {
                 Text = "",
+                Width = 310
             };
 
             var save = new BorderedButton() {
                 Text = "Save",
+                Padding = Vector2.Zero,
+                Width = 150
             };
 
             var cancel = new BorderedButton() {
                 Text = "Cancel",
+                Padding = Vector2.Zero,
+                Width = 150
             };
 
             var controls = new HudChain(false) {
+                DimAlignment = DimAlignments.Width,
                 CollectionContainer = { save, cancel },
                 Spacing = 8f,
             };
 
             var layout = new HudChain(true) {
+                ParentAlignment = ParentAlignments.Inner,
+                DimAlignment = DimAlignments.Width,
                 CollectionContainer = { _text, controls },
                 Spacing = 10f,
             };
