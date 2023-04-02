@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Sandbox.ModAPI;
 using Sisk.BuildColors.Localization;
-using Sisk.BuildColors.Net.Messages;
 using Sisk.BuildColors.Settings;
 using Sisk.BuildColors.Settings.Models;
 using Sisk.BuildColors.UI;
 using Sisk.Utils.CommandHandler;
 using Sisk.Utils.Localization.Extensions;
-using Sisk.Utils.Net;
 using VRage.Game;
 using VRage.Game.Components;
 using VRageMath;
@@ -52,11 +50,6 @@ namespace Sisk.BuildColors {
         private bool HasColorRequested { get; set; }
 
         /// <summary>
-        ///     Network to handle syncing.
-        /// </summary>
-        public Network Network { get; private set; }
-
-        /// <summary>
         ///     Mod settings
         /// </summary>
         public ModSettings Settings { get; private set; }
@@ -90,23 +83,8 @@ namespace Sisk.BuildColors {
         public override void LoadData() {
             CreateCommands();
 
-            if (MyAPIGateway.Multiplayer.MultiplayerActive) {
-                InitializeNetwork();
-
-                if (Network != null) {
-                    Network.Register<BuildColorMessage>(OnBuildColorsReceived);
-                    Network.Register<RequestBuildColors>(OnBuilderColorRequest);
-
-                    if (Network.IsServer) {
-                        LoadPlayerColors();
-
-                        if (Network.IsDedicated) {
-                            return;
-                        }
-                    }
-
-                    MyAPIGateway.Session.OnSessionReady += OnSessionReady;
-                }
+            if (MyAPIGateway.Utilities.IsDedicated) {
+                return;
             }
 
             LoadColorSets();
@@ -114,46 +92,10 @@ namespace Sisk.BuildColors {
         }
 
         /// <summary>
-        ///     Save mod settings.
-        /// </summary>
-        public override void SaveData() {
-            if (Network != null && Network.IsServer) {
-                SavePlayerColors();
-            }
-        }
-
-        /// <summary>
-        ///     Check for color changes if client and send them.
-        /// </summary>
-        public override void UpdateAfterSimulation() {
-            if (Network == null || !Network.IsClient) {
-                return;
-            }
-
-            var now = DateTime.UtcNow;
-            if (now - _lasTimeColorChecked > TimeSpan.FromSeconds(COLOR_CHECK_IN_SECONDS)) {
-                SendColors();
-                _lasTimeColorChecked = now;
-            }
-        }
-
-        /// <summary>
         ///     Unregister events and stuff like that.
         /// </summary>
         protected override void UnloadData() {
             MyAPIGateway.Utilities.MessageEntered -= OnMessageEntered;
-
-            if (Network != null) {
-                MyAPIGateway.Session.OnSessionReady -= OnSessionReady;
-                Network.Unregister<BuildColorMessage>(OnBuildColorsReceived);
-
-                if (Network.IsServer) {
-                    Network.Unregister<RequestBuildColors>(OnBuilderColorRequest);
-                }
-
-                Network.Close();
-                Network = null;
-            }
         }
 
         /// <summary>
@@ -166,13 +108,6 @@ namespace Sisk.BuildColors {
             _commandHandler.Register(new Command { Name = "Remove", Description = ModText.BC_Description_Remove.GetString(), Execute = RemoveColorSet });
             _commandHandler.Register(new Command { Name = "List", Description = ModText.BC_Description_List.GetString(), Execute = ListColorSets });
             _commandHandler.Register(new Command { Name = "Help", Description = ModText.BC_Description_Help.GetString(), Execute = _commandHandler.ShowHelp });
-        }
-
-        /// <summary>
-        ///     Initialize the network system.
-        /// </summary>
-        private void InitializeNetwork() {
-            Network = new Network(NETWORK_ID);
         }
 
         /// <summary>
@@ -249,62 +184,10 @@ namespace Sisk.BuildColors {
             Settings = settings;
         }
 
-        private void OnBuildColorsReceived(ulong sender, BuildColorMessage message) {
-            if (Network.IsClient) {
-                var player = MyAPIGateway.Session.LocalHumanPlayer;
-                if (player != null && player.SteamUserId == message.SteamId && message.BuildColors != null && message.BuildColors.Any()) {
-                    player.BuildColorSlots = message.BuildColors;
-                    _lastColorsSend.Clear();
-                    _lastColorsSend.AddRange(player.BuildColorSlots);
-                }
-            } else if (Network.IsServer) {
-                var playerColor = new PlayerColors { Id = message.SteamId, Colors = MyAPIGateway.Utilities.SerializeToBinary(message.BuildColors) };
-                if (Settings.Colors.Contains(playerColor)) {
-                    Settings.Colors.Remove(playerColor);
-                }
-
-                Settings.Colors.Add(playerColor);
-            }
-        }
-
-        private void OnBuilderColorRequest(ulong sender, RequestBuildColors message) {
-            var data = Settings.Colors.FirstOrDefault(x => x.Id == message.SteamId).Colors;
-            if (data == null) {
-                return;
-            }
-
-            try {
-                var colors = MyAPIGateway.Utilities.SerializeFromBinary<List<Vector3>>(data);
-                var response = new BuildColorMessage {
-                    BuildColors = colors,
-                    SteamId = message.SteamId
-                };
-
-                Network.Send(response, sender);
-            } catch (Exception exception) {
-                throw new Exception("Unable to create response.", exception);
-            }
-        }
-
         private void OnMessageEntered(string messagetext, ref bool sendtoothers) {
             if (_commandHandler.TryHandle(messagetext.Trim())) {
                 sendtoothers = false;
             }
-        }
-
-        private void OnSessionReady() {
-            MyAPIGateway.Session.OnSessionReady -= OnSessionReady;
-            if (!HasColorRequested) {
-                var player = MyAPIGateway.Session.LocalHumanPlayer;
-                if (player != null) {
-                    Network.SendToServer(new RequestBuildColors { SteamId = player.SteamUserId });
-
-                    HasColorRequested = true;
-                    _lasTimeColorChecked = DateTime.UtcNow;
-                }
-            }
-
-            SetUpdateOrder(MyUpdateOrder.AfterSimulation);
         }
 
         /// <summary>
@@ -356,30 +239,6 @@ namespace Sisk.BuildColors {
         private void SavePlayerColors() {
             using (var writer = MyAPIGateway.Utilities.WriteFileInWorldStorage(SETTINGS_FILE, typeof(Mod))) {
                 writer.Write(MyAPIGateway.Utilities.SerializeToXML(Settings));
-            }
-        }
-
-        /// <summary>
-        ///     Send colors to server if not default colors.
-        /// </summary>
-        private void SendColors() {
-            var player = MyAPIGateway.Session.LocalHumanPlayer;
-            if (player == null) {
-                return;
-            }
-
-            var colors = player.BuildColorSlots;
-            if (!colors.SequenceEqual(_lastColorsSend)) {
-                var message = new BuildColorMessage {
-                    BuildColors = colors,
-                    SteamId = player.SteamUserId
-                };
-
-                Network.SendToServer(message);
-
-                _lastColorsSend.Clear();
-                _lastColorsSend.AddRange(colors);
-                _lasTimeColorChecked = DateTime.UtcNow;
             }
         }
     }

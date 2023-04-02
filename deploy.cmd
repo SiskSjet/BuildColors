@@ -20,7 +20,7 @@ if defined beta (
 )
 
 set se_mods_dir=%appdata%\SpaceEngineers\Mods
-set se_mod_namespace=Sisk
+set se_mod_namespace=%mod_name%
 set se_mod_path=%se_mods_dir%\%mod_name%
 set se_mod_scripts=%se_mod_path%\Data\Scripts\%se_mod_namespace%
 

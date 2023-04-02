@@ -84,7 +84,7 @@ namespace Sisk.BuildColors.UI {
 
             var bodyLayout = new HudChain(true) {
                 ParentAlignment = ParentAlignments.Top | ParentAlignments.InnerV,
-                CollectionContainer = { headerSeperator, colorSetLabel, _preview, previewSeperator, _colorSetList, controls },
+                CollectionContainer = { headerSeperator, _preview, previewSeperator, colorSetLabel, _colorSetList, controls },
                 Spacing = 10f,
             };
 

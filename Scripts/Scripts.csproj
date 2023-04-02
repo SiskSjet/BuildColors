@@ -571,8 +571,6 @@
     </Compile>
     <Compile Include="Localization\ModText.cs" />
     <Compile Include="Mod.cs" />
-    <Compile Include="Net\Messages\BuildColorMessage.cs" />
-    <Compile Include="Net\Messages\RequestBuildColors.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Models\ColorSetComparer.cs" />
     <Compile Include="Settings\Models\Color.cs" />
@@ -596,10 +594,6 @@
     <ProjectReference Include="..\Utils\Localization\Localization.csproj">
       <Project>{DF40FBDA-5BB9-4DAF-A473-2D2F0A8AEFB5}</Project>
       <Name>Localization</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Utils\Net\Net.csproj">
-      <Project>{2285e3a1-63a2-4632-aa74-caa8dac96c71}</Project>
-      <Name>Net</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
