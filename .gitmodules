@@ -1,3 +1,6 @@
 [submodule "Utils"]
 	path = Utils
 	url = https://github.com/SiskSjet/SE_Mod_Utils
+[submodule "RichHudFramework"]
+	path = RichHudFramework
+	url = https://github.com/ZachHembree/RichHudFramework.Client
