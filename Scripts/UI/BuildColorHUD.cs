@@ -1,9 +1,6 @@
 ﻿using RichHudFramework.Client;
-using RichHudFramework.UI;
 using RichHudFramework.UI.Client;
 using Sandbox.ModAPI;
-using VRage.Game;
-using VRage.Game.Components;
 
 namespace Sisk.BuildColors.UI {
     public sealed class BuildColorHUD {

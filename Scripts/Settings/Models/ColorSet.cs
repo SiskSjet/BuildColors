@@ -1,6 +1,6 @@
-﻿using System;
+﻿using ProtoBuf;
+using System;
 using System.Xml.Serialization;
-using ProtoBuf;
 
 // ReSharper disable ExplicitCallerInfoArgument
 

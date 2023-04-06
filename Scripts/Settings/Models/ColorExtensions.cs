@@ -1,5 +1,4 @@
-﻿using System;
-using VRage.Game;
+﻿using VRage.Game;
 using VRageMath;
 
 // ReSharper disable CompareOfFloatsByEqualityOperator

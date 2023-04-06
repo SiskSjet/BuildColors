@@ -1,9 +1,9 @@
-﻿using RichHudFramework;
-using RichHudFramework.UI;
+﻿using RichHudFramework.UI;
 using System;
 using VRageMath;
 
 namespace Sisk.BuildColors.UI {
+
     public class SaveWindow : WindowBase {
         private readonly TextField _text;
 

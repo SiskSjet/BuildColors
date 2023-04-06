@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Sandbox.ModAPI;
 using Sisk.BuildColors.Localization;
 using Sisk.BuildColors.Settings;
@@ -8,6 +5,9 @@ using Sisk.BuildColors.Settings.Models;
 using Sisk.BuildColors.UI;
 using Sisk.Utils.CommandHandler;
 using Sisk.Utils.Localization.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using VRage.Game;
 using VRage.Game.Components;
 using VRageMath;
@@ -126,7 +126,7 @@ namespace Sisk.BuildColors {
             var set = new ColorSet { Name = name };
             if (ColorSets.Contains(set)) {
                 set = ColorSets.First(x => StringComparer.InvariantCultureIgnoreCase.Equals(x.Name, name));
-                MyAPIGateway.Session.LocalHumanPlayer.BuildColorSlots = set.Colors.Select(x => (Vector3) x).ToList();
+                MyAPIGateway.Session.LocalHumanPlayer.BuildColorSlots = set.Colors.Select(x => (Vector3)x).ToList();
             } else {
                 MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(ModText.BC_NoColorSetFound.GetString(), name));
             }
@@ -217,7 +217,7 @@ namespace Sisk.BuildColors {
                 ColorSets.Remove(set);
             }
 
-            set.Colors = MyAPIGateway.Session.LocalHumanPlayer.BuildColorSlots.Select(x => (Color) x).ToArray();
+            set.Colors = MyAPIGateway.Session.LocalHumanPlayer.BuildColorSlots.Select(x => (Color)x).ToArray();
             ColorSets.Add(set);
 
             SaveColorSets();

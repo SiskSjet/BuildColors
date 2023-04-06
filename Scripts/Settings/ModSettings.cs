@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Xml.Serialization;
-using ProtoBuf;
+﻿using ProtoBuf;
 using Sisk.BuildColors.Settings.Models;
+using System.Collections.Generic;
+using System.Xml.Serialization;
 
 // ReSharper disable ExplicitCallerInfoArgument
 

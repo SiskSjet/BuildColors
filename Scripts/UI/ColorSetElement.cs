@@ -1,15 +1,13 @@
 ﻿using RichHudFramework.UI;
-using RichHudFramework.UI.Rendering;
-using RichHudFramework.UI.Rendering.Client;
 using Sisk.BuildColors.Settings.Models;
 using System.Collections.Generic;
-using System.Xml.Linq;
 using VRageMath;
 
 namespace Sisk.BuildColors.UI {
+
     public class ColorSetElement : HudElementBase {
-        private ColorSet _colorSet;
         private readonly List<TexturedBox> _textures = new List<TexturedBox>();
+        private ColorSet _colorSet;
 
         public ColorSetElement(HudParentBase parent = null) : base(parent) {
             var title = new Label() {
@@ -26,13 +24,15 @@ namespace Sisk.BuildColors.UI {
                 Height = 40
             };
 
-            var vertical = new HudChain(true, this) {
+            var vertical = new HudChain(true) {
                 SizingMode = HudChainSizingModes.FitMembersOffAxis | HudChainSizingModes.ClampChainAlignAxis,
                 DimAlignment = DimAlignments.Both,
                 ParentAlignment = ParentAlignments.Left | ParentAlignments.InnerH | ParentAlignments.UsePadding,
                 Padding = new Vector2(5),
                 CollectionContainer = { title, row1, row2 }
             };
+
+            vertical.Register(this);
 
             for (var i = 0; i < 14; i++) {
                 var element = new TexturedBox {
@@ -54,6 +54,7 @@ namespace Sisk.BuildColors.UI {
         }
 
         public string ColorSet { get; set; }
+
         public void SetColorSet(ColorSet colorSet) {
             _colorSet = colorSet;
 
