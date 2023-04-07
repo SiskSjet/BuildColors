@@ -18,15 +18,11 @@ namespace Sisk.BuildColors {
     [MySessionComponentDescriptor(MyUpdateOrder.NoUpdate)]
     public class Mod : MySessionComponentBase {
         public const string NAME = "BuildColors";
-        private const int COLOR_CHECK_IN_SECONDS = 30;
         private const string COLOR_SETS_FILE = "ColorSets.xml";
-        private const ushort NETWORK_ID = 51500;
         private const string SETTINGS_FILE = "settings.xml";
 
         private readonly CommandHandler _commandHandler = new CommandHandler(NAME);
-        private readonly List<Vector3> _lastColorsSend = new List<Vector3>();
         private BuildColorHUD _hud;
-        private DateTime _lasTimeColorChecked = DateTime.UtcNow;
 
         /// <summary>
         ///     Creates a new instance of this component.
@@ -54,14 +50,8 @@ namespace Sisk.BuildColors {
         /// </summary>
         public ModSettings Settings { get; private set; }
 
-        /// <summary>
-        ///     Indicates if colors are requested.
-        /// </summary>
-        private bool HasColorRequested { get; set; }
-
         public override void Draw() {
             if (!MyAPIGateway.Utilities.IsDedicated) {
-                //UI.UI.Draw();
                 _hud.Draw();
             }
         }
@@ -72,8 +62,7 @@ namespace Sisk.BuildColors {
         /// <param name="sessionComponent"></param>
         public override void Init(MyObjectBuilder_SessionComponent sessionComponent) {
             if (!MyAPIGateway.Utilities.IsDedicated) {
-                //UI.UI.Init();
-                _hud = UI.BuildColorHUD.Instance;
+                _hud = BuildColorHUD.Instance;
                 _hud?.Init(NAME);
             }
         }
@@ -241,15 +230,6 @@ namespace Sisk.BuildColors {
         private void SaveColorSets() {
             using (var writer = MyAPIGateway.Utilities.WriteFileInGlobalStorage(COLOR_SETS_FILE)) {
                 writer.Write(MyAPIGateway.Utilities.SerializeToXML(ColorSets));
-            }
-        }
-
-        /// <summary>
-        ///     Save player colors.
-        /// </summary>
-        private void SavePlayerColors() {
-            using (var writer = MyAPIGateway.Utilities.WriteFileInWorldStorage(SETTINGS_FILE, typeof(Mod))) {
-                writer.Write(MyAPIGateway.Utilities.SerializeToXML(Settings));
             }
         }
     }
