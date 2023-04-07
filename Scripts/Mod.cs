@@ -154,8 +154,18 @@ namespace Sisk.BuildColors {
             _commandHandler.Register(new Command { Name = "Save", Description = ModText.BC_Description_Save.GetString(), Execute = SaveColorSet });
             _commandHandler.Register(new Command { Name = "Load", Description = ModText.BC_Description_Load.GetString(), Execute = LoadColorSet });
             _commandHandler.Register(new Command { Name = "Remove", Description = ModText.BC_Description_Remove.GetString(), Execute = RemoveColorSet });
+            _commandHandler.Register(new Command { Name = "Generate", Description = ModText.BC_Description_Generate.GetString(), Execute = GenerateColorSet });
             _commandHandler.Register(new Command { Name = "List", Description = ModText.BC_Description_List.GetString(), Execute = ListColorSets });
             _commandHandler.Register(new Command { Name = "Help", Description = ModText.BC_Description_Help.GetString(), Execute = _commandHandler.ShowHelp });
+        }
+
+        private void GenerateColorSet(string arguments) {
+            var generator = new ColorSchemeGenerator();
+            var colorSet = generator.Generate();
+
+            if (colorSet?.Length > 0) {
+                MyAPIGateway.Session.LocalHumanPlayer.BuildColorSlots = colorSet.Select(x => x.ToVector3()).ToList();
+            }
         }
 
         /// <summary>

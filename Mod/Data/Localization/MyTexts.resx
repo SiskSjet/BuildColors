@@ -124,4 +124,7 @@
   <data name="BC_ColorSetSaved" xml:space="preserve">
     <value>Color set '{0}' saved.</value>
   </data>
+  <data name="BC_Description_Generate" xml:space="preserve">
+    <value>Generate a color set.</value>
+  </data>
 </root>

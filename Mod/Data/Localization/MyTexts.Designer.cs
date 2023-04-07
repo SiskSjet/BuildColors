@@ -19,7 +19,7 @@ namespace Mod.Data.Localization {
     // -Klasse über ein Tool wie ResGen oder Visual Studio automatisch generiert.
     // Um einen Member hinzuzufügen oder zu entfernen, bearbeiten Sie die .ResX-Datei und führen dann ResGen
     // mit der /str-Option erneut aus, oder Sie erstellen Ihr VS-Projekt neu.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class MyTexts {
@@ -75,6 +75,15 @@ namespace Mod.Data.Localization {
         internal static string BC_ColorSetSaved {
             get {
                 return ResourceManager.GetString("BC_ColorSetSaved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Generate a color set. ähnelt.
+        /// </summary>
+        internal static string BC_Description_Generate {
+            get {
+                return ResourceManager.GetString("BC_Description_Generate", resourceCulture);
             }
         }
         
