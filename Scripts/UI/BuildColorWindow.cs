@@ -1,4 +1,4 @@
-﻿using RichHudFramework;
+using RichHudFramework;
 using RichHudFramework.UI;
 using RichHudFramework.UI.Client;
 using Sandbox.ModAPI;
@@ -338,7 +338,7 @@ namespace Sisk.BuildColors.UI {
                 var colorset = window.ColorSet;
                 colorset.Name = window.Name;
 
-                Mod.Static.ColorSets.Add(colorset);
+                Mod.Static.SaveColorSet(colorset);
                 LoadColorSets();
             };
         }
