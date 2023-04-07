@@ -6,12 +6,14 @@ using System.Xml.Serialization;
 // ReSharper disable ExplicitCallerInfoArgument
 
 namespace Sisk.BuildColors.Settings {
+
     [ProtoContract]
     [XmlRoot(nameof(ColorSets))]
     public class ColorSets : HashSet<ColorSet> {
         public const int VERSION = 1;
 
-        public ColorSets() : base(new ColorSetComparer()) { }
+        public ColorSets() : base(new ColorSetComparer()) {
+        }
 
         [ProtoMember(1)]
         [XmlElement(Order = 1)]

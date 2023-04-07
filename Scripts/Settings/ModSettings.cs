@@ -6,6 +6,7 @@ using System.Xml.Serialization;
 // ReSharper disable ExplicitCallerInfoArgument
 
 namespace Sisk.BuildColors.Settings {
+
     [ProtoContract]
     public class ModSettings {
         public const int VERSION = 1;

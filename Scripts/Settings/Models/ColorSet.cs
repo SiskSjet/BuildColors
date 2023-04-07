@@ -5,8 +5,10 @@ using System.Xml.Serialization;
 // ReSharper disable ExplicitCallerInfoArgument
 
 namespace Sisk.BuildColors.Settings.Models {
+
     [ProtoContract]
     public struct ColorSet : IEquatable<ColorSet>, IEquatable<string> {
+
         public ColorSet(string name, Color[] colors) {
             Name = name;
             Colors = colors;

@@ -5,7 +5,15 @@ using VRageMath;
 // ReSharper disable InconsistentNaming
 
 namespace Sisk.BuildColors.Settings.Models {
+
+    public struct HSL {
+        public double Hue { get; set; }
+        public double Lightness { get; set; }
+        public double Saturation { get; set; }
+    }
+
     public static class ColorExtensions {
+
         /// <summary>
         ///     Converts SE's color mask to hsv.
         /// </summary>
@@ -26,11 +34,5 @@ namespace Sisk.BuildColors.Settings.Models {
         public static Vector3 HSVToColorMask(this Vector3 hsv) {
             return new Vector3(MathHelper.Clamp(hsv.X, 0f, 1f), MathHelper.Clamp(hsv.Y - MyColorPickerConstants.SATURATION_DELTA, -1f, 1f), MathHelper.Clamp(hsv.Z - MyColorPickerConstants.VALUE_DELTA + MyColorPickerConstants.VALUE_COLORIZE_DELTA, -1f, 1f));
         }
-    }
-
-    public struct HSL {
-        public double Hue { get; set; }
-        public double Saturation { get; set; }
-        public double Lightness { get; set; }
     }
 }
