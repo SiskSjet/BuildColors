@@ -584,7 +584,7 @@
     <Compile Include="Settings\Models\PlayerColors.cs" />
     <Compile Include="UI\BuildColorHUD.cs" />
     <Compile Include="UI\BuildColorWindow.cs" />
-    <Compile Include="UI\ColorSetElement.cs" />
+    <Compile Include="UI\ColorsetElement.cs" />
     <Compile Include="UI\SaveWindow.cs" />
     <Compile Include="UI\Style.cs" />
     <Compile Include="Vector3Extensions.cs" />

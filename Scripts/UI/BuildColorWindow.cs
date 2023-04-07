@@ -11,11 +11,12 @@ namespace Sisk.BuildColors.UI {
 
     public class BuildColorWindow : WindowBase {
         private readonly ColorPickerHSV _baseColorPicker;
-        private readonly ListBox<ColorSet> _colorSetList;
-        private readonly ColorSetElement _colorSetPreview;
-        private readonly BorderedButton _loadButton;
+        private readonly ListBox<ColorSet> _colorsetList;
+        private readonly ColorSetElement _colorsetPreview;
+        private readonly BorderedButton _generateColorSchemeButton;
+        private readonly BorderedButton _loadColorsetButton;
         private readonly Dropdown<ColorSchemeGenerator.Preset> _presetDropdown;
-        private readonly BorderedButton _removeButton;
+        private readonly BorderedButton _removeColorsetButton;
         private readonly Dropdown<ColorSchemeGenerator.Scheme> _schemeDropdown;
         private readonly ColorSchemeGenerator _schemeGenerator;
         private readonly ColorSetElement _schemePreview;
@@ -43,99 +44,174 @@ namespace Sisk.BuildColors.UI {
                 Color = Style.SeparatorColor,
             };
 
-            var colorSetLabel = new Label() {
-                ParentAlignment = ParentAlignments.Left,
-                DimAlignment = DimAlignments.Width,
-                Text = "Color Sets",
-                Format = Style.HeaderText.WithAlignment(TextAlignment.Left),
-                //Padding = new Vector2(0, 10),
-            };
+            _colorsetPreview = new ColorSetElement();
 
-            _colorSetPreview = new ColorSetElement();
-
-            var previewSeperator = new TexturedBox() {
+            var colorsetListSeperator = new TexturedBox() {
                 DimAlignment = DimAlignments.Width,
                 Height = .75f,
                 Color = Style.SeparatorColor,
             };
 
-            _colorSetList = new ListBox<ColorSet>() {
+            var colorsetLabel = new Label() {
+                ParentAlignment = ParentAlignments.Left,
+                Text = "Color Sets",
+            };
+
+            _colorsetList = new ListBox<ColorSet>() {
                 DimAlignment = DimAlignments.Width,
             };
 
-            _loadButton = new BorderedButton() { Text = "Load", Padding = Vector2.Zero };
-            var saveButton = new BorderedButton() { Text = "Save", Padding = Vector2.Zero };
-            _removeButton = new BorderedButton() { Text = "Remove", Padding = Vector2.Zero };
+            _loadColorsetButton = new BorderedButton() {
+                Text = "Load",
+                Padding = Vector2.Zero
+            };
+            _removeColorsetButton = new BorderedButton() {
+                Text = "Remove",
+                Padding = Vector2.Zero
+            };
+            var saveActivColorsButton = new BorderedButton() {
+                ParentAlignment = ParentAlignments.Right,
+                Text = "Save (Color Picker)",
+                Padding = Vector2.Zero
+            };
 
             var buttonRow1 = new HudChain(false) {
-                CollectionContainer = { _loadButton, _removeButton },
+                CollectionContainer = { _loadColorsetButton, _removeColorsetButton },
                 Spacing = 8f,
             };
 
-            var buttonRow2 = new HudChain(false) {
-                CollectionContainer = { saveButton },
-                Spacing = 8f,
-            };
-
-            var buttonSeperator = new TexturedBox() {
+            var colorsetPreviewSeperator = new TexturedBox() {
                 DimAlignment = DimAlignments.Width,
                 Height = .75f,
                 Color = Style.SeparatorColor,
             };
 
-            var controls = new HudChain(true) {
-                CollectionContainer = { buttonRow1, buttonSeperator, buttonRow2 },
+            var colorsetControls = new HudChain(true) {
+                CollectionContainer = { buttonRow1, saveActivColorsButton },
                 Spacing = 10f,
             };
 
-            var schemeSeperator = new TexturedBox() {
+            var colorsetSeperator = new TexturedBox() {
                 DimAlignment = DimAlignments.Width,
                 Height = .75f,
                 Color = Style.SeparatorColor,
             };
 
+            var colorSchemeGeneratorLabel = new Label() {
+                ParentAlignment = ParentAlignments.Left,
+                Text = "Color Scheme Generator",
+            };
+
             var schemeLabel = new Label() {
+                ParentAlignment = ParentAlignments.Left,
                 Text = "Color Scheme",
             };
 
-            _schemeDropdown = new Dropdown<ColorSchemeGenerator.Scheme>();
+            _schemeDropdown = new Dropdown<ColorSchemeGenerator.Scheme>() {
+                ParentAlignment = ParentAlignments.Left,
+                Width = 220,
+            };
             foreach (var scheme in Enum.GetValues(typeof(ColorSchemeGenerator.Scheme)).Cast<ColorSchemeGenerator.Scheme>()) {
                 _schemeDropdown.Add(scheme.ToString(), scheme);
             }
 
             _schemeDropdown.SetSelection(ColorSchemeGenerator.Scheme.Complementary);
 
-            var schemeLayout = new HudChain(false) {
+            var schemeLayout = new HudChain(true) {
                 CollectionContainer = { schemeLabel, _schemeDropdown },
                 Spacing = 8f,
             };
 
             var presetLabel = new Label() {
+                ParentAlignment = ParentAlignments.Left,
                 Text = "Color Presets",
             };
 
-            _presetDropdown = new Dropdown<ColorSchemeGenerator.Preset>();
+            _presetDropdown = new Dropdown<ColorSchemeGenerator.Preset>() {
+                ParentAlignment = ParentAlignments.Left,
+                Width = 220,
+            };
             foreach (var preset in Enum.GetValues(typeof(ColorSchemeGenerator.Preset)).Cast<ColorSchemeGenerator.Preset>()) {
                 _presetDropdown.Add(preset.ToString(), preset);
             }
 
-            _presetDropdown.SetSelection(ColorSchemeGenerator.Preset.Default);
+            _presetDropdown.SetSelection(ColorSchemeGenerator.Preset.None);
 
-            var presetLayout = new HudChain(false) {
+            var presetLayout = new HudChain(true) {
                 CollectionContainer = { presetLabel, _presetDropdown },
                 Spacing = 8f,
             };
 
-            _baseColorPicker = new ColorPickerHSV() {
-                Name = "Base color",
+            var schemePresetLayout = new HudChain(false) {
+                CollectionContainer = { schemeLayout, presetLayout },
+                Spacing = 8f,
             };
 
-            var generateButton = new BorderedButton() { Text = "Generate", Padding = Vector2.Zero };
+            var randomColorLabel = new Label() {
+                ParentAlignment = ParentAlignments.Left,
+                Text = "Random base color"
+            };
+
+            var randomColorCheckbox = new BorderedCheckBox() {
+                ParentAlignment = ParentAlignments.Right,
+                IsBoxChecked = true,
+            };
+
+            var randomColorLayout = new HudChain(false) {
+                ParentAlignment = ParentAlignments.Left,
+                CollectionContainer = { randomColorLabel, randomColorCheckbox },
+                Spacing = 8f,
+            };
+
+            _baseColorPicker = new ColorPickerHSV() {
+                ParentAlignment = ParentAlignments.Left,
+                DimAlignment = DimAlignments.Width,
+                Name = "Base color",
+                Visible = false,
+            };
+
+            _generateColorSchemeButton = new BorderedButton() {
+                Text = "Generate",
+                Padding = Vector2.Zero
+            };
+
+            var saveGeneratedColorSchemeButton = new BorderedButton() {
+                Text = "Save",
+                Padding = Vector2.Zero
+            };
+
+            var generatorControls = new HudChain(false) {
+                CollectionContainer = { _generateColorSchemeButton, saveGeneratedColorSchemeButton },
+                Spacing = 8f,
+            };
+
+            var generatorOptionsSeperator = new TexturedBox() {
+                DimAlignment = DimAlignments.Width,
+                Height = .75f,
+                Color = Style.SeparatorColor,
+            };
+
+            var generatorControlsSeperator = new TexturedBox() {
+                DimAlignment = DimAlignments.Width,
+                Height = .75f,
+                Color = Style.SeparatorColor,
+            };
+
             _schemePreview = new ColorSetElement();
+
+            var colorsetLayout = new HudChain(true) {
+                CollectionContainer = { colorsetLabel, _colorsetList, colorsetListSeperator, _colorsetPreview, colorsetPreviewSeperator, colorsetControls },
+                Spacing = 10f,
+            };
+
+            var generatorLayout = new HudChain(true) {
+                CollectionContainer = { colorSchemeGeneratorLabel, schemePresetLayout, randomColorLayout, _baseColorPicker, generatorOptionsSeperator, generatorControls, generatorControlsSeperator, _schemePreview },
+                Spacing = 10f,
+            };
 
             var bodyLayout = new HudChain(true) {
                 ParentAlignment = ParentAlignments.Top | ParentAlignments.InnerV,
-                CollectionContainer = { headerSeperator, _colorSetPreview, previewSeperator, colorSetLabel, _colorSetList, controls, schemeSeperator, schemeLayout, presetLayout, _baseColorPicker, generateButton, _schemePreview },
+                CollectionContainer = { headerSeperator, colorsetLayout, colorsetSeperator, generatorLayout },
                 Spacing = 10f,
             };
 
@@ -143,21 +219,32 @@ namespace Sisk.BuildColors.UI {
 
             _schemeGenerator = new ColorSchemeGenerator();
 
-            _colorSetList.SelectionChanged += OnColorSetChanged;
-            _loadButton.MouseInput.LeftClicked += OnLoadClicked;
-            _removeButton.MouseInput.LeftClicked += OnRemoveClicked;
-            saveButton.MouseInput.LeftClicked += OnSaveClicked;
+            randomColorCheckbox.MouseInput.LeftClicked += OnRandomColorChanged;
+            foreach (var slider in _baseColorPicker.sliders) {
+                slider.MouseInput.LeftReleased += OnBaseColorChanged;
+            }
+
+            _colorsetList.SelectionChanged += OnColorSetChanged;
+            _loadColorsetButton.MouseInput.LeftClicked += OnLoadClicked;
+            _removeColorsetButton.MouseInput.LeftClicked += OnRemoveClicked;
+            saveActivColorsButton.MouseInput.LeftClicked += OnSaveActiveColorsClicked;
             _schemeDropdown.SelectionChanged += OnSchemeChanged;
             _presetDropdown.SelectionChanged += OnPresetChanged;
-            generateButton.MouseInput.LeftClicked += OnGenerateClicked;
+            _generateColorSchemeButton.MouseInput.LeftClicked += OnGenerateColorSchemeClicked;
+            saveGeneratedColorSchemeButton.MouseInput.LeftClicked += OnSaveGeneratedColorSchemeClicked;
+
+            GenerateColorSet();
             LoadColorSets();
-            OnColorSetChanged(null, null);
         }
 
         public void LoadColorSets() {
-            _colorSetList.ClearEntries();
+            _colorsetList.ClearEntries();
             foreach (var colorSet in Mod.Static.ColorSets) {
-                _colorSetList.Add(colorSet.Name, colorSet);
+                _colorsetList.Add(colorSet.Name, colorSet);
+            }
+
+            if (_colorsetList.Count > 0) {
+                _colorsetList.SetSelectionAt(0);
             }
         }
 
@@ -173,35 +260,43 @@ namespace Sisk.BuildColors.UI {
             var preset = _presetDropdown.Selection.AssocMember;
             var scheme = _schemeDropdown.Selection.AssocMember;
 
-            var result = reuseColor ? generator.Generate(baseColor: generator.BaseColor, preset: preset, scheme: scheme) : generator.Generate(preset: preset, scheme: scheme);
+            var useDefinedColor = _baseColorPicker.Visible;
+
+            var color = reuseColor ? generator.Generate(color: generator.BaseColor, preset: preset, scheme: scheme) : generator.Generate(preset: preset, scheme: scheme);
+            var result = useDefinedColor ? generator.Generate(color: new Vector3(_baseColorPicker.Color.X / 360, _baseColorPicker.Color.Y / 100, _baseColorPicker.Color.Z / 100).HSVtoColor(), preset: preset, scheme: scheme) : color;
+
+            var baseColor = generator.BaseColor.ColorToHSV();
+            _baseColorPicker.Color = new Vector3(baseColor.X * 360, baseColor.Y * 100, baseColor.Z * 100);
 
             // convert result to Color array.
             var colors = result.Select(x => (Settings.Models.Color)x).ToArray();
             var colorSet = new ColorSet("Generated", colors);
             _schemePreview.SetColorSet(colorSet);
-            //Mod.Static.ColorSets.Add(colorSet);
-            //LoadColorSets();
+        }
+
+        private void OnBaseColorChanged(object sender, EventArgs e) {
+            GenerateColorSet();
         }
 
         private void OnColorSetChanged(object sender, EventArgs e) {
-            if (_colorSetList.Selection != null) {
-                var selection = _colorSetList.Selection.AssocMember;
-                _colorSetPreview.SetColorSet(selection);
-                _loadButton.InputEnabled = true;
-                _removeButton.InputEnabled = true;
+            if (_colorsetList.Selection != null) {
+                var selection = _colorsetList.Selection.AssocMember;
+                _colorsetPreview.SetColorSet(selection);
+                _loadColorsetButton.InputEnabled = true;
+                _removeColorsetButton.InputEnabled = true;
             } else {
-                _loadButton.InputEnabled = false;
-                _removeButton.InputEnabled = false;
+                _loadColorsetButton.InputEnabled = false;
+                _removeColorsetButton.InputEnabled = false;
             }
         }
 
-        private void OnGenerateClicked(object sender, EventArgs e) {
+        private void OnGenerateColorSchemeClicked(object sender, EventArgs e) {
             GenerateColorSet();
         }
 
         private void OnLoadClicked(object sender, EventArgs e) {
-            if (_colorSetList.Selection != null) {
-                var selection = _colorSetList.Selection.AssocMember;
+            if (_colorsetList.Selection != null) {
+                var selection = _colorsetList.Selection.AssocMember;
                 Mod.Static.LoadColorSet(selection.Name);
             }
         }
@@ -210,18 +305,40 @@ namespace Sisk.BuildColors.UI {
             GenerateColorSet(true);
         }
 
+        private void OnRandomColorChanged(object sender, EventArgs e) {
+            var checkbox = sender as BorderedCheckBox;
+            if (checkbox != null) {
+                _baseColorPicker.Visible = !checkbox.IsBoxChecked;
+                _generateColorSchemeButton.Visible = checkbox.IsBoxChecked;
+            }
+        }
+
         private void OnRemoveClicked(object sender, EventArgs e) {
-            if (_colorSetList.Selection != null) {
-                var selection = _colorSetList.Selection.AssocMember;
+            if (_colorsetList.Selection != null) {
+                var selection = _colorsetList.Selection.AssocMember;
                 Mod.Static.RemoveColorSet(selection.Name);
                 LoadColorSets();
             }
         }
 
-        private void OnSaveClicked(object sender, EventArgs e) {
+        private void OnSaveActiveColorsClicked(object sender, EventArgs e) {
             var window = new SaveWindow();
             window.Register(HudMain.HighDpiRoot);
             window.SaveClicked += (s, args) => {
+                Mod.Static.SaveColorSet(window.Name);
+                LoadColorSets();
+            };
+        }
+
+        private void OnSaveGeneratedColorSchemeClicked(object sender, EventArgs e) {
+            var colorSet = _schemePreview.ColorSet;
+            var window = new SaveWindow(colorSet: colorSet);
+            window.Register(HudMain.HighDpiRoot);
+            window.SaveClicked += (s, args) => {
+                var colorset = window.ColorSet;
+                colorset.Name = window.Name;
+
+                Mod.Static.ColorSets.Add(colorset);
                 LoadColorSets();
             };
         }

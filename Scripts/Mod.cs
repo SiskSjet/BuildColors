@@ -14,6 +14,7 @@ using VRageMath;
 using Color = Sisk.BuildColors.Settings.Models.Color;
 
 namespace Sisk.BuildColors {
+
     [MySessionComponentDescriptor(MyUpdateOrder.NoUpdate)]
     public class Mod : MySessionComponentBase {
         public const string NAME = "BuildColors";
@@ -24,8 +25,8 @@ namespace Sisk.BuildColors {
 
         private readonly CommandHandler _commandHandler = new CommandHandler(NAME);
         private readonly List<Vector3> _lastColorsSend = new List<Vector3>();
-        private DateTime _lasTimeColorChecked = DateTime.UtcNow;
         private BuildColorHUD _hud;
+        private DateTime _lasTimeColorChecked = DateTime.UtcNow;
 
         /// <summary>
         ///     Creates a new instance of this component.
@@ -40,14 +41,13 @@ namespace Sisk.BuildColors {
         public static string Acronym => string.Concat(NAME.Where(char.IsUpper));
 
         /// <summary>
+        /// </summary>
+        public static Mod Static { get; private set; }
+
+        /// <summary>
         ///     Available color sets.
         /// </summary>
         public ColorSets ColorSets { get; private set; }
-
-        /// <summary>
-        ///     Indicates if colors are requested.
-        /// </summary>
-        private bool HasColorRequested { get; set; }
 
         /// <summary>
         ///     Mod settings
@@ -55,8 +55,9 @@ namespace Sisk.BuildColors {
         public ModSettings Settings { get; private set; }
 
         /// <summary>
+        ///     Indicates if colors are requested.
         /// </summary>
-        public static Mod Static { get; private set; }
+        private bool HasColorRequested { get; set; }
 
         public override void Draw() {
             if (!MyAPIGateway.Utilities.IsDedicated) {
@@ -78,6 +79,20 @@ namespace Sisk.BuildColors {
         }
 
         /// <summary>
+        ///     Load build color set with given name.
+        /// </summary>
+        /// <param name="name">The name of the build color set.</param>
+        public void LoadColorSet(string name) {
+            var set = new ColorSet { Name = name };
+            if (ColorSets.Contains(set)) {
+                set = ColorSets.First(x => StringComparer.InvariantCultureIgnoreCase.Equals(x.Name, name));
+                MyAPIGateway.Session.LocalHumanPlayer.BuildColorSlots = set.Colors.Select(x => (Vector3)x).ToList();
+            } else {
+                MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(ModText.BC_NoColorSetFound.GetString(), name));
+            }
+        }
+
+        /// <summary>
         ///     Load mod settings and create localizations.
         /// </summary>
         public override void LoadData() {
@@ -89,6 +104,50 @@ namespace Sisk.BuildColors {
 
             LoadColorSets();
             MyAPIGateway.Utilities.MessageEntered += OnMessageEntered;
+        }
+
+        /// <summary>
+        ///     Removes a Color Set with given name.
+        /// </summary>
+        /// <param name="name">The name of the color set.</param>
+        public void RemoveColorSet(string name) {
+            var set = new ColorSet { Name = name };
+            if (!ColorSets.Contains(set)) {
+                MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(ModText.BC_NoColorSetFound.GetString(), name));
+                return;
+            }
+
+            ColorSets.Remove(set);
+
+            SaveColorSets();
+            MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(ModText.BC_ColorSetRemoved.GetString(), name));
+        }
+
+        /// <summary>
+        ///     Saves or overrides a build color set with current build colors.
+        /// </summary>
+        /// <param name="name">The name of the build color set.</param>
+        public void SaveColorSet(string name) {
+            var set = new ColorSet { Name = name };
+            if (ColorSets.Contains(set)) {
+                ColorSets.Remove(set);
+            }
+
+            set.Colors = MyAPIGateway.Session.LocalHumanPlayer.BuildColorSlots.Select(x => (Color)x).ToArray();
+            ColorSets.Add(set);
+
+            SaveColorSets();
+            MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(ModText.BC_ColorSetSaved.GetString(), name));
+        }
+
+        public void SaveColorSet(ColorSet colorSet) {
+            if (ColorSets.Contains(colorSet)) {
+                ColorSets.Remove(colorSet);
+            }
+
+            ColorSets.Add(colorSet);
+            SaveColorSets();
+            MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(ModText.BC_ColorSetSaved.GetString(), colorSet.Name));
         }
 
         /// <summary>
@@ -116,20 +175,6 @@ namespace Sisk.BuildColors {
         /// <param name="arguments"></param>
         private void ListColorSets(string arguments) {
             MyAPIGateway.Utilities.ShowMessage(NAME, ColorSets.Any() ? string.Join(", ", ColorSets.Select(x => x.Name)) : ModText.BC_NoColorSetsAvailable.GetString());
-        }
-
-        /// <summary>
-        ///     Load build color set with given name.
-        /// </summary>
-        /// <param name="name">The name of the build color set.</param>
-        public void LoadColorSet(string name) {
-            var set = new ColorSet { Name = name };
-            if (ColorSets.Contains(set)) {
-                set = ColorSets.First(x => StringComparer.InvariantCultureIgnoreCase.Equals(x.Name, name));
-                MyAPIGateway.Session.LocalHumanPlayer.BuildColorSlots = set.Colors.Select(x => (Vector3)x).ToList();
-            } else {
-                MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(ModText.BC_NoColorSetFound.GetString(), name));
-            }
         }
 
         /// <summary>
@@ -188,40 +233,6 @@ namespace Sisk.BuildColors {
             if (_commandHandler.TryHandle(messagetext.Trim())) {
                 sendtoothers = false;
             }
-        }
-
-        /// <summary>
-        ///     Removes a Color Set with given name.
-        /// </summary>
-        /// <param name="name">The name of the color set.</param>
-        public void RemoveColorSet(string name) {
-            var set = new ColorSet { Name = name };
-            if (!ColorSets.Contains(set)) {
-                MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(ModText.BC_NoColorSetFound.GetString(), name));
-                return;
-            }
-
-            ColorSets.Remove(set);
-
-            SaveColorSets();
-            MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(ModText.BC_ColorSetRemoved.GetString(), name));
-        }
-
-        /// <summary>
-        ///     Saves or overrides a build color set with current build colors.
-        /// </summary>
-        /// <param name="name">The name of the build color set.</param>
-        public void SaveColorSet(string name) {
-            var set = new ColorSet { Name = name };
-            if (ColorSets.Contains(set)) {
-                ColorSets.Remove(set);
-            }
-
-            set.Colors = MyAPIGateway.Session.LocalHumanPlayer.BuildColorSlots.Select(x => (Color)x).ToArray();
-            ColorSets.Add(set);
-
-            SaveColorSets();
-            MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(ModText.BC_ColorSetSaved.GetString(), name));
         }
 
         /// <summary>

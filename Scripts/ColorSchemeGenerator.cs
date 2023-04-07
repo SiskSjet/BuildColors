@@ -19,7 +19,7 @@ namespace Sisk.BuildColors {
         private Color _baseColor;
 
         public enum Preset {
-            Random,
+            None,
             Pastel,
             Soft,
             Light,
@@ -42,7 +42,7 @@ namespace Sisk.BuildColors {
 
         public Color ConvertColor(Color color, Preset preset) {
             if (!Enum.IsDefined(typeof(Preset), preset)) {
-                preset = Preset.Random;
+                preset = Preset.None;
             }
 
             var baseSaturation = _presetDefaults[(int)preset, 0];
@@ -55,14 +55,16 @@ namespace Sisk.BuildColors {
             return ColorFromHSB(hue, saturation, brightness);
         }
 
-        public Color[] Generate(Color baseColor = default(Color), Scheme scheme = Scheme.Complementary, Preset preset = Preset.Random) {
+        public Color[] Generate(Color? color = null, Scheme scheme = Scheme.Complementary, Preset preset = Preset.None) {
             // generate a base color if not specified
-            if (baseColor == default(Color)) {
-                baseColor = GetRandomColor();
-            }
+            var baseColor = !color.HasValue ? GetRandomColor() : color.Value;
 
             _baseColor = baseColor;
             var adjustedColor = ConvertColor(baseColor, preset);
+
+            if (color.HasValue && preset == Preset.None) {
+                adjustedColor = baseColor;
+            }
 
             //return colors;
             switch (scheme) {

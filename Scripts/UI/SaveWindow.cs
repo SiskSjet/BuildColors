@@ -6,8 +6,13 @@ namespace Sisk.BuildColors.UI {
 
     public class SaveWindow : WindowBase {
         private readonly TextField _text;
+        private Settings.Models.ColorSet _colorset;
 
-        public SaveWindow(HudParentBase parent = null) : base(parent) {
+        public SaveWindow(HudParentBase parent = null, Settings.Models.ColorSet? colorSet = null) : base(parent) {
+            if (colorSet.HasValue) {
+                _colorset = colorSet.Value;
+            }
+
             BodyColor = new Color(41, 54, 62, 150);
             BorderColor = new Color(58, 68, 77);
             AllowResizing = false;
@@ -54,13 +59,19 @@ namespace Sisk.BuildColors.UI {
 
         public event RichHudFramework.EventHandler SaveClicked;
 
+        public Settings.Models.ColorSet ColorSet {
+            get { return _colorset; }
+        }
+
+        public string Name {
+            get { return _text.Text.ToString(); }
+        }
+
         private void OnCancelClicked(object sender, EventArgs e) {
             Unregister();
         }
 
         private void OnSaveClicked(object sender, EventArgs e) {
-            var name = _text.Text.ToString();
-            Mod.Static.SaveColorSet(name);
             Unregister();
             SaveClicked?.Invoke(this, e);
         }

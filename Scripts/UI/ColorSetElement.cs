@@ -53,7 +53,9 @@ namespace Sisk.BuildColors.UI {
             Height = 75;
         }
 
-        public string ColorSet { get; set; }
+        public ColorSet ColorSet {
+            get { return _colorSet; }
+        }
 
         public void SetColorSet(ColorSet colorSet) {
             _colorSet = colorSet;
