@@ -1,26 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
-using VRage.Library.Utils;
+using System.Linq;
 using VRageMath;
-using static Sisk.BuildColors.ColorSchemeGenerator;
 
 namespace Sisk.BuildColors {
 
     public class ColorSchemeGenerator {
 
-        private static readonly float[,] hsbRanges = {
-            { 0.2f, 0.7f, 0.5f, 0.8f }, // Pastel
-            { 0.1f, 0.4f, 0.5f, 0.8f }, // Soft
-            { 0.8f, 1f, 0.5f, 0.8f }, // Light
-            { 0.7f, 1f, 0.3f, 0.5f }, // Hard
-            { 0.1f, 0.3f, 0.6f, 0.9f }, // Pale
-            { 0.5f, 1f, 0.5f, 0.5f } // Default
+        private static readonly float[,] _presetDefaults = {
+            { -0.1f, -0.4f }, // Default
+            { 0.5f, 0.5f }, // Pastel
+            { 0.3f, 0.6f }, // Soft
+            { 0.5f, 0.75f }, // Light
+            { 1f, -0.8f }, // Hard
+            { 0.1f, 0.5f }, // Pale
         };
 
+        private readonly Random _random = new Random();
         private Color _baseColor;
 
         public enum Preset {
-            Default,
+            Random,
             Pastel,
             Soft,
             Light,
@@ -41,67 +40,46 @@ namespace Sisk.BuildColors {
             set { _baseColor = value; }
         }
 
-        public static Color ConvertColor(Color color, Preset preset) {
-            var random = new Random();
-            float hue, saturation, brightness;
+        public Color ConvertColor(Color color, Preset preset) {
+            if (!Enum.IsDefined(typeof(Preset), preset)) {
+                preset = Preset.Random;
+            }
 
-            ColorExtensions.RGBtoHSB(color.R, color.G, color.B, out hue, out saturation, out brightness);
-            saturation = random.Next((int)(hsbRanges[(int)preset, 0] * 100), (int)(hsbRanges[(int)preset, 1] * 100)) / 100f;
-            brightness = random.Next((int)(hsbRanges[(int)preset, 2] * 100), (int)(hsbRanges[(int)preset, 3] * 100f)) / 100f;
-            hue = (float)random.NextDouble();
+            var baseSaturation = _presetDefaults[(int)preset, 0];
+            var baseBrightness = _presetDefaults[(int)preset, 1];
+
+            var hue = color.GetHue();
+            var saturation = baseSaturation > 0 ? baseSaturation : _random.Next((int)(Math.Abs(baseSaturation) * 100), 100) / 100f;
+            var brightness = baseBrightness > 0 ? baseBrightness : _random.Next((int)(Math.Abs(baseBrightness) * 100), 100) / 100f;
+
             return ColorFromHSB(hue, saturation, brightness);
         }
 
-        public static Preset GetColorPreset(Color color) {
-            var random = new Random();
-            float hue, saturation, brightness;
-
-            ColorExtensions.RGBtoHSB(color.R, color.G, color.B, out hue, out saturation, out brightness);
-            var minDistance = float.MaxValue;
-            var closestPreset = Preset.Default;
-            for (var i = 0; i < Enum.GetValues(typeof(Preset)).Length; i++) {
-                var presetHue = (float)random.NextDouble();
-                var presetSaturation = (hsbRanges[i, 0] + hsbRanges[i, 1]) / 2f;
-                var presetBrightness = (hsbRanges[i, 2] + hsbRanges[i, 3]) / 2f;
-                var distance = (hue - presetHue) * (hue - presetHue) + (saturation - presetSaturation) * (saturation - presetSaturation) + (brightness - presetBrightness) * (brightness - presetBrightness);
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    closestPreset = (Preset)i;
-                }
-            }
-
-            return closestPreset;
-        }
-
-        public Color[] Generate(Color baseColor = default(Color), Scheme scheme = Scheme.Complementary, Preset preset = Preset.Default) {
+        public Color[] Generate(Color baseColor = default(Color), Scheme scheme = Scheme.Complementary, Preset preset = Preset.Random) {
             // generate a base color if not specified
             if (baseColor == default(Color)) {
                 baseColor = GetRandomColor();
-                _baseColor = baseColor;
-            } else {
-                var detectedPreset = GetColorPreset(baseColor);
-                if (detectedPreset != preset) {
-                    var adjustedBaseColor = ConvertColor(baseColor, preset);
-                    _baseColor = baseColor = adjustedBaseColor;
-                }
             }
+
+            _baseColor = baseColor;
+            var adjustedColor = ConvertColor(baseColor, preset);
 
             //return colors;
             switch (scheme) {
                 case Scheme.Analogous:
-                    return GenerateAnalogousScheme(baseColor);
+                    return GenerateAnalogousScheme(adjustedColor);
 
                 case Scheme.Complementary:
-                    return GenerateComplementaryScheme(baseColor);
+                    return GenerateComplementaryScheme(adjustedColor);
 
                 case Scheme.Monochromatic:
-                    return GenerateMonochromaticScheme(baseColor);
+                    return GenerateMonochromaticScheme(adjustedColor);
 
                 case Scheme.Tetradic:
-                    return GenerateTetradicScheme(baseColor);
+                    return GenerateTetradicScheme(adjustedColor);
 
                 case Scheme.Triadic:
-                    return GenerateTriadicScheme(baseColor);
+                    return GenerateTriadicScheme(adjustedColor);
 
                 default:
                     throw new Exception("Invalid scheme!");
@@ -111,12 +89,11 @@ namespace Sisk.BuildColors {
         public Color[] GenerateAnalogousScheme(Color baseColor) {
             var colors = new Color[14];
 
-            var analogousColors = GetAnalogousColors(baseColor, 5, 1.5f);
+            var analogousColors = GetAnalogousColors(baseColor, 7, 1.5f);
 
             Array.Copy(analogousColors, 0, colors, 0, analogousColors.Length);
-            Array.Copy(GetMonochromaticColors(analogousColors[1], 3, 0.2f), 0, colors, 5, 3);
-            Array.Copy(GetMonochromaticColors(analogousColors[2], 3, 0.2f), 0, colors, 8, 3);
-            Array.Copy(analogousColors, 1, colors, 11, 3);
+            var shades = analogousColors.Select(x => GetMonochromaticColors(x, 2, .4f)[1]).ToArray();
+            Array.Copy(shades, 0, colors, 7, shades.Length);
 
             return colors;
         }
@@ -285,34 +262,13 @@ namespace Sisk.BuildColors {
             return colors;
         }
 
-        private Color GetRandomColor(Preset preset = Preset.Default) {
+        private Color GetRandomColor() {
             var random = new Random();
 
-            float hue;
-            float saturation;
-            float brightness;
-
-            switch (preset) {
-                case Preset.Pastel:
-                case Preset.Soft:
-                case Preset.Light:
-                case Preset.Hard:
-                case Preset.Pale:
-
-                    // generate colors based on preset values
-                    hue = (float)random.NextDouble() * 360;
-                    saturation = random.Next((int)(hsbRanges[(int)preset, 0] * 100), (int)(hsbRanges[(int)preset, 1] * 100)) / 100f;
-                    brightness = random.Next((int)(hsbRanges[(int)preset, 2] * 100), (int)(hsbRanges[(int)preset, 3] * 100)) / 100f;
-
-                    break;
-
-                default:
-                    // generate random colors
-                    hue = (float)random.NextDouble() * 360;
-                    saturation = random.Next((int)(hsbRanges[(int)Preset.Default, 0] * 100), (int)(hsbRanges[(int)Preset.Default, 1] * 100)) / 100f;
-                    brightness = random.Next((int)(hsbRanges[(int)Preset.Default, 2] * 100), (int)(hsbRanges[(int)Preset.Default, 3] * 100)) / 100f;
-                    break;
-            }
+            // generate a random color
+            var hue = (float)random.NextDouble() * 360;
+            var saturation = (float)random.NextDouble();
+            var brightness = (float)random.NextDouble();
 
             return ColorFromHSB(hue, saturation, brightness);
         }
