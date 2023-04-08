@@ -176,20 +176,8 @@ namespace Sisk.BuildColors {
             MyAPIGateway.Utilities.ShowMessage(NAME, ColorSets.Any() ? string.Join(", ", ColorSets.Select(x => x.Name)) : ModText.BC_NoColorSetsAvailable.GetString());
         }
 
-        /// <summary>
-        ///     Load color sets.
-        /// </summary>
         private void LoadColorSets() {
-            ColorSets colorSets = null;
-            if (MyAPIGateway.Utilities.FileExistsInGlobalStorage(COLOR_SETS_FILE)) {
-                try {
-                    using (var reader = MyAPIGateway.Utilities.ReadFileInGlobalStorage(COLOR_SETS_FILE)) {
-                        colorSets = MyAPIGateway.Utilities.SerializeFromXML<ColorSets>(reader.ReadToEnd());
-                    }
-                } catch (Exception exception) {
-                    // ignored
-                }
-            }
+            var colorSets = FileHandler.LoadColorSets(COLOR_SETS_FILE);
 
             if (colorSets != null) {
                 if (colorSets.Version < ColorSets.VERSION) {
@@ -234,13 +222,8 @@ namespace Sisk.BuildColors {
             }
         }
 
-        /// <summary>
-        ///     Save color sets.
-        /// </summary>
         private void SaveColorSets() {
-            using (var writer = MyAPIGateway.Utilities.WriteFileInGlobalStorage(COLOR_SETS_FILE)) {
-                writer.Write(MyAPIGateway.Utilities.SerializeToXML(ColorSets));
-            }
+            FileHandler.SaveColorSets(COLOR_SETS_FILE, ColorSets);
         }
     }
 }
