@@ -45,11 +45,6 @@ namespace Sisk.BuildColors {
         /// </summary>
         public ColorSets ColorSets { get; private set; }
 
-        /// <summary>
-        ///     Mod settings
-        /// </summary>
-        public ModSettings Settings { get; private set; }
-
         public override void Draw() {
             if (!MyAPIGateway.Utilities.IsDedicated) {
                 _hud.Draw();
@@ -188,32 +183,6 @@ namespace Sisk.BuildColors {
             }
 
             ColorSets = colorSets;
-        }
-
-        /// <summary>
-        ///     Load player colors.
-        /// </summary>
-        private void LoadPlayerColors() {
-            ModSettings settings = null;
-            if (MyAPIGateway.Utilities.FileExistsInWorldStorage(SETTINGS_FILE, typeof(Mod))) {
-                try {
-                    using (var reader = MyAPIGateway.Utilities.ReadFileInWorldStorage(SETTINGS_FILE, typeof(Mod))) {
-                        settings = MyAPIGateway.Utilities.SerializeFromXML<ModSettings>(reader.ReadToEnd());
-                    }
-                } catch (Exception exception) {
-                    // ignored
-                }
-            }
-
-            if (settings != null) {
-                if (settings.Version < ColorSets.VERSION) {
-                    // todo: merge old and new color sets in future versions.
-                }
-            } else {
-                settings = new ModSettings();
-            }
-
-            Settings = settings;
         }
 
         private void OnMessageEntered(string messagetext, ref bool sendtoothers) {

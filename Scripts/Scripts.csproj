@@ -568,6 +568,7 @@
     </Compile>
     <Compile Include="ColorExtensions.cs" />
     <Compile Include="ColorSchemeGenerator.cs" />
+    <Compile Include="FileHandler.cs" />
     <Compile Include="Localization\ModText.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -576,9 +577,6 @@
     <Compile Include="Settings\Models\ColorExtensions.cs" />
     <Compile Include="Settings\Models\ColorSet.cs" />
     <Compile Include="Settings\ColorSets.cs" />
-    <Compile Include="Settings\Models\PlayerColorComparer.cs" />
-    <Compile Include="Settings\ModSettings.cs" />
-    <Compile Include="Settings\Models\PlayerColors.cs" />
     <Compile Include="UI\BuildColorHUD.cs" />
     <Compile Include="UI\BuildColorWindow.cs" />
     <Compile Include="UI\ColorsetElement.cs" />
