@@ -64,7 +64,7 @@ namespace Sisk.BuildColors.UI {
                 return;
             }
 
-            for (var i = 0; i < _textures.Count; i++) {
+            for (var i = 0; i < _textures.Count && i < colorSet.Colors.Length; i++) {
                 _textures[i].Color = colorSet.Colors[i];
             }
         }

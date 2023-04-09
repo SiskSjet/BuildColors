@@ -1,22 +1,30 @@
-﻿using System;
+﻿using Sisk.BuildColors.Settings.Models.ColorSpace;
+using System;
 using System.Linq;
+using VRage.Utils;
 using VRageMath;
 
 namespace Sisk.BuildColors {
 
     public class ColorSchemeGenerator {
 
-        private static readonly float[,] _presetDefaults = {
-            { -0.1f, -0.4f }, // Default
-            { 0.5f, 0.5f }, // Pastel
-            { 0.3f, 0.6f }, // Soft
-            { 0.5f, 0.75f }, // Light
-            { 1f, -0.8f }, // Hard
-            { 0.1f, 0.5f }, // Pale
+        private static readonly float[,] _presetRanges = {
+            { 0.0f, 1.0f, 0.0f, 1.0f, 0f, 360f }, // Default
+            { 0.2f, 0.4f, 0.8f, 0.9f, 0f, 360f }, // Pastel
+            { 0.3f, 0.6f, 0.6f, 0.8f, 0f, 360f }, // Soft
+            { 0.8f, 1.0f, 0.9f, 1.0f, 0f, 360f }, // Light
+            { 0.5f, 1.0f, 0.0f, 0.5f, 0f, 360f }, // Hard
+            { 0.5f, 0.7f, 0.9f, 1.0f, 0f, 360f }, // Pale
+            { 0.5f, 1.0f, 0.5f, 1.0f, 0f, 360f }, // Vibrant
+            { 0.0f, 0.3f, 0.3f, 0.6f, 0f, 60f }, // Muted
+            { 0.5f, 0.8f, 0.4f, 0.6f, 30f, 60f }, // Warm
+            { 0.2f, 0.5f, 0.4f, 0.7f, 180f, 270f }, // Cool
+            { 0.2f, 0.5f, 0.5f, 1.0f, 0f, 360f }, // Dark
+            { 0.5f, 1.0f, 0.8f, 1.0f, 0f, 360f } // Lighter
         };
 
         private readonly Random _random = new Random();
-        private Color _baseColor;
+        private HSL _baseColor;
 
         public enum Preset {
             None,
@@ -24,7 +32,13 @@ namespace Sisk.BuildColors {
             Soft,
             Light,
             Hard,
-            Pale
+            Pale,
+            Vibrant,
+            Muted,
+            Warm,
+            Cool,
+            Dark,
+            Lighter
         }
 
         public enum Scheme {
@@ -35,27 +49,257 @@ namespace Sisk.BuildColors {
             Triadic
         }
 
-        public Color BaseColor {
+        public HSL BaseColor {
             get { return _baseColor; }
             set { _baseColor = value; }
         }
 
-        public Color ConvertColor(Color color, Preset preset) {
+        public static RGB[] GenerateAnalogousScheme(RGB color, int numColors, float angle = 30f, float range = 0.1f) {
+            return GetAnalogousColors(color.ToHSL(), numColors, angle, range).Select(x => x.ToRGB()).ToArray();
+        }
+
+        public static HSL[] GenerateColorSet(HSL baseColor) {
+            const int totalColors = 14;
+            const int neutralColorsCount = 3;
+
+            var colors = new HSL[totalColors];
+
+            // Generate 4 monochromatic colors
+            var monocromatic = GetMonochromaticColors(baseColor, 4, .5f);
+            // Generate 3 neutral colors
+            var neutralColors = GenerateNeutralColors(baseColor, neutralColorsCount);
+
+            // Get the complementary color
+            var complementary = GetComplementaryColor(baseColor);
+            // Generate 2 monochromatic colors from complementary
+            var complementaryColors = GetMonochromaticColors(complementary, 2, .3f);
+
+            // Get split complementary colors from base color
+            var split = GetSplitComplementaryColors(baseColor).Skip(1).Take(2).ToArray();
+            var split2 = GetSplitComplementaryColors(complementary).Skip(1).Take(2).ToArray();
+
+            var index = 0;
+            Array.Copy(monocromatic, colors, monocromatic.Length);
+
+            index += monocromatic.Length;
+            Array.Copy(neutralColors, 0, colors, index, neutralColors.Length);
+
+            index += neutralColors.Length;
+            Array.Copy(complementaryColors, 0, colors, index, complementaryColors.Length);
+
+            index += complementaryColors.Length;
+            Array.Copy(split, 0, colors, index, split.Length);
+
+            index += split.Length;
+            Array.Copy(split2, 0, colors, index, split2.Length);
+
+            //// Generate a tetradic color scheme (4 colors)
+            //var tetradicColors = GetTetradicColors(baseColor);
+
+            //// Generate a complementary color scheme (2 colors)
+            //var complementaryColors = new[] { baseColor, GetComplementaryColor(baseColor) };
+
+            //// Combine tetradic and complementary color schemes
+            //Array.Copy(tetradicColors, colors, tetradicColors.Length);
+            //Array.Copy(complementaryColors, 0, colors, tetradicColors.Length, complementaryColors.Length);
+
+            //// Add the base color
+            //colors[tetradicColors.Length + complementaryColors.Length] = baseColor;
+
+            //// Add neutral colors to the color set
+            //Array.Copy(neutralColors, 0, colors, tetradicColors.Length + complementaryColors.Length + 1, neutralColors.Length);
+
+            //// Fill the remaining color slots with monochromatic colors
+            //var remainingColors = totalColors - (tetradicColors.Length + complementaryColors.Length + 1 + neutralColors.Length);
+            //var monochromaticColors = GetMonochromaticColors(baseColor, remainingColors);
+
+            //Array.Copy(monochromaticColors, 0, colors, tetradicColors.Length + complementaryColors.Length + 1 + neutralColors.Length, remainingColors);
+
+            return colors;
+        }
+
+        public static RGB[] GenerateMonochromaticScheme(RGB color, int numShades, float lightnessRange = 0.8f) {
+            return GetMonochromaticColors(color.ToHSL(), numShades, lightnessRange).Select(x => x.ToRGB()).ToArray();
+        }
+
+        public static HSL[] GenerateNeutralColors(HSL baseColor, int count) {
+            var neutralColors = new HSL[count];
+            float[] neutralLuminanceValues = { 0.15f, 0.5f, 0.85f };
+
+            for (var i = 0; i < count; i++) {
+                neutralColors[i] = new HSL(baseColor.H, 0, neutralLuminanceValues[i]);
+            }
+
+            return neutralColors;
+        }
+
+        public static HSL[] GetAnalogousColors(HSL color, int numColors, float angle = 30f, float range = 0.1f) {
+            // Get the base color values in HSL color space
+            var hue = color.H;
+            var saturation = color.S;
+            var lightness = color.L;
+
+            // Calculate the hue values for the other colors in the analogous scheme
+            var hues = new float[numColors];
+            hues[0] = hue;
+
+            for (var i = 1; i < numColors; i++) {
+                var angleIncrement = i * angle;
+                var hue1 = (hue + angleIncrement) % 360f;
+                var hue2 = (hue - angleIncrement + 360f) % 360f;
+                hues[i] = Math.Abs(hue1 - hue) < Math.Abs(hue2 - hue) ? hue1 : hue2;
+            }
+
+            // Create a new array to hold the generated colors
+            var colors = new HSL[numColors];
+
+            // Create the analogous colors
+            for (var i = 0; i < numColors; i++) {
+                var hueValue = hues[i];
+                var saturationValue = Math.Max(0, Math.Min(1, saturation + range * (float)Math.Cos(angle * i * Math.PI / 180)));
+                var lightnessValue = Math.Max(0, Math.Min(1, lightness + range * (float)Math.Sin(angle * i * Math.PI / 180)));
+                colors[i] = new HSL(hueValue, saturationValue, lightnessValue);
+            }
+
+            return colors;
+        }
+
+        public static HSL GetComplementaryColor(HSL color) {
+            // Get the base color values in HSL color space
+            var hue = color.H;
+            var saturation = color.S;
+            var lightness = color.L;
+
+            // Calculate the hue value for the complementary color
+            var hueComplementary = (hue + 180f) % 360f;
+
+            // Create the complementary color
+            return new HSL(hueComplementary, saturation, lightness);
+        }
+
+        public static HSL[] GetMonochromaticColors(HSL color, int numShades, float lightnessRange = 0.8f) {
+            // Get the base color values in HSL color space
+            var hue = color.H;
+            var saturation = color.S;
+            var lightness = color.L;
+
+            // Create a new array to hold the generated colors
+            var colors = new HSL[numShades];
+
+            // Determine the valid range of lightness values
+            var minLightness = Math.Max(0, lightness - (lightnessRange / 2));
+            var maxLightness = Math.Min(1, lightness + (lightnessRange / 2));
+            var lightnessStep = (maxLightness - minLightness) / (numShades - 1);
+
+            // Generate the shades
+            for (var i = 0; i < numShades; i++) {
+                var l = minLightness + i * lightnessStep;
+                colors[i] = new HSL(hue, saturation, l);
+            }
+
+            return colors;
+        }
+
+        public static HSL[] GetSplitComplementaryColors(HSL color, float angle = 150f, float range = 0.1f) {
+            // Get the base color values in HSL color space
+            var hue = color.H;
+            var saturation = color.S;
+            var lightness = color.L;
+
+            // Calculate the hue values for the other colors in the split complementary scheme
+            var hue1 = (hue + angle) % 360f;
+            var hue2 = (hue - angle + 360f) % 360f;
+
+            // Create a new array to hold the generated colors
+            var colors = new HSL[3];
+
+            // Create the split complementary colors
+            colors[0] = new HSL(hue, saturation, lightness);
+            colors[1] = new HSL(hue1, saturation, Math.Max(0, Math.Min(1, lightness + range)));
+            colors[2] = new HSL(hue2, saturation, Math.Max(0, Math.Min(1, lightness + range)));
+
+            return colors;
+        }
+
+        public static HSL[] GetTetradicColors(HSL color, float angle = 60f) {
+            // Get the base color values in HSL color space
+            var hue = color.H;
+            var saturation = color.S;
+            var lightness = color.L;
+
+            // Calculate the hue values for the other colors in the tetradic scheme
+            var hue1 = hue + angle;
+            var hue2 = hue + 180f;
+            var hue3 = hue1 + 180f;
+
+            // Normalize the hue values to be between 0 and 360
+            hue1 %= 360f;
+            hue2 %= 360f;
+            hue3 %= 360f;
+
+            // Create a new array to hold the generated colors
+            var colors = new HSL[4];
+
+            // Create the tetradic colors
+            colors[0] = new HSL(hue, saturation, lightness);
+            colors[1] = new HSL(hue1, saturation, lightness);
+            colors[2] = new HSL(hue2, saturation, lightness);
+            colors[3] = new HSL(hue3, saturation, lightness);
+
+            return colors;
+        }
+
+        public static HSL[] GetTriadicColors(HSL color, float angle = 60f) {
+            // Get the base color values in HSL color space
+            var hue = color.H;
+            var saturation = color.S;
+            var lightness = color.L;
+
+            // Calculate the hue values for the other colors in the triadic scheme
+
+            var complementary = (hue + 180f) % 360f;
+            var hue1 = complementary + angle;
+            var hue2 = complementary - angle;
+
+            // Normalize the hue values to be between 0 and 360
+            hue1 %= 360f;
+            hue2 %= 360f;
+
+            // Create a new array to hold the generated colors
+            var colors = new HSL[3];
+
+            // Create the triadic colors
+            colors[0] = new HSL(hue, saturation, lightness);
+            colors[1] = new HSL(hue1, saturation, lightness);
+            colors[2] = new HSL(hue2, saturation, lightness);
+
+            return colors;
+        }
+
+        public HSL ConvertColor(HSL color, Preset preset) {
             if (!Enum.IsDefined(typeof(Preset), preset)) {
                 preset = Preset.None;
             }
 
-            var baseSaturation = _presetDefaults[(int)preset, 0];
-            var baseBrightness = _presetDefaults[(int)preset, 1];
+            var minSaturation = _presetRanges[(int)preset, 0];
+            var maxSaturation = _presetRanges[(int)preset, 1];
+            var minLightness = _presetRanges[(int)preset, 2];
+            var maxLightness = _presetRanges[(int)preset, 3];
+            var minHue = _presetRanges[(int)preset, 4];
+            var maxHue = _presetRanges[(int)preset, 5];
 
-            var hue = color.GetHue();
-            var saturation = baseSaturation > 0 ? baseSaturation : _random.Next((int)(Math.Abs(baseSaturation) * 100), 100) / 100f;
-            var brightness = baseBrightness > 0 ? baseBrightness : _random.Next((int)(Math.Abs(baseBrightness) * 100), 100) / 100f;
+            var baseHue = color.H;
+            var baseSaturation = color.S;
+            var baseLightness = color.L;
 
-            return ColorFromHSB(hue, saturation, brightness);
+            var hue = (float)(minHue + (maxHue - minHue) * (baseHue / 360));
+            var saturation = (float)(minSaturation + (maxSaturation - minSaturation) * baseSaturation);
+            var lightness = (float)(minLightness + (maxLightness - minLightness) * baseLightness);
+
+            return new HSL(hue, saturation, lightness);
         }
 
-        public Color[] Generate(Color? color = null, Scheme scheme = Scheme.Complementary, Preset preset = Preset.None) {
+        public HSL[] Generate(HSL? color = null, Scheme scheme = Scheme.Complementary, Preset preset = Preset.None) {
             // generate a base color if not specified
             var baseColor = !color.HasValue ? GetRandomColor() : color.Value;
 
@@ -66,281 +310,83 @@ namespace Sisk.BuildColors {
                 adjustedColor = baseColor;
             }
 
+            HSL[] colors;
             //return colors;
             switch (scheme) {
                 case Scheme.Analogous:
-                    return GenerateAnalogousScheme(adjustedColor);
+                    colors = GenerateAnalogousScheme(adjustedColor);
+                    break;
 
                 case Scheme.Complementary:
-                    return GenerateComplementaryScheme(adjustedColor);
+                    colors = GenerateComplementaryScheme(adjustedColor);
+                    break;
 
                 case Scheme.Monochromatic:
-                    return GenerateMonochromaticScheme(adjustedColor);
+                    colors = GenerateMonochromaticScheme(adjustedColor);
+                    break;
 
                 case Scheme.Tetradic:
-                    return GenerateTetradicScheme(adjustedColor);
+                    colors = GenerateTetradicScheme(adjustedColor);
+                    break;
 
                 case Scheme.Triadic:
-                    return GenerateTriadicScheme(adjustedColor);
+                    colors = GenerateTriadicScheme(adjustedColor);
+                    break;
 
                 default:
                     throw new Exception("Invalid scheme!");
             }
-        }
 
-        public Color[] GenerateAnalogousScheme(Color baseColor) {
-            var colors = new Color[14];
+            colors = GenerateColorSet(baseColor);
 
-            var analogousColors = GetAnalogousColors(baseColor, 7, 1.5f);
-
-            Array.Copy(analogousColors, 0, colors, 0, analogousColors.Length);
-            var shades = analogousColors.Select(x => GetMonochromaticColors(x, 2, .4f)[1]).ToArray();
-            Array.Copy(shades, 0, colors, 7, shades.Length);
-
-            return colors;
-        }
-
-        public Color[] GenerateComplementaryScheme(Color baseColor) {
-            var colors = new Color[14];
-
-            colors[0] = baseColor;
-            var complementary = GetComplementaryColor(baseColor);
-            Array.Copy(GetMonochromaticColors(baseColor, 3, 0.2f), 0, colors, 1, 3);
-            Array.Copy(GetMonochromaticColors(complementary, 3, 0.2f), 0, colors, 4, 3);
-
-            // Generate split-complementary colors
-            var splitComp = GetSplitComplementaryColors(baseColor, 0.5f);
-            Array.Copy(GetMonochromaticColors(splitComp[0], 4, 0.2f), 0, colors, 7, 4);
-            Array.Copy(GetMonochromaticColors(splitComp[1], 4, 0.2f), 0, colors, 11, 2);
-            colors[13] = complementary;
-
-            return colors;
-        }
-
-        public Color[] GenerateMonochromaticScheme(Color baseColor) {
-            var colors = new Color[14];
-
-            colors[0] = baseColor;
-            Array.Copy(GetMonochromaticColors(baseColor, 5, 0.2f), 0, colors, 1, 5);
-
-            // Generate split-complementary colors
-            var splitComp = GetSplitComplementaryColors(baseColor, 0.5f);
-            Array.Copy(GetMonochromaticColors(splitComp[0], 4, 0.2f), 0, colors, 6, 4);
-            Array.Copy(GetMonochromaticColors(splitComp[1], 4, 0.2f), 0, colors, 10, 4);
-
-            return colors;
-        }
-
-        public Color[] GenerateTetradicScheme(Color baseColor) {
-            var colors = new Color[14];
-
-            var tetradic = GetTetradicColors(baseColor, 1);
-
-            colors[0] = baseColor;
-            Array.Copy(GetMonochromaticColors(baseColor, 3, 0.2f), 0, colors, 1, 3);
-            Array.Copy(GetMonochromaticColors(tetradic[0], 3, 0.2f), 0, colors, 4, 3);
-            Array.Copy(GetMonochromaticColors(tetradic[1], 3, 0.2f), 0, colors, 7, 3);
-            colors[10] = GetComplementaryColor(baseColor);
-            Array.Copy(GetMonochromaticColors(tetradic[2], 3, 0.2f), 0, colors, 11, 3);
-
-            return colors;
-        }
-
-        public Color[] GenerateTriadicScheme(Color baseColor) {
-            var colors = new Color[14];
-
-            var triadic = GetTriadicColors(baseColor, 1);
-
-            colors[0] = baseColor;
-            Array.Copy(GetMonochromaticColors(triadic[0], 4, 0.2f), 0, colors, 1, 4);
-            Array.Copy(GetMonochromaticColors(triadic[1], 4, 0.2f), 0, colors, 5, 4);
-            Array.Copy(GetAnalogousColors(triadic[0], 2, 0.5f), 0, colors, 9, 2);
-            Array.Copy(GetAnalogousColors(triadic[1], 2, -0.5f), 0, colors, 11, 2);
-            colors[13] = GetMonochromaticColors(GetComplementaryColor(baseColor), 1, 0.2f)[0];
-
-            return colors;
-        }
-
-        private static Color ColorFromHSB(float hue, float saturation, float brightness) {
-            var chroma = brightness * saturation;
-            var hue2 = hue / 60;
-            var x = chroma * (1 - Math.Abs(hue2 % 2 - 1));
-            float r1, g1, b1;
-
-            if (hue2 < 1) {
-                r1 = chroma;
-                g1 = x;
-                b1 = 0;
-            } else if (hue2 < 2) {
-                r1 = x;
-                g1 = chroma;
-                b1 = 0;
-            } else if (hue2 < 3) {
-                r1 = 0;
-                g1 = chroma;
-                b1 = x;
-            } else if (hue2 < 4) {
-                r1 = 0;
-                g1 = x;
-                b1 = chroma;
-            } else if (hue2 < 5) {
-                r1 = x;
-                g1 = 0;
-                b1 = chroma;
-            } else {
-                r1 = chroma;
-                g1 = 0;
-                b1 = x;
+            MyLog.Default.Warning("Before Generated colorset with sheme {0} preset {1} and adjustedColor {2}", scheme, preset, adjustedColor);
+            for (var i = 0; i < colors.Length; i++) {
+                MyLog.Default.Warning(colors[i].ToString());
+                colors[i] = ConvertColor(colors[i], preset);
             }
 
-            var m = brightness - chroma;
-            var r = (int)((r1 + m) * 255);
-            var g = (int)((g1 + m) * 255);
-            var b = (int)((b1 + m) * 255);
-
-            return new Color(r, g, b);
-        }
-
-        /// <summary>
-        /// Generates an array of Color objects with similar hue and saturation to the base color.
-        /// </summary>
-        /// <param name="baseColor">The base Color object to generate analogous colors from.</param>
-        /// <param name="colorCount">The number of analogous colors to generate.</param>
-        /// <param name="degreeFactor">An optional float value to adjust the degree of separation between each analogous color.</param>
-        /// <returns>An array of Color objects with similar hue and saturation to the base color.</returns>
-        private Color[] GetAnalogousColors(Color baseColor, int colorCount, float degreeFactor = 1) {
-            var colors = new Color[colorCount];
-
-            // generate colors with similar hue and saturation
-            var hue = baseColor.GetHue();
-            var saturation = baseColor.GetSaturation();
-            var brightness = baseColor.GetBrightness();
-
-            var degree = 30 * degreeFactor;
-
-            for (var i = 0; i < colorCount; i++) {
-                var offset = (i + 1) * degree;
-                var h = (hue + offset) % 360;
-                colors[i] = ColorFromHSB(h, saturation, brightness);
+            MyLog.Default.Warning("Generated colorset with sheme {0} preset {1} and adjustedColor {2}", scheme, preset, adjustedColor);
+            foreach (var item in colors) {
+                MyLog.Default.Warning(item.ToString());
             }
-
             return colors;
         }
 
-        /// <summary>
-        /// Generates a Color object that is complementary to the base color.
-        /// </summary>
-        /// <param name="baseColor">The base Color object to generate a complementary color from.</param>
-        /// <returns>A Color object that is complementary to the base color.</returns>
-        private Color GetComplementaryColor(Color baseColor) {
-            // generate complementary colors
-            var hue = baseColor.GetHue();
-            var saturation = baseColor.GetSaturation();
-            var brightness = baseColor.GetBrightness();
+        public HSL GetRandomColor() {
+            var random = _random;
 
-            return ColorFromHSB((hue + 180) % 360, saturation, brightness);
-        }
-
-        /// <summary>
-        /// Generates an array of Color objects with varying brightness levels based on the base color.
-        /// </summary>
-        /// <param name="baseColor">The base Color object to generate monochromatic colors from.</param>
-        /// <param name="colorCount">The number of monochromatic colors to generate.</param>
-        /// <param name="shadeFactor">An optional float value to adjust the brightness level of each color.</param>
-        /// <returns>An array of Color objects with varying brightness levels based on the base color.</returns>
-        private Color[] GetMonochromaticColors(Color baseColor, int colorCount, float shadeFactor = 0.3f) {
-            var colors = new Color[colorCount];
-
-            // generate shades or tints of the base color
-            var hue = baseColor.GetHue();
-            var saturation = baseColor.GetSaturation();
-            var brightness = baseColor.GetBrightness();
-
-            for (var i = 0; i < colorCount; i++) {
-                var b = Math.Max(0, Math.Min(1, brightness - i * shadeFactor));
-                colors[i] = ColorFromHSB(hue, saturation, b);
-            }
-
-            return colors;
-        }
-
-        private Color GetRandomColor() {
-            var random = new Random();
-
-            // generate a random color
-            var hue = (float)random.NextDouble() * 360;
+            // Generate random hue, saturation, and lightness values
+            var hue = random.Next(0, 360);
             var saturation = (float)random.NextDouble();
-            var brightness = (float)random.NextDouble();
+            var lightness = (float)random.NextDouble();
 
-            return ColorFromHSB(hue, saturation, brightness);
+            // Create and return the color
+            return new HSL(hue, saturation, lightness);
         }
 
-        /// <summary>
-        /// Generates an array of two Color objects that are split complementary to the base color.
-        /// </summary>
-        /// <param name="baseColor">The base Color object to generate split complementary colors from.</param>
-        /// <param name="distanceFactor">An optional float value to adjust the distance between each split complementary color.</param>
-        /// <returns>An array of two Color objects that are split complementary to the base color.</returns>
-        private Color[] GetSplitComplementaryColors(Color baseColor, float distanceFactor = 1) {
-            var colors = new Color[2];
+        private HSL[] GenerateAnalogousScheme(HSL color) {
+            return GetAnalogousColors(color, 14);
+        }
 
-            // generate split complementary colors
-            var hue = baseColor.GetHue();
-            var saturation = baseColor.GetSaturation();
-            var brightness = baseColor.GetBrightness();
+        private HSL[] GenerateComplementaryScheme(HSL color) {
+            var colors = new HSL[14];
 
-            var distance = 150 * distanceFactor;
-
-            colors[0] = ColorFromHSB((hue + 180 + distance) % 360, saturation, brightness);
-            colors[1] = ColorFromHSB((hue + 180 - distance) % 360, saturation, brightness);
+            colors[0] = color;
+            colors[1] = GetComplementaryColor(color);
 
             return colors;
         }
 
-        /// <summary>
-        /// Generates an array of three Color objects that are tetradic to the base color.
-        /// </summary>
-        /// <param name="baseColor">The base Color object to generate tetradic colors from.</param>
-        /// <param name="degreeFactor">An optional float value to adjust the angle between each tetradic color.</param>
-        /// <returns>An array of three Color objects that are tetradic to the base color.</returns>
-
-        private Color[] GetTetradicColors(Color baseColor, float degreeFactor = 1) {
-            var colors = new Color[3];
-
-            // generate tetradic colors
-            var hue = baseColor.GetHue();
-            var saturation = baseColor.GetSaturation();
-            var brightness = baseColor.GetBrightness();
-
-            var degree = 45 * degreeFactor;
-
-            colors[0] = ColorFromHSB((hue + degree) % 360, saturation, brightness);
-            colors[1] = ColorFromHSB((hue + 180) % 360, saturation, brightness);
-            colors[2] = ColorFromHSB((hue + 180 - degree) % 360, saturation, brightness);
-
-            return colors;
+        private HSL[] GenerateMonochromaticScheme(HSL color) {
+            return GetMonochromaticColors(color, 14);
         }
 
-        /// <summary>
-        /// Generates an array of two Color objects that are triadic to the base color.
-        /// </summary>
-        /// <param name="baseColor">The base Color object to generate triadic colors from.</param>
-        /// <param name="distanceFactor">An optional float value to adjust the distance between each triadic color.</param>
-        /// <returns>An array of two Color objects that are triadic to the base color.</returns>
-        private Color[] GetTriadicColors(Color baseColor, float distanceFactor = 1) {
-            var colors = new Color[2];
+        private HSL[] GenerateTetradicScheme(HSL color) {
+            return GetTetradicColors(color);
+        }
 
-            // generate triadic colors
-            var hue = baseColor.GetHue();
-            var saturation = baseColor.GetSaturation();
-            var brightness = baseColor.GetBrightness();
-
-            var distance = 60 * distanceFactor;
-
-            colors[0] = ColorFromHSB((hue + 180 - distance) % 360, saturation, brightness);
-            colors[1] = ColorFromHSB((hue + 180 + distance) % 360, saturation, brightness);
-
-            return colors;
+        private HSL[] GenerateTriadicScheme(HSL color) {
+            return GetTriadicColors(color);
         }
     }
 }

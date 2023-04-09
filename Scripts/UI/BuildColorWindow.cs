@@ -3,6 +3,7 @@ using RichHudFramework.UI;
 using RichHudFramework.UI.Client;
 using Sandbox.ModAPI;
 using Sisk.BuildColors.Settings.Models;
+using Sisk.BuildColors.Settings.Models.ColorSpace;
 using System;
 using System.Linq;
 using VRageMath;
@@ -262,11 +263,12 @@ namespace Sisk.BuildColors.UI {
 
             var useDefinedColor = _baseColorPicker.Visible;
 
-            var color = reuseColor ? generator.Generate(color: generator.BaseColor, preset: preset, scheme: scheme) : generator.Generate(preset: preset, scheme: scheme);
-            var result = useDefinedColor ? generator.Generate(color: new Vector3(_baseColorPicker.Color.X / 360, _baseColorPicker.Color.Y / 100, _baseColorPicker.Color.Z / 100).HSVtoColor(), preset: preset, scheme: scheme) : color;
+            var color = useDefinedColor ? new HSV(_baseColorPicker.Color.X, _baseColorPicker.Color.Y / 100f, _baseColorPicker.Color.Z / 100f).ToHSL() : reuseColor ? generator.BaseColor : (HSL?)null;
 
-            var baseColor = generator.BaseColor.ColorToHSV();
-            _baseColorPicker.Color = new Vector3(baseColor.X * 360, baseColor.Y * 100, baseColor.Z * 100);
+            var result = generator.Generate(color: color, preset: preset, scheme: scheme);
+
+            var baseColor = generator.BaseColor.ToHSV();
+            _baseColorPicker.Color = new Vector3(baseColor.H, baseColor.S * 100, baseColor.V * 100);
 
             // convert result to Color array.
             var colors = result.Select(x => (Settings.Models.Color)x).ToArray();

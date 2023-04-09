@@ -6,12 +6,6 @@ using VRageMath;
 
 namespace Sisk.BuildColors.Settings.Models {
 
-    public struct HSL {
-        public double Hue { get; set; }
-        public double Lightness { get; set; }
-        public double Saturation { get; set; }
-    }
-
     public static class ColorExtensions {
 
         /// <summary>
