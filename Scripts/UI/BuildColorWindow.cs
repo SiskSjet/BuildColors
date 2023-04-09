@@ -116,7 +116,7 @@ namespace Sisk.BuildColors.UI {
                 _schemeDropdown.Add(scheme.ToString(), scheme);
             }
 
-            _schemeDropdown.SetSelection(ColorSchemeGenerator.Scheme.Complementary);
+            _schemeDropdown.SetSelection(ColorSchemeGenerator.Scheme.Default);
 
             var schemeLayout = new HudChain(true) {
                 CollectionContainer = { schemeLabel, _schemeDropdown },

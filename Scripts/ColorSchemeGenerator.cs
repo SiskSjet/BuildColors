@@ -42,6 +42,7 @@ namespace Sisk.BuildColors {
         }
 
         public enum Scheme {
+            Default,
             Analogous,
             Complementary,
             Monochromatic,
@@ -54,20 +55,30 @@ namespace Sisk.BuildColors {
             set { _baseColor = value; }
         }
 
-        public static RGB[] GenerateAnalogousScheme(RGB color, int numColors, float angle = 30f, float range = 0.1f) {
-            return GetAnalogousColors(color.ToHSL(), numColors, angle, range).Select(x => x.ToRGB()).ToArray();
+        public static HSL[] GenerateAnalogousScheme(HSL color) {
+            return GetAnalogousColors(color, 14);
         }
 
-        public static HSL[] GenerateColorSet(HSL baseColor) {
-            const int totalColors = 14;
-            const int neutralColorsCount = 3;
+        public static HSL[] GenerateComplementaryScheme(HSL color) {
+            var colors = new HSL[14];
 
-            var colors = new HSL[totalColors];
+            var baseMono = GetMonochromaticColors(color, 7, .5f);
+            var complementary = GetComplementaryColor(color);
+            var compMono = GetNeutralColors(complementary, 7);
 
-            // Generate 4 monochromatic colors
+            var index = 0;
+            Array.Copy(baseMono, colors, baseMono.Length);
+            index += baseMono.Length;
+            Array.Copy(compMono, 0, colors, index, compMono.Length);
+
+            return colors;
+        }
+
+        public static HSL[] GenerateDefaultColorScheme(HSL baseColor) {
+            var colors = new HSL[14];
+
             var monocromatic = GetMonochromaticColors(baseColor, 4, .5f);
-            // Generate 3 neutral colors
-            var neutralColors = GenerateNeutralColors(baseColor, neutralColorsCount);
+            var neutralColors = GetNeutralColors(baseColor, 4);
 
             // Get the complementary color
             var complementary = GetComplementaryColor(baseColor);
@@ -93,44 +104,54 @@ namespace Sisk.BuildColors {
             index += split.Length;
             Array.Copy(split2, 0, colors, index, split2.Length);
 
-            //// Generate a tetradic color scheme (4 colors)
-            //var tetradicColors = GetTetradicColors(baseColor);
+            return colors;
+        }
 
-            //// Generate a complementary color scheme (2 colors)
-            //var complementaryColors = new[] { baseColor, GetComplementaryColor(baseColor) };
+        public static HSL[] GenerateMonochromaticScheme(HSL color) {
+            return GetMonochromaticColors(color, 14);
+        }
 
-            //// Combine tetradic and complementary color schemes
-            //Array.Copy(tetradicColors, colors, tetradicColors.Length);
-            //Array.Copy(complementaryColors, 0, colors, tetradicColors.Length, complementaryColors.Length);
+        public static HSL[] GenerateTetradicScheme(HSL color) {
+            var colors = new HSL[14];
 
-            //// Add the base color
-            //colors[tetradicColors.Length + complementaryColors.Length] = baseColor;
+            var tetradic = GetTetradicColors(color);
+            var monoBase = GetMonochromaticColors(tetradic[0], 4, .4f);
+            var monoComp = GetMonochromaticColors(tetradic[2], 4, .4f);
+            var mono3 = GetMonochromaticColors(tetradic[1], 3, .5f);
+            var mono4 = GetMonochromaticColors(tetradic[3], 3, .5f);
 
-            //// Add neutral colors to the color set
-            //Array.Copy(neutralColors, 0, colors, tetradicColors.Length + complementaryColors.Length + 1, neutralColors.Length);
+            var index = 0;
+            Array.Copy(monoBase, colors, monoBase.Length);
+            index += monoBase.Length;
 
-            //// Fill the remaining color slots with monochromatic colors
-            //var remainingColors = totalColors - (tetradicColors.Length + complementaryColors.Length + 1 + neutralColors.Length);
-            //var monochromaticColors = GetMonochromaticColors(baseColor, remainingColors);
+            Array.Copy(monoComp, 0, colors, index, monoComp.Length);
+            index += monoComp.Length;
 
-            //Array.Copy(monochromaticColors, 0, colors, tetradicColors.Length + complementaryColors.Length + 1 + neutralColors.Length, remainingColors);
+            Array.Copy(mono3, 0, colors, index, mono3.Length);
+            index += mono3.Length;
+
+            Array.Copy(mono4, 0, colors, index, mono4.Length);
 
             return colors;
         }
 
-        public static RGB[] GenerateMonochromaticScheme(RGB color, int numShades, float lightnessRange = 0.8f) {
-            return GetMonochromaticColors(color.ToHSL(), numShades, lightnessRange).Select(x => x.ToRGB()).ToArray();
-        }
+        public static HSL[] GenerateTriadicScheme(HSL color) {
+            var colors = new HSL[14];
+            var triadic = GetTriadicColors(color);
+            var monoBase = GetMonochromaticColors(triadic[0], 7, .6f);
+            var mono2 = GetMonochromaticColors(triadic[1], 4, .5f);
+            var mono3 = GetMonochromaticColors(triadic[2], 3, .5f);
 
-        public static HSL[] GenerateNeutralColors(HSL baseColor, int count) {
-            var neutralColors = new HSL[count];
-            float[] neutralLuminanceValues = { 0.15f, 0.5f, 0.85f };
+            var index = 0;
+            Array.Copy(monoBase, colors, monoBase.Length);
+            index += monoBase.Length;
 
-            for (var i = 0; i < count; i++) {
-                neutralColors[i] = new HSL(baseColor.H, 0, neutralLuminanceValues[i]);
-            }
+            Array.Copy(mono2, 0, colors, index, mono2.Length);
+            index += mono2.Length;
 
-            return neutralColors;
+            Array.Copy(mono3, 0, colors, index, mono3.Length);
+
+            return colors;
         }
 
         public static HSL[] GetAnalogousColors(HSL color, int numColors, float angle = 30f, float range = 0.1f) {
@@ -187,7 +208,7 @@ namespace Sisk.BuildColors {
             var colors = new HSL[numShades];
 
             // Determine the valid range of lightness values
-            var minLightness = Math.Max(0, lightness - (lightnessRange / 2));
+            var minLightness = Math.Max(0.1f, lightness - (lightnessRange / 2));
             var maxLightness = Math.Min(1, lightness + (lightnessRange / 2));
             var lightnessStep = (maxLightness - minLightness) / (numShades - 1);
 
@@ -195,6 +216,25 @@ namespace Sisk.BuildColors {
             for (var i = 0; i < numShades; i++) {
                 var l = minLightness + i * lightnessStep;
                 colors[i] = new HSL(hue, saturation, l);
+            }
+
+            return colors;
+        }
+
+        public static HSL[] GetNeutralColors(HSL baseColor, int numColors) {
+            var colors = new HSL[numColors];
+
+            // Determine the saturation and lightness steps
+            var saturationStep = baseColor.S / (numColors + 1);
+            var lightnessStep = (1 - baseColor.L) / (numColors + 1);
+
+            for (var i = 0; i < numColors; i++) {
+                // Calculate the saturation and lightness for the current neutral color
+                var saturation = baseColor.S - (i + 1) * saturationStep;
+                var lightness = baseColor.L + (i + 1) * lightnessStep;
+
+                // Create a neutral color with the calculated saturation and lightness
+                colors[i] = new HSL(baseColor.H, saturation, lightness);
             }
 
             return colors;
@@ -313,31 +353,33 @@ namespace Sisk.BuildColors {
             HSL[] colors;
             //return colors;
             switch (scheme) {
+                case Scheme.Default:
+                    colors = GenerateDefaultColorScheme(baseColor);
+                    break;
+
                 case Scheme.Analogous:
-                    colors = GenerateAnalogousScheme(adjustedColor);
+                    colors = GenerateAnalogousScheme(baseColor);
                     break;
 
                 case Scheme.Complementary:
-                    colors = GenerateComplementaryScheme(adjustedColor);
+                    colors = GenerateComplementaryScheme(baseColor);
                     break;
 
                 case Scheme.Monochromatic:
-                    colors = GenerateMonochromaticScheme(adjustedColor);
+                    colors = GenerateMonochromaticScheme(baseColor);
                     break;
 
                 case Scheme.Tetradic:
-                    colors = GenerateTetradicScheme(adjustedColor);
+                    colors = GenerateTetradicScheme(baseColor);
                     break;
 
                 case Scheme.Triadic:
-                    colors = GenerateTriadicScheme(adjustedColor);
+                    colors = GenerateTriadicScheme(baseColor);
                     break;
 
                 default:
                     throw new Exception("Invalid scheme!");
             }
-
-            colors = GenerateColorSet(baseColor);
 
             MyLog.Default.Warning("Before Generated colorset with sheme {0} preset {1} and adjustedColor {2}", scheme, preset, adjustedColor);
             for (var i = 0; i < colors.Length; i++) {
@@ -362,31 +404,6 @@ namespace Sisk.BuildColors {
 
             // Create and return the color
             return new HSL(hue, saturation, lightness);
-        }
-
-        private HSL[] GenerateAnalogousScheme(HSL color) {
-            return GetAnalogousColors(color, 14);
-        }
-
-        private HSL[] GenerateComplementaryScheme(HSL color) {
-            var colors = new HSL[14];
-
-            colors[0] = color;
-            colors[1] = GetComplementaryColor(color);
-
-            return colors;
-        }
-
-        private HSL[] GenerateMonochromaticScheme(HSL color) {
-            return GetMonochromaticColors(color, 14);
-        }
-
-        private HSL[] GenerateTetradicScheme(HSL color) {
-            return GetTetradicColors(color);
-        }
-
-        private HSL[] GenerateTriadicScheme(HSL color) {
-            return GetTriadicColors(color);
         }
     }
 }
