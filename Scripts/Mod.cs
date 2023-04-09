@@ -20,7 +20,6 @@ namespace Sisk.BuildColors {
     public class Mod : MySessionComponentBase {
         public const string NAME = "BuildColors";
         private const string COLOR_SETS_FILE = "ColorSets.xml";
-        private const string SETTINGS_FILE = "settings.xml";
 
         private readonly CommandHandler _commandHandler = new CommandHandler(NAME);
         private BuildColorHUD _hud;
