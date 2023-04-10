@@ -22,7 +22,7 @@ namespace Sisk.BuildColors {
         private const string COLOR_SETS_FILE = "ColorSets.xml";
 
         private readonly CommandHandler _commandHandler = new CommandHandler(NAME);
-        private BuildColorHUD _hud;
+        private BuildColorUI _hud;
 
         /// <summary>
         ///     Creates a new instance of this component.
@@ -57,7 +57,7 @@ namespace Sisk.BuildColors {
         /// <param name="sessionComponent"></param>
         public override void Init(MyObjectBuilder_SessionComponent sessionComponent) {
             if (!MyAPIGateway.Utilities.IsDedicated) {
-                _hud = BuildColorHUD.Instance;
+                _hud = new BuildColorUI();
                 _hud?.Init(NAME);
             }
         }

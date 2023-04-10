@@ -582,7 +582,7 @@
     <Compile Include="Settings\Models\ColorSpace\Lab.cs" />
     <Compile Include="Settings\Models\ColorSpace\RGB.cs" />
     <Compile Include="Settings\Models\ColorSpace\XYZ.cs" />
-    <Compile Include="UI\BuildColorHUD.cs" />
+    <Compile Include="UI\BuildColorUI.cs" />
     <Compile Include="UI\BuildColorWindow.cs" />
     <Compile Include="UI\ColorsetElement.cs" />
     <Compile Include="UI\SaveWindow.cs" />
