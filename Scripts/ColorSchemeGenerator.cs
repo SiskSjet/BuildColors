@@ -13,12 +13,12 @@ namespace Sisk.BuildColors {
             { 0.3f, 0.6f, 0.6f, 0.8f, 0f, 360f }, // Soft
             { 0.8f, 1.0f, 0.9f, 1.0f, 0f, 360f }, // Light
             { 0.5f, 1.0f, 0.0f, 0.5f, 0f, 360f }, // Hard
-            { 0.5f, 0.7f, 0.9f, 1.0f, 0f, 360f }, // Pale
+            { 0.5f, 0.7f, 0.6f, 0.8f, 0f, 360f }, // Pale
             { 0.5f, 1.0f, 0.5f, 1.0f, 0f, 360f }, // Vibrant
             { 0.0f, 0.3f, 0.3f, 0.6f, 0f, 60f }, // Muted
             { 0.5f, 0.8f, 0.4f, 0.6f, 30f, 60f }, // Warm
             { 0.2f, 0.5f, 0.4f, 0.7f, 180f, 270f }, // Cool
-            { 0.2f, 0.5f, 0.5f, 1.0f, 0f, 360f }, // Dark
+            { 0.2f, 0.5f, 0.05f, 0.5f, 0f, 360f }, // Dark
             { 0.5f, 1.0f, 0.8f, 1.0f, 0f, 360f } // Lighter
         };
 
@@ -353,43 +353,33 @@ namespace Sisk.BuildColors {
             //return colors;
             switch (scheme) {
                 case Scheme.Default:
-                    colors = GenerateDefaultColorScheme(baseColor);
+                    colors = GenerateDefaultColorScheme(adjustedColor);
                     break;
 
                 case Scheme.Analogous:
-                    colors = GenerateAnalogousScheme(baseColor);
+                    colors = GenerateAnalogousScheme(adjustedColor);
                     break;
 
                 case Scheme.Complementary:
-                    colors = GenerateComplementaryScheme(baseColor);
+                    colors = GenerateComplementaryScheme(adjustedColor);
                     break;
 
                 case Scheme.Monochromatic:
-                    colors = GenerateMonochromaticScheme(baseColor);
+                    colors = GenerateMonochromaticScheme(adjustedColor);
                     break;
 
                 case Scheme.Tetradic:
-                    colors = GenerateTetradicScheme(baseColor);
+                    colors = GenerateTetradicScheme(adjustedColor);
                     break;
 
                 case Scheme.Triadic:
-                    colors = GenerateTriadicScheme(baseColor);
+                    colors = GenerateTriadicScheme(adjustedColor);
                     break;
 
                 default:
                     throw new Exception("Invalid scheme!");
             }
 
-            MyLog.Default.Warning("Before Generated colorset with sheme {0} preset {1} and adjustedColor {2}", scheme, preset, adjustedColor);
-            for (var i = 0; i < colors.Length; i++) {
-                MyLog.Default.Warning(colors[i].ToString());
-                colors[i] = ConvertColor(colors[i], preset);
-            }
-
-            MyLog.Default.Warning("Generated colorset with sheme {0} preset {1} and adjustedColor {2}", scheme, preset, adjustedColor);
-            foreach (var item in colors) {
-                MyLog.Default.Warning(item.ToString());
-            }
             return colors;
         }
 
