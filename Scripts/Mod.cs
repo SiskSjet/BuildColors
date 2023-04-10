@@ -2,7 +2,6 @@ using Sandbox.ModAPI;
 using Sisk.BuildColors.Localization;
 using Sisk.BuildColors.Settings;
 using Sisk.BuildColors.Settings.Models;
-using Sisk.BuildColors.Settings.Models.ColorSpace;
 using Sisk.BuildColors.UI;
 using Sisk.Utils.CommandHandler;
 using Sisk.Utils.Localization.Extensions;

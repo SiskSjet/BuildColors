@@ -1,7 +1,6 @@
 ﻿using RichHudFramework.UI;
 using Sisk.BuildColors.Settings.Models;
 using System.Collections.Generic;
-using VRageMath;
 
 namespace Sisk.BuildColors.UI {
 

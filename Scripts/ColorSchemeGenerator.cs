@@ -2,7 +2,6 @@
 using System;
 using System.Linq;
 using VRage.Utils;
-using VRageMath;
 
 namespace Sisk.BuildColors {
 
