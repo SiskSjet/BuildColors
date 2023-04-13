@@ -1,3 +1,30 @@
+# [](https://github.com/SiskSjet/BuildColors/compare/v1.1.1...v) (2023-04-13)
+
+
+### Bug Fixes
+
+* fix a crash when enter a message shorter than command prefix ([13cf082](https://github.com/SiskSjet/BuildColors/commit/13cf0829fe3480d32a133de4057aa69816702861))
+* fix an issue which prevented a generated color set to save to file ([812eaa2](https://github.com/SiskSjet/BuildColors/commit/812eaa2d46661d0d4571ad953f33808ac78498a3))
+
+
+### Code Refactoring
+
+* remove network code ([359c660](https://github.com/SiskSjet/BuildColors/commit/359c66018ab43aa2bc820fbbff9a7b3d286b7998))
+
+
+### Features
+
+* add color set generator to ui ([475b189](https://github.com/SiskSjet/BuildColors/commit/475b189f8d543a5100fcd11834fb23c6412a65e4))
+* add save load and delete options to ui ([31a07ec](https://github.com/SiskSjet/BuildColors/commit/31a07ecda71a24b7fe1f861b89bc87db5754fdc7))
+* add simple console command to generate a color set ([667ec0a](https://github.com/SiskSjet/BuildColors/commit/667ec0a05ee45c8cb18f08c6b06d54cb71d008d1))
+
+
+### BREAKING CHANGES
+
+* player color will no longer get synchronized with the server
+
+
+
 # [1.1.2](https://github.com/SiskSjet/BuildColors/compare/v1.1.1...v1.1.2) (2019-02-25)
 
 
