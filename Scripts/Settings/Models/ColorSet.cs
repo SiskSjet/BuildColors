@@ -1,12 +1,14 @@
-﻿using System;
+﻿using ProtoBuf;
+using System;
 using System.Xml.Serialization;
-using ProtoBuf;
 
 // ReSharper disable ExplicitCallerInfoArgument
 
 namespace Sisk.BuildColors.Settings.Models {
+
     [ProtoContract]
     public struct ColorSet : IEquatable<ColorSet>, IEquatable<string> {
+
         public ColorSet(string name, Color[] colors) {
             Name = name;
             Colors = colors;

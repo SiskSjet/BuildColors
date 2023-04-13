@@ -1,20 +1,18 @@
-\.git
-\.vs
+.git/
+.vs/
 
-\bin
-\obj
-\Properties
-\packages
+beta/
+dev/
 
-\Logging
-\Profiler
-\TerminalControls
+bin/
+obj/
+Properties/
+packages/
 
-.csproj
-.git
-.sln
+
+*.csproj
+*.git
+*.sln
+*.gitignore
 
 App.config
-
-\Logging
-\Profiler

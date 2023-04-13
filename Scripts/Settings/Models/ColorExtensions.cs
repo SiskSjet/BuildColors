@@ -5,7 +5,9 @@ using VRageMath;
 // ReSharper disable InconsistentNaming
 
 namespace Sisk.BuildColors.Settings.Models {
+
     public static class ColorExtensions {
+
         /// <summary>
         ///     Converts SE's color mask to hsv.
         /// </summary>
