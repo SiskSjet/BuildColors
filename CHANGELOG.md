@@ -1,9 +1,8 @@
-# [](https://github.com/SiskSjet/BuildColors/compare/v1.1.1...v) (2023-04-13)
+# [2.0.0](https://github.com/SiskSjet/BuildColors/compare/v1.1.1...v2.0.0) (2023-04-13)
 
 
 ### Bug Fixes
 
-* fix a crash when enter a message shorter than command prefix ([13cf082](https://github.com/SiskSjet/BuildColors/commit/13cf0829fe3480d32a133de4057aa69816702861))
 * fix an issue which prevented a generated color set to save to file ([812eaa2](https://github.com/SiskSjet/BuildColors/commit/812eaa2d46661d0d4571ad953f33808ac78498a3))
 
 

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -42,9 +42,6 @@
     </Reference>
     <Reference Include="Sandbox.Graphics">
       <HintPath>C:\Spiele\Steam\steamapps\common\SpaceEngineers\Bin64\Sandbox.Graphics.dll</HintPath>
-    </Reference>
-    <Reference Include="Sandbox.RenderDirect">
-      <HintPath>C:\Spiele\Steam\steamapps\common\SpaceEngineers\Bin64\Sandbox.RenderDirect.dll</HintPath>
     </Reference>
     <Reference Include="SpaceEngineers.Game">
       <HintPath>C:\Spiele\Steam\steamapps\common\SpaceEngineers\Bin64\SpaceEngineers.Game.dll</HintPath>
@@ -92,9 +89,6 @@
     </Reference>
     <Reference Include="VRage.Scripting">
       <HintPath>C:\Spiele\Steam\steamapps\common\SpaceEngineers\Bin64\VRage.Scripting.dll</HintPath>
-    </Reference>
-    <Reference Include="VRage.Steam">
-      <HintPath>C:\Spiele\Steam\steamapps\common\SpaceEngineers\Bin64\VRage.Steam.dll</HintPath>
     </Reference>
     <Reference Include="VRage.XmlSerializers">
       <HintPath>C:\Spiele\Steam\steamapps\common\SpaceEngineers\Bin64\VRage.XmlSerializers.dll</HintPath>

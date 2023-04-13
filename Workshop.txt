@@ -1,7 +1,4 @@
-﻿[h1][b]➤⠀I⠀N⠀F⠀O[/b][/H1]
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
-This mod will restore your color palette in multiplayer and allow to create build color sets.
-Color sets are stored locally and can also be used in single-player mode.
+﻿This mod allows you to create customized color sets for building, which can then be easily imported into another world.
 
 [h1][b]➤⠀C⠀O⠀L⠀O R⠀⠀⠀S⠀E⠀T⠀S[/b][/H1]
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
@@ -32,6 +29,11 @@ To save or load a color set you have to type the listed commands below in your c
 	[td]Removes a Color Set with given name.[/td]
 [/tr]
 [tr]
+	[td]generate[/td]
+	[td][/td]
+	[td]generates a random color set. It is not saved, only the color palette is changed[/td]
+[/tr]
+[tr]
 	[td]list[/td]
 	[td][/td]
 	[td]Lists all available color sets.[/td]
@@ -46,12 +48,13 @@ To save or load a color set you have to type the listed commands below in your c
 [h1][b]➤⠀C⠀O⠀N⠀F⠀I⠀G⠀S[/b][/H1]
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
 This mod can create two config files.
-For servers a settings.xml file is created in your world storage.
+[OLD can be removed] [strike]For servers a settings.xml file is created in your world storage.[/strike]
 Color sets are saved in ColorSets.xml in your global storage:
 "%appdata%\SpaceEngineers\Storage\ColorSets.xml"
 
 [h1][b]➤⠀C⠀R⠀E⠀D⠀I⠀T⠀S[/b][/H1]
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
+Thanks [url=https://steamcommunity.com/id/zigglegarf] Dark Helmet [/url] for the awesome UI library: [url=https://steamcommunity.com/workshop/filedetails/?id=1965654081] Rich HUD Master [/url] 
 Icons used in my mod:
 [url=https://fontawesome.com/icons/palette?style=solid] palette [/url] icon by [url=https://fontawesome.com] Font Awesome [/url] is licensed under [url=https://fontawesome.com/license/free] CC BY 4.0 [/url]
 
@@ -69,10 +72,7 @@ If you think some features are missing, try to ask first
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-[h1][b]➤⠀I⠀N⠀F⠀O[/b][/H1]
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
-Diese Mod stellt deine Farbpalette im Multiplayer wieder her und erlaubt das Erstellen von Color Sets.
-Color Sets werden lokal gespeichert und können auch im Singleplayer verwendet werden.
+Mithilfe dieses Mods können individuelle Farbsätze zum Bauen erstellt werden, die sich problemlos in andere Welten importieren lassen.
 
 [h1][b]➤⠀C⠀O⠀L⠀O R⠀⠀⠀S⠀E⠀T⠀S[/b][/H1]
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
@@ -103,6 +103,11 @@ Um einen Color Set zu speichern oder zu laden, müssen Sie die folgenden Befehle
 	[td]Entfernt ein Color Set mit dem angegebenen Namen.[/td]
 [/tr]
 [tr]
+	[td]generate[/td]
+	[td][/td]
+	[td]Generiert einen zufälligen Farbsatz. Dieser wird nicht gespeichert, sondern nur die Farbpalette geändert.[/td]
+[/tr]
+[tr]
 	[td]list[/td]
 	[td][/td]
 	[td]Listet alle verfügbaren Color Sets auf.[/td]
@@ -117,12 +122,13 @@ Um einen Color Set zu speichern oder zu laden, müssen Sie die folgenden Befehle
 [h1][b]➤⠀C⠀O⠀N⠀F⠀I⠀G⠀S[/b][/H1]
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
 Diese Mod kann zwei Konfigurationsdateien erstellen.
-Für Server wird eine settings.xml-Datei in eurem World Storage erstellt.
+[ALT kann entfernt werden] [strike]Für Server wird eine settings.xml-Datei in eurem World Storage erstellt.[/strike]
 Color Sets werden in ColorSets.xml in Ihrem globalen Speicher gespeichert:
 "%appdata%\SpaceEngineers\Storage\ColorSets.xml"
 
 [h1][b]➤⠀C⠀R⠀E⠀D⠀I⠀T⠀S[/b][/H1]
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
+Danke an [url=https://steamcommunity.com/id/zigglegarf] Dark Helmet [/url] für die fantastische UI Bibliothek: [url=https://steamcommunity.com/workshop/filedetails/?id=1965654081] Rich HUD Master [/url] 
 Icons in meiner Mod:
 [url=https://fontawesome.com/icons/palette?style=solid] palette [/url] icon von [url=https://fontawesome.com] Font Awesome [/url] ist lizenziert unter [url=https://fontawesome.com/license/free] CC BY 4.0 [/url]
 
