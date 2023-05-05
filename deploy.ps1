@@ -138,81 +138,52 @@ if ($env -eq "dev" -or $env -eq "beta") {
 }
 
 # Call robocopy to copy Scripts directory to SE mod Scripts directory
-& robocopy $scriptsDirectory $seModScripts /MIR /Z /MT:8 /XJD /FFT /XD $xdList /XF $xfList /NC /NDL /NFL /NP /NS
+if (Test-Path $scriptsDirectory) {
+    & robocopy $scriptsDirectory $seModScripts /MIR /Z /MT:8 /XJD /FFT /XD $xdList /XF $xfList /NC /NDL /NFL /NP /NS
 
-# # Get list of directories to exclude
-# $excludeList = Get-Content -Path "$($PSScriptRoot)\exclude.txt"
+    # Set path to Scripts.csproj
+    $csprojPath = Join-Path $scriptsDirectory "Scripts.csproj"
 
-# # Get list of directories to include
-# $includeList = Get-ChildItem -Directory | Where-Object { $_.Name -notin ("Mod","Scripts") -and $_.Name -notmatch "^(\.|\.\.)$" }
+    # Load XML from Scripts.csproj
+    $xml = [xml](Get-Content $csprojPath)
 
-# # Loop through each directory to copy
-# foreach ($dir in $includeList) {
-#     # Construct source and destination paths
-#     $srcPath = Join-Path $PSScriptRoot $dir.Name
-#     $destPath = Join-Path $seModScripts $dir.Name
+    # Get list of linked files
+    $linkedFiles = $xml.Project.ItemGroup | Where-Object { $_.Compile } | ForEach-Object { $_.Compile | Where-Object { $_.Link } }
 
-#     # Call robocopy to copy directory contents to SE mod Scripts directory
-#     & robocopy $srcPath $destPath /MIR /Z /MT:8 /XJD /FFT /XD $xdList /XF $xfList /NC /NDL /NFL /NP /NS
-# }
+    # Loop through each linked file and copy it to the SE mod Scripts directory
+    foreach ($file in $linkedFiles) {
+        # Get source path
+        $sourcePath = Join-Path $scriptsDirectory $file.Include
 
-# Set path to Scripts.csproj
-$csprojPath = Join-Path $scriptsDirectory "Scripts.csproj"
+        # Get destination path
+        $destinationPath = Join-Path $seModScripts $file.Link
 
-# Load XML from Scripts.csproj
-$xml = [xml](Get-Content $csprojPath)
-
-# Get list of linked files
-$linkedFiles = $xml.Project.ItemGroup | Where-Object { $_.Compile } | ForEach-Object { $_.Compile | Where-Object { $_.Link } }
-
-# Loop through each linked file and copy it to the SE mod Scripts directory
-foreach ($file in $linkedFiles) {
-    # Get source path
-    $sourcePath = Join-Path $scriptsDirectory $file.Include
-
-    # Get destination path
-    $destinationPath = Join-Path $seModScripts $file.Link
-
-    # Copy file to destination path
-    Copy-Item $sourcePath $destinationPath -Force
-}
-
-# Get list of project references
-$projectReferences = $xml.Project.ItemGroup.ProjectReference
-
-# # # Loop through each project reference
-# foreach ($reference in $projectReferences) {
-#     # Get project path
-#     $projectPath = Join-Path $scriptsDirectory $reference.Include
-
-#     if ($projectPath -eq (Join-Path $scriptsDirectory "/")) {
-#         continue
-#     }
-
-#     # Copy all files from project directory to SE mod Scripts directory
-#     $projectDirectory = Split-Path $projectPath
-#     Write-Host "Copying $projectDirectory to $seModScripts/$($reference.Name)"
-#     Copy-Item "$projectDirectory\*" $seModScripts -Recurse -Force
-# }
-
-# Loop through each project reference
-foreach ($reference in $projectReferences) {
-    # Get project path
-    $projectPath = Join-Path $scriptsDirectory $reference.Include
-
-    if ($projectPath -eq (Join-Path $scriptsDirectory "\")) {
-        continue
+        # Copy file to destination path
+        Copy-Item $sourcePath $destinationPath -Force
     }
 
-    $includeParts = $reference.Include.Split('\')
-    $baseFolder = $includeParts[1]
+    # Get list of project references
+    $projectReferences = $xml.Project.ItemGroup.ProjectReference
 
-    # Copy all files from project directory to SE mod Scripts directory
-    $projectDirectory = Split-Path $projectPath
-    $destinationDirectory = Join-Path $seModScripts $baseFolder $reference.Name
-    Write-Host "Copying $projectDirectory to $destinationDirectory"
-    # Copy-Item "$projectDirectory\*" $destinationDirectory -Recurse -Force -Exclude "obj","bin"
-    & robocopy $projectDirectory $destinationDirectory /MIR /Z /MT:8 /XJD /FFT /XD $xdList /XF $xfList /NC /NDL /NFL /NP /NS
+    # Loop through each project reference
+    foreach ($reference in $projectReferences) {
+        # Get project path
+        $projectPath = Join-Path $scriptsDirectory $reference.Include
+
+        if ($projectPath -eq (Join-Path $scriptsDirectory "\")) {
+            continue
+        }
+
+        $includeParts = $reference.Include.Split('\')
+        $baseFolder = $includeParts[1]
+
+        # Copy all files from project directory to SE mod Scripts directory
+        $projectDirectory = Split-Path $projectPath
+        $destinationDirectory = Join-Path $seModScripts $baseFolder $reference.Name
+        Write-Host "Copying $projectDirectory to $destinationDirectory"
+        # Copy-Item "$projectDirectory\*" $destinationDirectory -Recurse -Force -Exclude "obj","bin"
+        & robocopy $projectDirectory $destinationDirectory /MIR /Z /MT:8 /XJD /FFT /XD $xdList /XF $xfList /NC /NDL /NFL /NP /NS
+    }
 }
 
 if (Test-Path $artifactDirectory -PathType Container) {
