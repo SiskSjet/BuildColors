@@ -1,3 +1,12 @@
+# [2.0.1](https://github.com/SiskSjet/BuildColors/compare/v2.0.0...v2.0.1) (2023-05-05)
+
+
+### Features
+
+* add functionality to load a color set by double clicking it & some ui sounds ([91af1f8](https://github.com/SiskSjet/BuildColors/commit/91af1f8f1189cba13e2d72645a289b233efe0b53)), closes [#7](https://github.com/SiskSjet/BuildColors/issues/7)
+
+
+
 # [2.0.0](https://github.com/SiskSjet/BuildColors/compare/v1.1.1...v2.0.0) (2023-04-13)
 
 
