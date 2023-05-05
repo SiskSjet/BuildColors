@@ -1,11 +1,14 @@
 using RichHudFramework;
 using RichHudFramework.UI;
 using RichHudFramework.UI.Client;
+using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using Sisk.BuildColors.Settings.Models;
 using Sisk.BuildColors.Settings.Models.ColorSpace;
 using System;
 using System.Linq;
+using VRage.Game.Entity;
+using VRage.Utils;
 using VRageMath;
 
 namespace Sisk.BuildColors.UI {
@@ -21,6 +24,8 @@ namespace Sisk.BuildColors.UI {
         private readonly Dropdown<ColorSchemeGenerator.Scheme> _schemeDropdown;
         private readonly ColorSchemeGenerator _schemeGenerator;
         private readonly ColorSetElement _schemePreview;
+        private DateTime _lastClickTime;
+        private string _lastSelectedName;
 
         public BuildColorWindow(HudParentBase parent = null) : base(parent) {
             BorderColor = Style.BorderColor;
@@ -226,13 +231,35 @@ namespace Sisk.BuildColors.UI {
             }
 
             _colorsetList.SelectionChanged += OnColorSetChanged;
+            _colorsetList.MouseInput.CursorEntered += OnMouseOver;
+
             _loadColorsetButton.MouseInput.LeftClicked += OnLoadClicked;
+            _loadColorsetButton.MouseInput.CursorEntered += OnMouseOver;
+
             _removeColorsetButton.MouseInput.LeftClicked += OnRemoveClicked;
+            _removeColorsetButton.MouseInput.CursorEntered += OnMouseOver;
+
             saveActivColorsButton.MouseInput.LeftClicked += OnSaveActiveColorsClicked;
+            saveActivColorsButton.MouseInput.CursorEntered += OnMouseOver;
+
             _schemeDropdown.SelectionChanged += OnSchemeChanged;
+            _schemeDropdown.MouseInput.CursorEntered += OnMouseOver;
+
             _presetDropdown.SelectionChanged += OnPresetChanged;
+            _presetDropdown.MouseInput.CursorEntered += OnMouseOver;
+
             _generateColorSchemeButton.MouseInput.LeftClicked += OnGenerateColorSchemeClicked;
+            _generateColorSchemeButton.MouseInput.CursorEntered += OnMouseOver;
+
             saveGeneratedColorSchemeButton.MouseInput.LeftClicked += OnSaveGeneratedColorSchemeClicked;
+            saveGeneratedColorSchemeButton.MouseInput.CursorEntered += OnMouseOver;
+
+            randomColorCheckbox.MouseInput.CursorEntered += OnMouseOver;
+            randomColorCheckbox.MouseInput.LeftClicked += (s, e) => HudSoundUtils.PlaySound("HudMouseClick");
+
+            foreach (var item in _baseColorPicker.sliders) {
+                item.MouseInput.CursorEntered += OnMouseOver;
+            }
 
             GenerateColorSet();
             LoadColorSets();
@@ -286,9 +313,20 @@ namespace Sisk.BuildColors.UI {
                 _colorsetPreview.SetColorSet(selection);
                 _loadColorsetButton.InputEnabled = true;
                 _removeColorsetButton.InputEnabled = true;
+                HudSoundUtils.PlaySound("HudMouseClick");
+
+                var time = DateTime.Now;
+                if (time - _lastClickTime < TimeSpan.FromMilliseconds(500) && selection.Name == _lastSelectedName) {
+                    Mod.Static.LoadColorSet(selection.Name);
+                    HudSoundUtils.PlaySound("HudBleep");
+                }
+
+                _lastClickTime = time;
+                _lastSelectedName = selection.Name;
             } else {
                 _loadColorsetButton.InputEnabled = false;
                 _removeColorsetButton.InputEnabled = false;
+                _lastSelectedName = "";
             }
         }
 
@@ -300,10 +338,17 @@ namespace Sisk.BuildColors.UI {
             if (_colorsetList.Selection != null) {
                 var selection = _colorsetList.Selection.AssocMember;
                 Mod.Static.LoadColorSet(selection.Name);
+                HudSoundUtils.PlaySound("HudBleep");
             }
         }
 
+        private void OnMouseOver(object sender, EventArgs e) {
+            //Sandbox.Game.MyVisualScriptLogicProvider.PlayHudSound(VRage.Audio.MyGuiSounds.HudMouseClick);
+            HudSoundUtils.PlaySound("HudMouseOver");
+        }
+
         private void OnPresetChanged(object sender, EventArgs e) {
+            HudSoundUtils.PlaySound("HudMouseClick");
             GenerateColorSet(true);
         }
 
@@ -319,6 +364,7 @@ namespace Sisk.BuildColors.UI {
             if (_colorsetList.Selection != null) {
                 var selection = _colorsetList.Selection.AssocMember;
                 Mod.Static.RemoveColorSet(selection.Name);
+                HudSoundUtils.PlaySound("HudLockingLost");
                 LoadColorSets();
             }
         }
@@ -346,6 +392,7 @@ namespace Sisk.BuildColors.UI {
         }
 
         private void OnSchemeChanged(object sender, EventArgs e) {
+            HudSoundUtils.PlaySound("HudMouseClick");
             GenerateColorSet(true);
         }
 

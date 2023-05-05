@@ -53,8 +53,11 @@ namespace Sisk.BuildColors.UI {
 
             layout.Register(body);
 
+            _text.MouseInput.CursorEntered += OnMouseOver;
             save.MouseInput.LeftClicked += OnSaveClicked;
+            save.MouseInput.CursorEntered += OnMouseOver;
             cancel.MouseInput.LeftClicked += OnCancelClicked;
+            cancel.MouseInput.CursorEntered += OnMouseOver;
         }
 
         public event RichHudFramework.EventHandler SaveClicked;
@@ -68,10 +71,16 @@ namespace Sisk.BuildColors.UI {
         }
 
         private void OnCancelClicked(object sender, EventArgs e) {
+            HudSoundUtils.PlaySound("HudLockingLost");
             Unregister();
         }
 
+        private void OnMouseOver(object sender, EventArgs e) {
+            HudSoundUtils.PlaySound("HudMouseOver");
+        }
+
         private void OnSaveClicked(object sender, EventArgs e) {
+            HudSoundUtils.PlaySound("HudBleep");
             Unregister();
             SaveClicked?.Invoke(this, e);
         }
