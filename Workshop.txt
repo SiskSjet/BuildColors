@@ -52,6 +52,10 @@ This mod can create two config files.
 Color sets are saved in ColorSets.xml in your global storage:
 "%appdata%\SpaceEngineers\Storage\ColorSets.xml"
 
+[h1][b]➤⠀K⠀N⠀O⠀W⠀N⠀ ⠀I⠀S⠀S⠀U⠀E⠀S[/b][/H1]
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
+The UI has a problem when naming a color set. Pressing keys bound to game actions triggers those actions instead. For example, pressing 'P' closes the Color-picker Screen. While it's a bit annoying, pressing 'P' again allows you to continue. Unfortunately, I don't know how to fix this issue.
+
 [h1][b]➤⠀C⠀R⠀E⠀D⠀I⠀T⠀S[/b][/H1]
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
 Thanks [url=https://steamcommunity.com/id/zigglegarf] Dark Helmet [/url] for the awesome UI library: [url=https://steamcommunity.com/workshop/filedetails/?id=1965654081] Rich HUD Master [/url] 
@@ -125,6 +129,10 @@ Diese Mod kann zwei Konfigurationsdateien erstellen.
 [ALT kann entfernt werden] [strike]Für Server wird eine settings.xml-Datei in eurem World Storage erstellt.[/strike]
 Color Sets werden in ColorSets.xml in Ihrem globalen Speicher gespeichert:
 "%appdata%\SpaceEngineers\Storage\ColorSets.xml"
+
+[h1][b]➤⠀B⠀E⠀K⠀A⠀N⠀N⠀T⠀E ⠀ P⠀R⠀O⠀B⠀L⠀E⠀M⠀E[/b][/h1]
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
+Es gibt ein Problem mit der Benutzeroberfläche, wenn du versuchst, einen Farbsatz zu benennen. Wenn du Tasten drückst, die an Spielfunktionen gebunden sind, wird die Spielfunktion ausgeführt. Wenn du beispielsweise 'P' drückst, wird der Farbauswahlbildschirm geschlossen. Es ist etwas nervig, aber du kannst erneut 'P' drücken, um fortzufahren. Leider habe ich keine Ahnung, wie man das beheben kann.
 
 [h1][b]➤⠀C⠀R⠀E⠀D⠀I⠀T⠀S[/b][/H1]
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
