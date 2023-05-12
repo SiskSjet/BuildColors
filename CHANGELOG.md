@@ -1,3 +1,12 @@
+# [2.0.2](https://github.com/SiskSjet/BuildColors/compare/v2.0.1...v2.0.2) (2023-05-12)
+
+
+### Bug Fixes
+
+* fix scaling issue with lower resolutions and different aspect ratios ([de2cbd4](https://github.com/SiskSjet/BuildColors/commit/de2cbd4ed77b11d493488e862ef983e05e37cd45))
+
+
+
 # [2.0.1](https://github.com/SiskSjet/BuildColors/compare/v2.0.0...v2.0.1) (2023-05-05)
 
 
