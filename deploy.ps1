@@ -54,8 +54,8 @@ function Run-Robocopy {
     param (
         [string]$SourceDirectory,
         [string]$DestinationDirectory,
-        [string]$xdList,
-        [string]$xfList
+        $xdList,
+        $xfList
     )
 
     # Run Robocopy command and capture exit code
@@ -170,7 +170,7 @@ if ($env -eq "dev" -or $env -eq "beta") {
 # Call robocopy to copy Scripts directory to SE mod Scripts directory
 if (Test-Path $scriptsDirectory) {
     Write-Host "Copying scripts"
-    Run-Robocopy -SourceDirectory $modDirectory -DestinationDirectory $seModPath -xdList $xdList -xfList $xfList
+    Run-Robocopy -SourceDirectory $scriptsDirectory -DestinationDirectory $seModScripts -xdList $xdList -xfList $xfList
 
     # Set path to Scripts.csproj
     $csprojPath = Join-Path $scriptsDirectory "Scripts.csproj"
@@ -187,7 +187,13 @@ if (Test-Path $scriptsDirectory) {
         $sourcePath = Join-Path $scriptsDirectory $file.Include
 
         # Get destination path
-        $destinationPath = Join-Path $seModScripts $file.Link
+        $destinationPath = Join-Path $seModScripts $file.Link        
+        $destinationFolder = Split-Path $destinationPath -Parent
+
+        # Create the artifact directory if it doesn't exist
+        if (!(Test-Path $destinationFolder -PathType Container)) {
+            New-Item -ItemType Directory -Path $destinationFolder | Out-Null
+        }
 
         # Copy file to destination path
         Copy-Item $sourcePath $destinationPath -Force
@@ -214,32 +220,63 @@ if (Test-Path $scriptsDirectory) {
         Write-Host "Copying $projectDirectory to $destinationDirectory"
         # Copy-Item "$projectDirectory\*" $destinationDirectory -Recurse -Force -Exclude "obj","bin"
         Write-Host "Copying $projectDirectory\*"
-        Run-Robocopy -SourceDirectory $modDirectory -DestinationDirectory $seModPath -xdList $xdList -xfList $xfList
+        Run-Robocopy -SourceDirectory $projectDirectory -DestinationDirectory $destinationDirectory -xdList $xdList -xfList $xfList
     }
 }
 
-if (Test-Path $artifactDirectory -PathType Container) {
-    # Update zip file
-    $artifact = Get-ChildItem -Path $artifactDirectory -Filter *.zip | Select-Object -First 1
+function Update-ZipFile {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$ArtifactDirectory,
+        [Parameter(Mandatory=$true)]
+        [string]$SeModPath,
+        [Parameter(Mandatory=$true)]
+        [string]$ModName
+    )
 
-    if ($artifact) {
-        Write-Host "Updating artifact $($artifact.FullName)"
+    try {
+        # Create the artifact directory if it doesn't exist
+        if (!(Test-Path $ArtifactDirectory -PathType Container)) {
+            New-Item -ItemType Directory -Path $ArtifactDirectory | Out-Null
+        }
 
-        # Check if 7-Zip is installed
-        if (Get-Command 7z -ErrorAction SilentlyContinue) {
-            # Update the zip file using 7-Zip
-            & 7z u -up0q0r2x2y2z1w2 "$artifact" "$seModPath"
+        $artifact = Get-ChildItem -Path $ArtifactDirectory -Filter *.zip | Select-Object -First 1
+        if ($artifact) {
+            Write-Host "Updating artifact $($artifact.FullName)"
 
-            if (Get-Command gitversion -ErrorAction SilentlyContinue){
-                $semver = & gitversion /showvariable SemVer
-                Rename-Item $artifact "$modName.$semver.zip"
+            # Check if 7-Zip is installed
+            if (Get-Command 7z -ErrorAction SilentlyContinue) {
+                # Update the zip file using 7-Zip
+                & 7z u -up0q0r2x2y2z1w2 "$artifact" "$SeModPath"
+            } else {
+                # Use Compress-Archive to update the zip file
+                Compress-Archive -Path $SeModPath -Update -DestinationPath $artifact -CompressionLevel Optimal
             }
         } else {
-            Write-Error "7-Zip is not installed"
+            # Create a new zip file using 7-Zip if it's available, otherwise use Compress-Archive
+            $zipFileName = "$ModName.zip"
+            $artifact = Join-Path $ArtifactDirectory $zipFileName
+
+            Write-Host "Creating new artifact $ModName.zip"
+
+            if (Get-Command 7z -ErrorAction SilentlyContinue) {
+                # Use 7-Zip to create the zip file
+                & 7z a -tzip "$artifact" "$SeModPath"
+            } else {
+                # Use Compress-Archive to create the zip file
+                Compress-Archive -Path $SeModPath -DestinationPath $artifact -CompressionLevel Optimal
+            }
         }
-    } else {
-        Write-Warning "No zip files found in $artifactDirectory"
+
+        if (Get-Command gitversion -ErrorAction SilentlyContinue){
+            $semver = & gitversion /showvariable SemVer
+            Rename-Item $artifact "$ModName.$semver.zip"
+        }
     }
-} else {
-    Write-Warning "Artifact directory $artifactDirectory does not exist"
+    catch {
+        Write-Error $_.Exception.Message
+    }
 }
+
+Update-ZipFile -ArtifactDirectory $artifactDirectory -SeModPath $seModPath -ModName $modName
