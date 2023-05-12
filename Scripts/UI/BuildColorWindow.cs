@@ -1,19 +1,22 @@
 using RichHudFramework;
 using RichHudFramework.UI;
 using RichHudFramework.UI.Client;
-using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using Sisk.BuildColors.Settings.Models;
 using Sisk.BuildColors.Settings.Models.ColorSpace;
 using System;
 using System.Linq;
-using VRage.Game.Entity;
-using VRage.Utils;
 using VRageMath;
 
 namespace Sisk.BuildColors.UI {
 
     public class BuildColorWindow : WindowBase {
+        public const float ASPECT_RATIO_END = 5f / 4f;
+        public const float ASPECT_RATIO_START = 16f / 9f;
+        public const float OFFSET_END = -60;
+        public const float OFFSET_START = 200;
+        public const float SLOPE = (OFFSET_END - OFFSET_START) / (ASPECT_RATIO_END - ASPECT_RATIO_START);
+        public const float Y_INTERCEPT = OFFSET_START - SLOPE * ASPECT_RATIO_START;
         private readonly ColorPickerHSV _baseColorPicker;
         private readonly ListBox<ColorSet> _colorsetList;
         private readonly ColorSetElement _colorsetPreview;
@@ -39,7 +42,7 @@ namespace Sisk.BuildColors.UI {
             ZOffset = 1;
 
             Size = new Vector2(500, 1080);
-            Offset = new Vector2(200, 0);
+            Offset = new Vector2(OFFSET_START, 0);
 
             CanDrag = false;
             AllowResizing = false;
@@ -280,6 +283,17 @@ namespace Sisk.BuildColors.UI {
             base.Draw();
 
             SetOpacity();
+        }
+
+        protected override void Layout() {
+            base.Layout();
+
+            var screenWidth = MyAPIGateway.Session.Camera.ViewportSize.X;
+            var screenHeight = MyAPIGateway.Session.Camera.ViewportSize.Y;
+            var aspectRatio = screenWidth / screenHeight;
+
+            var offset = SLOPE * aspectRatio + Y_INTERCEPT;
+            Offset = new Vector2(offset, 0f);
         }
 
         private void GenerateColorSet(bool reuseColor = false) {

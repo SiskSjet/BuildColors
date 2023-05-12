@@ -21,7 +21,7 @@ namespace Sisk.BuildColors {
         private const string COLOR_SETS_FILE = "ColorSets.xml";
 
         private readonly CommandHandler _commandHandler = new CommandHandler(NAME);
-        private BuildColorUI _hud;
+        private BuildColorUI _ui;
 
         /// <summary>
         ///     Creates a new instance of this component.
@@ -46,7 +46,7 @@ namespace Sisk.BuildColors {
 
         public override void Draw() {
             if (!MyAPIGateway.Utilities.IsDedicated) {
-                _hud.Draw();
+                _ui.Draw();
             }
         }
 
@@ -56,8 +56,8 @@ namespace Sisk.BuildColors {
         /// <param name="sessionComponent"></param>
         public override void Init(MyObjectBuilder_SessionComponent sessionComponent) {
             if (!MyAPIGateway.Utilities.IsDedicated) {
-                _hud = new BuildColorUI();
-                _hud?.Init(NAME);
+                _ui = new BuildColorUI();
+                _ui?.Init(NAME);
             }
         }
 
@@ -87,6 +87,7 @@ namespace Sisk.BuildColors {
 
             LoadColorSets();
             MyAPIGateway.Utilities.MessageEntered += OnMessageEntered;
+            MyAPIGateway.Gui.GuiControlRemoved += OnGuiControlRemoved;
         }
 
         /// <summary>
@@ -138,6 +139,7 @@ namespace Sisk.BuildColors {
         /// </summary>
         protected override void UnloadData() {
             MyAPIGateway.Utilities.MessageEntered -= OnMessageEntered;
+            MyAPIGateway.Gui.GuiControlRemoved -= OnGuiControlRemoved;
         }
 
         /// <summary>
@@ -182,6 +184,12 @@ namespace Sisk.BuildColors {
             }
 
             ColorSets = colorSets;
+        }
+
+        private void OnGuiControlRemoved(object obj) {
+            if (obj.ToString().EndsWith("MyGuiScreenOptionsDisplay")) {
+                _ui?.UpdateScreenScaling();
+            }
         }
 
         private void OnMessageEntered(string messagetext, ref bool sendtoothers) {
