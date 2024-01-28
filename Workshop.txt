@@ -1,7 +1,6 @@
 ﻿This mod allows you to create customized color sets for building, which can then be easily imported into another world.
 
-[h1][b]➤⠀C⠀O⠀L⠀O R⠀⠀⠀S⠀E⠀T⠀S[/b][/H1]
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
+[h2]🛠︰Color Sets ・────────・・・[/h2]
 To save or load a color set you have to type the listed commands below in your chat box.
 
 [CODE]Usage: /bc [command] [arguments][/CODE]
@@ -45,41 +44,37 @@ To save or load a color set you have to type the listed commands below in your c
 [/tr]
 [/table]
 
-[h1][b]➤⠀C⠀O⠀N⠀F⠀I⠀G⠀S[/b][/H1]
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
+[h2]🛠︰Configs ・──────────・・・[/h2]
 This mod can create two config files.
 [OLD can be removed] [strike]For servers a settings.xml file is created in your world storage.[/strike]
 Color sets are saved in ColorSets.xml in your global storage:
 "%appdata%\SpaceEngineers\Storage\ColorSets.xml"
 
-[h1][b]➤⠀K⠀N⠀O⠀W⠀N⠀ ⠀I⠀S⠀S⠀U⠀E⠀S[/b][/H1]
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
+[h2]🛠︰Known issues ・──────・・・[/h2]
 The UI has a problem when naming a color set. Pressing keys bound to game actions triggers those actions instead. For example, pressing 'P' closes the Color-picker Screen. While it's a bit annoying, pressing 'P' again allows you to continue. Unfortunately, I don't know how to fix this issue.
 
-[h1][b]➤⠀C⠀R⠀E⠀D⠀I⠀T⠀S[/b][/H1]
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
-Thanks [url=https://steamcommunity.com/id/zigglegarf] Dark Helmet [/url] for the awesome UI library: [url=https://steamcommunity.com/workshop/filedetails/?id=1965654081] Rich HUD Master [/url] 
-Icons used in my mod:
-[url=https://fontawesome.com/icons/palette?style=solid] palette [/url] icon by [url=https://fontawesome.com] Font Awesome [/url] is licensed under [url=https://fontawesome.com/license/free] CC BY 4.0 [/url]
+[h2]🛠︰Support ・──────────・・・[/h2]
+It would be nice if you could consider supporting me 
 
-[h1][b]➤⠀G⠀I⠀T⠀H⠀U⠀B[/b][/H1]
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
+[url=https://ko-fi.com/sisksjet][img]https://steamuserimages-a.akamaihd.net/ugc/2287333413738438809/074D2B10C793252F866EEB91EC748E0E8B3C3210/?imw=64&imh=64&ima=fit&impolicy=Letterbox&letterbox=false[/img][/url] [url=https://patreon.com/sisk][img]https://steamuserimages-a.akamaihd.net/ugc/2287333413738613768/8FE59EC78463E3EFA52D59347D83D3C9838BF6E6/?imw=64&imh=64&ima=fit&impolicy=Letterbox&letterbox=false[/img][/url] [url=https://paypal.me/sisksjet][img]https://steamuserimages-a.akamaihd.net/ugc/2287333413738619680/36B89C41163487AD5BFB13B2C673E0F153171D29/?imw=64&imh=64&ima=fit&impolicy=Letterbox&letterbox=true[/img][/url]
+
+or join my [url=https://discord.gg/2s22YCqSFg]Discord[/url] if you have suggestions, wishes, or just want to know what else I'm working on. My Discord is new, so there is not much going on yet.
+You can also check out my other mods in my [url=https://steamcommunity.com/id/sisksjet/myworkshopfiles/?appid=244850]Workshop[/url].
+
+[h2]🛠︰Github ・───────────・・・[/h2]
 The source for this mod can be found at [url=https://github.com/SiskSjet/BuildColors] BuildColors [/url] and is licensed under [url=https://github.com/SiskSjet/BuildColors/blob/master/LICENSE] MIT [/url]
 You can use my code as you like, just a license and a copyright notice is required, but please do not flood the workshop with copies of this mod.
 If you think some features are missing, try to ask first
 
-[h1][b]➤⠀S⠀U⠀P⠀P⠀O⠀R⠀T[/b][/H1]
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
-[img]https://steamuserimages-a.akamaihd.net/ugc/949586220823602248/339F6748C4155B2EC3EDD33FDAF04F1B12A4A500/[/img][url=https://steamcommunity.com/id/sisksjet/myworkshopfiles/?appid=244850][img]https://steamuserimages-a.akamaihd.net/ugc/949586220823603246/BA1A8E6272BE3863194FEDB79F68D3DEACBE0837/[/img][/url][url=https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4BUABNQCJ59CG][img]https://steamuserimages-a.akamaihd.net/ugc/949586220823604755/9492C8834824BCC7FE9EEACAD803F8BA99854E05/[/img][/url]
-
+[h2]🛠︰Credits ・──────────・・・[/h2]
+Thanks [url=https://steamcommunity.com/id/zigglegarf] Dark Helmet [/url] for the awesome UI library: [url=https://steamcommunity.com/workshop/filedetails/?id=1965654081] Rich HUD Master [/url] 
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 Mithilfe dieses Mods können individuelle Farbsätze zum Bauen erstellt werden, die sich problemlos in andere Welten importieren lassen.
 
-[h1][b]➤⠀C⠀O⠀L⠀O R⠀⠀⠀S⠀E⠀T⠀S[/b][/H1]
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
+[h2]🛠︰Color Sets ・────────・・・[/h2]
 Um einen Color Set zu speichern oder zu laden, müssen Sie die folgenden Befehle in Ihre Chat-Box eingeben.
 
 [CODE]Usage: /bc [command] [arguments][/CODE]
@@ -123,31 +118,28 @@ Um einen Color Set zu speichern oder zu laden, müssen Sie die folgenden Befehle
 [/tr]
 [/table]
 
-[h1][b]➤⠀C⠀O⠀N⠀F⠀I⠀G⠀S[/b][/H1]
+[h2]🛠︰Configs ・──────────・・・[/h2]
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
 Diese Mod kann zwei Konfigurationsdateien erstellen.
 [ALT kann entfernt werden] [strike]Für Server wird eine settings.xml-Datei in eurem World Storage erstellt.[/strike]
 Color Sets werden in ColorSets.xml in Ihrem globalen Speicher gespeichert:
 "%appdata%\SpaceEngineers\Storage\ColorSets.xml"
 
-[h1][b]➤⠀B⠀E⠀K⠀A⠀N⠀N⠀T⠀E ⠀ P⠀R⠀O⠀B⠀L⠀E⠀M⠀E[/b][/h1]
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
+[h2]🛠︰BUGS ・─────────────・・・[/h2]
 Es gibt ein Problem mit der Benutzeroberfläche, wenn du versuchst, einen Farbsatz zu benennen. Wenn du Tasten drückst, die an Spielfunktionen gebunden sind, wird die Spielfunktion ausgeführt. Wenn du beispielsweise 'P' drückst, wird der Farbauswahlbildschirm geschlossen. Es ist etwas nervig, aber du kannst erneut 'P' drücken, um fortzufahren. Leider habe ich keine Ahnung, wie man das beheben kann.
 
-[h1][b]➤⠀C⠀R⠀E⠀D⠀I⠀T⠀S[/b][/H1]
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
-Danke an [url=https://steamcommunity.com/id/zigglegarf] Dark Helmet [/url] für die fantastische UI Bibliothek: [url=https://steamcommunity.com/workshop/filedetails/?id=1965654081] Rich HUD Master [/url] 
-Icons in meiner Mod:
-[url=https://fontawesome.com/icons/palette?style=solid] palette [/url] icon von [url=https://fontawesome.com] Font Awesome [/url] ist lizenziert unter [url=https://fontawesome.com/license/free] CC BY 4.0 [/url]
+[h2]🛠︰Support ・──────────・・・[/h2]
+Es wäre schön, wenn ihr mich unterstützen würdet
 
-[h1][b]➤⠀G⠀I⠀T⠀H⠀U⠀B[/b][/H1]
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
+[url=https://ko-fi.com/sisksjet][img]https://steamuserimages-a.akamaihd.net/ugc/2287333413738438809/074D2B10C793252F866EEB91EC748E0E8B3C3210/?imw=64&imh=64&ima=fit&impolicy=Letterbox&letterbox=false[/img][/url] [url=https://patreon.com/sisk][img]https://steamuserimages-a.akamaihd.net/ugc/2287333413738613768/8FE59EC78463E3EFA52D59347D83D3C9838BF6E6/?imw=64&imh=64&ima=fit&impolicy=Letterbox&letterbox=false[/img][/url] [url=https://paypal.me/sisksjet][img]https://steamuserimages-a.akamaihd.net/ugc/2287333413738619680/36B89C41163487AD5BFB13B2C673E0F153171D29/?imw=64&imh=64&ima=fit&impolicy=Letterbox&letterbox=true[/img][/url]
+
+oder meinem [url=https://discord.gg/2s22YCqSFg]Discord[/url] beitretet, wenn ihr Vorschläge oder Wünsche haben oder einfach nur wissen möchten, woran ich sonst noch arbeite. Mein Discord ist neu, daher ist noch nicht viel los.
+Ihr könnt euch auch meine anderen Mods in meinem [url=https://steamcommunity.com/id/sisksjet/myworkshopfiles/?appid=244850]Workshop[/url] ansehen.
+
+[h2]🛠︰Github ・───────────・・・[/h2]
 Den Source code dieser Mod kann unter [url=https://github.com/SiskSjet/BuildColors] BuildColors [/url] gefunden werden und ist lizenziert unter [url=https://github.com/SiskSjet/BuildColors/blob/master/LICENSE] MIT [/url]
 Du kannst meinen Code benutzen wie du magst, nur ein Lizenz und ein Copyright-Hinweis ist erforderlich, aber bitte überflute den Workshop nicht mit Kopien dieser Mod.
 Wenn ihr der Meinung seid, dass einige Funktionen fehlen, versucht sie zuerst anzufragen
 
-[h1][b]➤⠀S⠀U⠀P⠀P⠀O⠀R⠀T[/b][/H1]
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
-It would be nice if you could consider supporting me through [url=https://www.patreon.com/sisk]Patreon[/url] or [url=paypal.me/sisksjet]PayPal[/url].
-You can also check out my other mods in my [url=https://steamcommunity.com/id/sisksjet/myworkshopfiles/?appid=244850]Workshop[/url].
-
+[h2]🛠︰Credits ・──────────・・・[/h2]
+Danke an [url=https://steamcommunity.com/id/zigglegarf] Dark Helmet [/url] für die fantastische UI Bibliothek: [url=https://steamcommunity.com/workshop/filedetails/?id=1965654081] Rich HUD Master [/url] 
