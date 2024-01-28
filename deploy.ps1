@@ -216,7 +216,18 @@ if (Test-Path $scriptsDirectory) {
 
         # Copy all files from project directory to SE mod Scripts directory
         $projectDirectory = Split-Path $projectPath
-        $destinationDirectory = Join-Path $seModScripts $baseFolder $reference.Name
+
+        $name = ""
+        # check if $reference.Name is ProjectReference
+        if ($reference.Name -eq "ProjectReference") {
+            # get name from $reference.Include file name without extension
+            $name = (Get-Item (Join-Path $scriptsDirectory $reference.Include)).BaseName
+        } else {
+            $name = $reference.Name
+        }
+
+        $destinationDirectory = Join-Path $seModScripts $baseFolder $name
+        Write-Host ""
         Write-Host "Copying $projectDirectory to $destinationDirectory"
         # Copy-Item "$projectDirectory\*" $destinationDirectory -Recurse -Force -Exclude "obj","bin"
         Write-Host "Copying $projectDirectory\*"
@@ -243,6 +254,7 @@ function Update-ZipFile {
 
         $artifact = Get-ChildItem -Path $ArtifactDirectory -Filter *.zip | Select-Object -First 1
         if ($artifact) {
+            Write-Host ""
             Write-Host "Updating artifact $($artifact.FullName)"
 
             # Check if 7-Zip is installed
@@ -258,6 +270,7 @@ function Update-ZipFile {
             $zipFileName = "$ModName.zip"
             $artifact = Join-Path $ArtifactDirectory $zipFileName
 
+            Write-Host ""
             Write-Host "Creating new artifact $ModName.zip"
 
             if (Get-Command 7z -ErrorAction SilentlyContinue) {
