@@ -17,7 +17,7 @@ namespace Sisk.BuildColors.UI {
         public const float OFFSET_START = 200;
         public const float SLOPE = (OFFSET_END - OFFSET_START) / (ASPECT_RATIO_END - ASPECT_RATIO_START);
         public const float Y_INTERCEPT = OFFSET_START - SLOPE * ASPECT_RATIO_START;
-        private readonly ColorPickerHSV _baseColorPicker;
+        private readonly ColorPickerHSV2 _baseColorPicker;
         private readonly ListBox<ColorSet> _colorsetList;
         private readonly ColorSetElement _colorsetPreview;
         private readonly BorderedButton _generateColorSchemeButton;
@@ -172,7 +172,7 @@ namespace Sisk.BuildColors.UI {
                 Spacing = 8f,
             };
 
-            _baseColorPicker = new ColorPickerHSV() {
+            _baseColorPicker = new ColorPickerHSV2() {
                 ParentAlignment = ParentAlignments.Left,
                 DimAlignment = DimAlignments.Width,
                 Name = "Base color",
