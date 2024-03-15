@@ -1,3 +1,12 @@
+# [2.1.1](https://github.com/SiskSjet/BuildColors/compare/v2.1.0...v2.1.1) (2024-03-15)
+
+
+### Features
+
+* add the function back to restore colors on server, but now it's local ([12cf9af](https://github.com/SiskSjet/BuildColors/commit/12cf9af9321ab87ec22d5bf6b923b141b6fc816f))
+
+
+
 # [2.0.2](https://github.com/SiskSjet/BuildColors/compare/v2.0.1...v2.0.2) (2023-05-12)
 
 
