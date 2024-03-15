@@ -19,6 +19,7 @@ namespace Sisk.BuildColors {
     public class Mod : MySessionComponentBase {
         public const string NAME = "BuildColors";
         private const string COLOR_SETS_FILE = "ColorSets.xml";
+        private const string SERVER_MEMORY_FILE = "BuildColorsServerMemory.xml";
 
         private readonly CommandHandler _commandHandler = new CommandHandler(NAME);
         private BuildColorUI _ui;
@@ -43,6 +44,11 @@ namespace Sisk.BuildColors {
         ///     Available color sets.
         /// </summary>
         public ColorSets ColorSets { get; private set; }
+
+        /// <summary>
+        ///     Server memory.
+        /// </summary>
+        public ServerMemory ServerMemory { get; private set; }
 
         public override void Draw() {
             if (!MyAPIGateway.Utilities.IsDedicated) {
@@ -86,6 +92,11 @@ namespace Sisk.BuildColors {
             }
 
             LoadColorSets();
+            if (MyAPIGateway.Multiplayer.MultiplayerActive && !MyAPIGateway.Utilities.IsDedicated) {
+                LoadServerColor();
+                MyAPIGateway.Session.OnSessionReady += OnSessionReady;
+            }
+
             MyAPIGateway.Utilities.MessageEntered += OnMessageEntered;
             MyAPIGateway.Gui.GuiControlRemoved += OnGuiControlRemoved;
         }
@@ -138,6 +149,10 @@ namespace Sisk.BuildColors {
         ///     Unregister events and stuff like that.
         /// </summary>
         protected override void UnloadData() {
+            if (MyAPIGateway.Multiplayer.MultiplayerActive) {
+                SaveServerMemory();
+                MyAPIGateway.Session.OnSessionReady -= OnSessionReady;
+            }
             MyAPIGateway.Utilities.MessageEntered -= OnMessageEntered;
             MyAPIGateway.Gui.GuiControlRemoved -= OnGuiControlRemoved;
         }
@@ -173,7 +188,7 @@ namespace Sisk.BuildColors {
         }
 
         private void LoadColorSets() {
-            var colorSets = FileHandler.LoadColorSets(COLOR_SETS_FILE);
+            var colorSets = FileHandler.Load<ColorSets>(COLOR_SETS_FILE);
 
             if (colorSets != null) {
                 if (colorSets.Version < ColorSets.VERSION) {
@@ -184,6 +199,20 @@ namespace Sisk.BuildColors {
             }
 
             ColorSets = colorSets;
+        }
+
+        private void LoadServerColor() {
+            var serverMemory = FileHandler.Load<ServerMemory>(SERVER_MEMORY_FILE);
+
+            if (serverMemory != null) {
+                if (serverMemory.Version < ColorSets.VERSION) {
+                    // todo: merge old and new color sets in future versions.
+                }
+            } else {
+                serverMemory = new ServerMemory();
+            }
+
+            ServerMemory = serverMemory;
         }
 
         private void OnGuiControlRemoved(object obj) {
@@ -198,8 +227,31 @@ namespace Sisk.BuildColors {
             }
         }
 
+        private void OnSessionReady() {
+            if (ServerMemory?.ServerEntries?.Any() == true) {
+                if (ServerMemory.ServerEntries.Any(x => x.Id == MyAPIGateway.Multiplayer.ServerId)) {
+                    var entry = ServerMemory.ServerEntries.FirstOrDefault(x => x.Id == MyAPIGateway.Multiplayer.ServerId);
+                    MyAPIGateway.Session.LocalHumanPlayer.BuildColorSlots = entry.Colors.Select(x => (Vector3)x).ToList();
+                }
+            }
+        }
+
         private void SaveColorSets() {
-            FileHandler.SaveColorSets(COLOR_SETS_FILE, ColorSets);
+            FileHandler.Save(COLOR_SETS_FILE, ColorSets);
+        }
+
+        private void SaveServerMemory() {
+            if (ServerMemory.ServerEntries.Any(x => x.Id == MyAPIGateway.Multiplayer.ServerId)) {
+                var entry = ServerMemory.ServerEntries.FirstOrDefault(x => x.Id == MyAPIGateway.Multiplayer.ServerId);
+                entry.Colors = MyAPIGateway.Session.LocalHumanPlayer.BuildColorSlots.Select(x => (Color)x).ToArray();
+            } else {
+                ServerMemory.ServerEntries.Add(new ServerEntry {
+                    Id = MyAPIGateway.Multiplayer.ServerId,
+                    Colors = MyAPIGateway.Session.LocalHumanPlayer.BuildColorSlots.Select(x => (Color)x).ToArray()
+                });
+            }
+
+            FileHandler.Save(SERVER_MEMORY_FILE, ServerMemory);
         }
     }
 }

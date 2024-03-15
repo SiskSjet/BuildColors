@@ -3,16 +3,17 @@ using Sisk.BuildColors.Settings.Models;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 
-// ReSharper disable ExplicitCallerInfoArgument
-
 namespace Sisk.BuildColors.Settings {
 
     [ProtoContract]
-    [XmlRoot(nameof(ColorSets))]
-    public class ColorSets : HashSet<ColorSet> {
+    [XmlRoot(nameof(ServerMemory))]
+    public class ServerMemory {
         public const int VERSION = 1;
 
-        public ColorSets() : base(new ColorSetComparer()) { }
+        [ProtoMember(2)]
+        [XmlArray(Order = 2)]
+        [XmlArrayItem]
+        public HashSet<ServerEntry> ServerEntries { get; set; } = new HashSet<ServerEntry>();
 
         [ProtoMember(1)]
         [XmlElement(Order = 1)]

@@ -7,28 +7,28 @@ namespace Sisk.BuildColors {
 
     public static class FileHandler {
 
-        public static ColorSets LoadColorSets(string fileName) {
-            ColorSets colorSets = null;
+        public static T Load<T>(string fileName) where T : class {
+            T data = null;
             if (MyAPIGateway.Utilities.FileExistsInGlobalStorage(fileName)) {
                 try {
                     using (var reader = MyAPIGateway.Utilities.ReadFileInGlobalStorage(fileName)) {
-                        colorSets = MyAPIGateway.Utilities.SerializeFromXML<ColorSets>(reader.ReadToEnd());
+                        data = MyAPIGateway.Utilities.SerializeFromXML<T>(reader.ReadToEnd());
                     }
                 } catch (Exception exception) {
-                    MyLog.Default.Error($"Error loading color sets from file '{fileName}': {exception.Message}\n{exception.StackTrace}");
+                    MyLog.Default.Error($"Error loading data from file '{fileName}': {exception.Message}\n{exception.StackTrace}");
                 }
             }
 
-            return colorSets;
+            return data;
         }
 
-        public static void SaveColorSets(string fileName, ColorSets colorSets) {
+        public static void Save<T>(string fileName, T data) where T : class {
             try {
                 using (var writer = MyAPIGateway.Utilities.WriteFileInGlobalStorage(fileName)) {
-                    writer.Write(MyAPIGateway.Utilities.SerializeToXML(colorSets));
+                    writer.Write(MyAPIGateway.Utilities.SerializeToXML(data));
                 }
             } catch (Exception exception) {
-                MyLog.Default.Error($"Error saving color sets to file '{fileName}': {exception.Message}\n{exception.StackTrace}");
+                MyLog.Default.Error($"Error saving data to file '{fileName}': {exception.Message}\n{exception.StackTrace}");
             }
         }
     }
