@@ -149,7 +149,7 @@ namespace Sisk.BuildColors {
         ///     Unregister events and stuff like that.
         /// </summary>
         protected override void UnloadData() {
-            if (MyAPIGateway.Multiplayer.MultiplayerActive) {
+            if (MyAPIGateway.Multiplayer.MultiplayerActive && !MyAPIGateway.Utilities.IsDedicated) {
                 SaveServerMemory();
                 MyAPIGateway.Session.OnSessionReady -= OnSessionReady;
             }
