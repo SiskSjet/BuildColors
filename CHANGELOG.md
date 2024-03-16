@@ -1,3 +1,12 @@
+# [2.1.2](https://github.com/SiskSjet/BuildColors/compare/v2.1.1...v2.1.2) (2024-03-16)
+
+
+### Bug Fixes
+
+* fixed a crash on dedicated ([58aac2b](https://github.com/SiskSjet/BuildColors/commit/58aac2bab63224407d00a0f9f3a756a3574a1173))
+
+
+
 # [2.1.1](https://github.com/SiskSjet/BuildColors/compare/v2.1.0...v2.1.1) (2024-03-15)
 
 
