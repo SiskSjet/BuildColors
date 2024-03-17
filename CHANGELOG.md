@@ -1,3 +1,12 @@
+# [2.1.3](https://github.com/SiskSjet/BuildColors/compare/v2.1.2...v2.1.3) (2024-03-17)
+
+
+### Bug Fixes
+
+* `ServerId` is not persistant, so the mod had never restored the colors. It will not use the world name instead ([32c2f69](https://github.com/SiskSjet/BuildColors/commit/32c2f69f64ae17951a62af2ac6c8eba4e8c55578))
+
+
+
 # [2.1.2](https://github.com/SiskSjet/BuildColors/compare/v2.1.1...v2.1.2) (2024-03-16)
 
 
