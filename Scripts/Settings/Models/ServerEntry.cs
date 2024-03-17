@@ -15,6 +15,6 @@ namespace Sisk.BuildColors.Settings.Models {
 
         [ProtoMember(1)]
         [XmlAttribute()]
-        public ulong Id { get; set; }
+        public string Id { get; set; }
     }
 }
