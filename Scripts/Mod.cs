@@ -229,8 +229,8 @@ namespace Sisk.BuildColors {
 
         private void OnSessionReady() {
             if (ServerMemory?.ServerEntries?.Any() == true) {
-                if (ServerMemory.ServerEntries.Any(x => x.Id == MyAPIGateway.Multiplayer.ServerId)) {
-                    var entry = ServerMemory.ServerEntries.FirstOrDefault(x => x.Id == MyAPIGateway.Multiplayer.ServerId);
+                if (ServerMemory.ServerEntries.Any(x => x.Id == MyAPIGateway.Session.Name)) {
+                    var entry = ServerMemory.ServerEntries.FirstOrDefault(x => x.Id == MyAPIGateway.Session.Name);
                     MyAPIGateway.Session.LocalHumanPlayer.BuildColorSlots = entry.Colors.Select(x => (Vector3)x).ToList();
                 }
             }
@@ -241,12 +241,12 @@ namespace Sisk.BuildColors {
         }
 
         private void SaveServerMemory() {
-            if (ServerMemory.ServerEntries.Any(x => x.Id == MyAPIGateway.Multiplayer.ServerId)) {
-                var entry = ServerMemory.ServerEntries.FirstOrDefault(x => x.Id == MyAPIGateway.Multiplayer.ServerId);
+            if (ServerMemory.ServerEntries.Any(x => x.Id == MyAPIGateway.Session.Name)) {
+                var entry = ServerMemory.ServerEntries.FirstOrDefault(x => x.Id == MyAPIGateway.Session.Name);
                 entry.Colors = MyAPIGateway.Session.LocalHumanPlayer.BuildColorSlots.Select(x => (Color)x).ToArray();
             } else {
                 ServerMemory.ServerEntries.Add(new ServerEntry {
-                    Id = MyAPIGateway.Multiplayer.ServerId,
+                    Id = MyAPIGateway.Session.Name,
                     Colors = MyAPIGateway.Session.LocalHumanPlayer.BuildColorSlots.Select(x => (Color)x).ToArray()
                 });
             }
