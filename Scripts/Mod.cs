@@ -228,7 +228,7 @@ namespace Sisk.BuildColors {
         }
 
         private void OnSessionReady() {
-            if (ServerMemory?.ServerEntries?.Any() == true && MyAPIGateway.Session != null && MyAPIGateway.Session.LocalHumanPlayer != null &&) {
+            if (ServerMemory?.ServerEntries?.Any() == true && MyAPIGateway.Session != null && MyAPIGateway.Session.LocalHumanPlayer != null) {
                 if (ServerMemory.ServerEntries.Any(x => x.Id == MyAPIGateway.Session.Name)) {
                     var entry = ServerMemory.ServerEntries.FirstOrDefault(x => x.Id == MyAPIGateway.Session.Name);
                     MyAPIGateway.Session.LocalHumanPlayer.BuildColorSlots = entry.Colors.Select(x => (Vector3)x).ToList();

@@ -1,3 +1,12 @@
+# [2.1.5](https://github.com/SiskSjet/BuildColors/compare/v2.1.4...v2.1.5) (2024-03-30)
+
+
+### Bug Fixes
+
+* fix `Invalid Expression Term ]` I introducedwith last hotfix... ([8f8b7a6](https://github.com/SiskSjet/BuildColors/commit/8f8b7a68517827bfd7a0158027326ce9e99f3776))
+
+
+
 # [2.1.4](https://github.com/SiskSjet/BuildColors/compare/v2.1.3...v2.1.4) (2024-03-30)
 
 
