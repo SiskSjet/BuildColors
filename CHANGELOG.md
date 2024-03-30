@@ -1,3 +1,12 @@
+# [2.1.4](https://github.com/SiskSjet/BuildColors/compare/v2.1.3...v2.1.4) (2024-03-30)
+
+
+### Bug Fixes
+
+* fix a crash that can happen when loading to a server which is restarting ([5b2cd63](https://github.com/SiskSjet/BuildColors/commit/5b2cd63a2677322fd7b91223beae2971fc27b493))
+
+
+
 # [2.1.3](https://github.com/SiskSjet/BuildColors/compare/v2.1.2...v2.1.3) (2024-03-17)
 
 
