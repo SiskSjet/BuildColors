@@ -1,3 +1,12 @@
+# [2.1.6](https://github.com/SiskSjet/BuildColors/compare/v2.1.5...v2.1.6) (2024-07-26)
+
+
+### Bug Fixes
+
+* fixed a bug that caused the mod to not unload properly if the player lost connection due to connection problems ([23ea6b8](https://github.com/SiskSjet/BuildColors/commit/23ea6b8d0d6c6c962678b75c6b7ccf7aab5add36))
+
+
+
 # [2.1.5](https://github.com/SiskSjet/BuildColors/compare/v2.1.4...v2.1.5) (2024-03-30)
 
 
