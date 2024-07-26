@@ -155,6 +155,7 @@ namespace Sisk.BuildColors {
             }
             MyAPIGateway.Utilities.MessageEntered -= OnMessageEntered;
             MyAPIGateway.Gui.GuiControlRemoved -= OnGuiControlRemoved;
+            Static = null;
         }
 
         /// <summary>
@@ -241,17 +242,19 @@ namespace Sisk.BuildColors {
         }
 
         private void SaveServerMemory() {
-            if (ServerMemory.ServerEntries.Any(x => x.Id == MyAPIGateway.Session.Name)) {
-                var entry = ServerMemory.ServerEntries.FirstOrDefault(x => x.Id == MyAPIGateway.Session.Name);
-                entry.Colors = MyAPIGateway.Session.LocalHumanPlayer.BuildColorSlots.Select(x => (Color)x).ToArray();
-            } else {
-                ServerMemory.ServerEntries.Add(new ServerEntry {
-                    Id = MyAPIGateway.Session.Name,
-                    Colors = MyAPIGateway.Session.LocalHumanPlayer.BuildColorSlots.Select(x => (Color)x).ToArray()
-                });
-            }
+            if ((ServerMemory?.ServerEntries) != null && (MyAPIGateway.Session?.LocalHumanPlayer?.BuildColorSlots) != null) {
+                if (ServerMemory.ServerEntries.Any(x => x.Id == MyAPIGateway.Session.Name)) {
+                    var entry = ServerMemory.ServerEntries.FirstOrDefault(x => x.Id == MyAPIGateway.Session.Name);
+                    entry.Colors = MyAPIGateway.Session.LocalHumanPlayer.BuildColorSlots.Select(x => (Color)x).ToArray();
+                } else {
+                    ServerMemory.ServerEntries.Add(new ServerEntry {
+                        Id = MyAPIGateway.Session.Name,
+                        Colors = MyAPIGateway.Session.LocalHumanPlayer.BuildColorSlots.Select(x => (Color)x).ToArray()
+                    });
+                }
 
-            FileHandler.Save(SERVER_MEMORY_FILE, ServerMemory);
+                FileHandler.Save(SERVER_MEMORY_FILE, ServerMemory);
+            }
         }
     }
 }
