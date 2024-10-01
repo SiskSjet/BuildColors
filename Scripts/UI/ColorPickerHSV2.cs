@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using VRageMath;
 using VRageRender.Messages;
+using EventHandler = Sisk.BuildColors.EventHandler;
 
 namespace Sisk.BuildColors.UI {
 
@@ -150,6 +151,8 @@ namespace Sisk.BuildColors.UI {
 
         public ColorPickerHSV2() : this(null) { }
 
+        public event Sisk.BuildColors.EventHandler ColorChanged;
+
         /// <summary>
         /// Color currently specified by the color picker. Formatted as non-normalized, offset HSV.
         /// Max: [360, 100, 100]
@@ -157,13 +160,11 @@ namespace Sisk.BuildColors.UI {
         public Vector3 Color {
             get { return _color; }
             set {
-                sliders[0].Current = value.X;
-                sliders[1].Current = value.Y;
-                sliders[2].Current = value.Z;
-                sliderTextBox[0].Text = $"{Math.Round(value.X, 1)}";
-                sliderTextBox[1].Text = $"{Math.Round(value.Y, 1)}";
-                sliderTextBox[2].Text = $"{Math.Round(value.Z, 1)}";
                 _color = value;
+                SetColorsToSliders();
+                SetColorToTextBoxes();
+                display.Color = (_color / new Vector3(360f, 100f, 100f)).HSVtoColor();
+                //ColorChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -247,12 +248,74 @@ namespace Sisk.BuildColors.UI {
                         sliders[i].MouseInput.GetInputFocus();
                     }
 
+                    if (SharedBinds.LeftArrow.IsPressed) {
+                        SetColorFromSlider();
+                        SetColorToTextBoxes();
+                    } else if (SharedBinds.RightArrow.IsPressed) {
+                        SetColorFromSlider();
+                        SetColorToTextBoxes();
+                    }
+
+                    if (SharedBinds.LeftButton.IsPressed) {
+                        SetColorFromSlider();
+                        SetColorToTextBoxes();
+                    }
+
                     break;
                 }
             }
         }
 
         private void OnSliderLeftReleased(object sender, EventArgs e) {
+            SetColorFromSlider();
+            SetColorToTextBoxes();
+        }
+
+        private void OnTextChanged(object sender, EventArgs e) {
+            if (!sliderTextBox[0].InputOpen && !sliderTextBox[1].InputOpen && !sliderTextBox[2].InputOpen) {
+                return;
+            }
+
+            float x;
+            float y;
+            float z;
+
+            // check if the input is a valid float else reset the text
+            if (!float.TryParse(sliderTextBox[0].TextBoard.GetText().ToString(), out x)) {
+                sliderTextBox[0].Text = $"{Math.Round(_color.X, 1)}";
+            }
+
+            if (!float.TryParse(sliderTextBox[1].TextBoard.GetText().ToString(), out y)) {
+                sliderTextBox[1].Text = $"{Math.Round(_color.Y, 1)}";
+            }
+
+            if (!float.TryParse(sliderTextBox[2].TextBoard.GetText().ToString(), out z)) {
+                sliderTextBox[2].Text = $"{Math.Round(_color.Z, 1)}";
+            }
+
+            if (sliderTextBox[0].InputOpen) {
+                // clamp the values to the valid range
+                x = MathHelper.Clamp(x, 0f, 360f);
+                sliderTextBox[0].Text = $"{Math.Round(x, 1)}";
+            }
+
+            if (sliderTextBox[1].InputOpen) {
+                // clamp the values to the valid range
+                y = MathHelper.Clamp(y, 0f, 100f);
+                sliderTextBox[1].Text = $"{Math.Round(y, 1)}";
+            }
+
+            if (sliderTextBox[2].InputOpen) {
+                // clamp the values to the valid range
+                z = MathHelper.Clamp(z, 0f, 100f);
+                sliderTextBox[2].Text = $"{Math.Round(z, 1)}";
+            }
+
+            SetColorFromSliderTextBox();
+            SetColorsToSliders();
+        }
+
+        private void SetColorFromSlider() {
             _color = new Vector3() {
                 X = sliders[0].Current,
                 Y = sliders[1].Current,
@@ -260,16 +323,22 @@ namespace Sisk.BuildColors.UI {
             };
 
             display.Color = (_color / new Vector3(360f, 100f, 100f)).HSVtoColor();
-            Color = _color;
+            ColorChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        private void OnTextChanged(object sender, EventArgs e) {
+        private void SetColorFromSliderTextBox() {
             float x;
             float y;
             float z;
+
             if (float.TryParse(sliderTextBox[0].TextBoard.GetText().ToString(), out x)) {
                 if (float.TryParse(sliderTextBox[1].TextBoard.GetText().ToString(), out y)) {
                     if (float.TryParse(sliderTextBox[2].TextBoard.GetText().ToString(), out z)) {
+                        // clamp the values to the valid range
+                        x = MathHelper.Clamp(x, 0f, 360f);
+                        y = MathHelper.Clamp(y, 0f, 100f);
+                        z = MathHelper.Clamp(z, 0f, 100f);
+
                         _color = new Vector3() {
                             X = x,
                             Y = y,
@@ -277,10 +346,22 @@ namespace Sisk.BuildColors.UI {
                         };
 
                         display.Color = (_color / new Vector3(360f, 100f, 100f)).HSVtoColor();
-                        Color = _color;
+                        ColorChanged?.Invoke(this, EventArgs.Empty);
                     }
                 }
             }
+        }
+
+        private void SetColorsToSliders() {
+            sliders[0].Current = _color.X;
+            sliders[1].Current = _color.Y;
+            sliders[2].Current = _color.Z;
+        }
+
+        private void SetColorToTextBoxes() {
+            sliderTextBox[0].Text = $"{Math.Round(_color.X, 1)}";
+            sliderTextBox[1].Text = $"{Math.Round(_color.Y, 1)}";
+            sliderTextBox[2].Text = $"{Math.Round(_color.Z, 1)}";
         }
     }
 }

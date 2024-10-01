@@ -7,6 +7,7 @@ using Sisk.BuildColors.Settings.Models.ColorSpace;
 using System;
 using System.Linq;
 using VRageMath;
+using EventHandler = Sisk.BuildColors.EventHandler;
 
 namespace Sisk.BuildColors.UI {
 
@@ -229,9 +230,7 @@ namespace Sisk.BuildColors.UI {
             _schemeGenerator = new ColorSchemeGenerator();
 
             randomColorCheckbox.MouseInput.LeftClicked += OnRandomColorChanged;
-            foreach (var slider in _baseColorPicker.sliders) {
-                slider.MouseInput.LeftReleased += OnBaseColorChanged;
-            }
+            _baseColorPicker.ColorChanged += OnBaseColorChanged;
 
             _colorsetList.SelectionChanged += OnColorSetChanged;
             _colorsetList.MouseInput.CursorEntered += OnMouseOver;
@@ -302,14 +301,18 @@ namespace Sisk.BuildColors.UI {
             var preset = _presetDropdown.Selection.AssocMember;
             var scheme = _schemeDropdown.Selection.AssocMember;
 
-            var useDefinedColor = _baseColorPicker.Visible;
+            var useDefinedBaseColor = _baseColorPicker.Visible;
 
-            var color = useDefinedColor ? new HSV(_baseColorPicker.Color.X, _baseColorPicker.Color.Y / 100f, _baseColorPicker.Color.Z / 100f).ToHSL() : reuseColor ? generator.BaseColor : (HSL?)null;
+            var color = useDefinedBaseColor
+                ? new HSV(_baseColorPicker.Color.X, _baseColorPicker.Color.Y / 100f, _baseColorPicker.Color.Z / 100f).ToHSL()
+                : reuseColor ? generator.BaseColor : (HSL?)null;
 
             var result = generator.Generate(color: color, preset: preset, scheme: scheme);
 
             var baseColor = generator.BaseColor.ToHSV();
-            _baseColorPicker.Color = new Vector3(baseColor.H, baseColor.S * 100, baseColor.V * 100);
+            if (!useDefinedBaseColor) {
+                _baseColorPicker.Color = new Vector3(baseColor.H, baseColor.S * 100, baseColor.V * 100);
+            }
 
             // convert result to Color array.
             var colors = result.Select(x => (Settings.Models.Color)x).ToArray();
@@ -357,7 +360,6 @@ namespace Sisk.BuildColors.UI {
         }
 
         private void OnMouseOver(object sender, EventArgs e) {
-            //Sandbox.Game.MyVisualScriptLogicProvider.PlayHudSound(VRage.Audio.MyGuiSounds.HudMouseClick);
             HudSoundUtils.PlaySound("HudMouseOver");
         }
 
