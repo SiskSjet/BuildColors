@@ -20,9 +20,9 @@ namespace Sisk.BuildColors.UI {
         // Sliders
         public readonly SliderBox[] sliders;
 
-        private readonly HudChain<HudElementContainer<Label>, Label> colorNameColumn;
-        private readonly HudChain<HudElementContainer<SliderBox>, SliderBox> colorSliderColumn;
-        private readonly HudChain<HudElementContainer<TextField>, TextField> colorValueColumn;
+        private readonly HudChain colorNameColumn;
+        private readonly HudChain colorSliderColumn;
+        private readonly HudChain colorValueColumn;
         private readonly TexturedBox display;
 
         private readonly HudChain headerChain;
@@ -84,14 +84,14 @@ namespace Sisk.BuildColors.UI {
                 new TextField() { AutoResize = false, Format = TerminalFormatting.ControlFormat, Height = 47f }
             };
 
-            colorNameColumn = new HudChain<HudElementContainer<Label>, Label>(true) {
+            colorNameColumn = new HudChain(true) {
                 SizingMode = HudChainSizingModes.FitMembersBoth | HudChainSizingModes.FitChainBoth,
                 Width = 17f,
                 Spacing = 5f,
                 CollectionContainer = { sliderText[0], sliderText[1], sliderText[2] }
             };
 
-            colorValueColumn = new HudChain<HudElementContainer<TextField>, TextField>(true) {
+            colorValueColumn = new HudChain(true) {
                 SizingMode = HudChainSizingModes.FitMembersBoth | HudChainSizingModes.FitChainBoth,
                 Width = 77f,
                 Spacing = 5f,
@@ -105,7 +105,7 @@ namespace Sisk.BuildColors.UI {
                 new SliderBox() { Min = 0f, Max = 100f, Height = 47f }
             };
 
-            colorSliderColumn = new HudChain<HudElementContainer<SliderBox>, SliderBox>(true) {
+            colorSliderColumn = new HudChain(true) {
                 SizingMode = HudChainSizingModes.FitMembersBoth | HudChainSizingModes.FitChainBoth,
                 Width = 201f,
                 Spacing = 5f,
@@ -145,7 +145,7 @@ namespace Sisk.BuildColors.UI {
             }
 
             foreach (var textBox in sliderTextBox) {
-                textBox.TextChanged += OnTextChanged;
+                textBox.ValueChanged += OnTextChanged;
             }
         }
 
@@ -168,19 +168,19 @@ namespace Sisk.BuildColors.UI {
             }
         }
 
-        public override float Height {
-            set {
-                if (value > Padding.Y) {
-                    value -= Padding.Y;
-                }
+        //public override float Height {
+        //    set {
+        //        if (value > Padding.Y) {
+        //            value -= Padding.Y;
+        //        }
 
-                _size.Y = (value);
-                value = (value - headerChain.Height - 15f) / 3f;
-                colorNameColumn.MemberMaxSize = new Vector2(colorNameColumn.MemberMaxSize.X, value);
-                colorValueColumn.MemberMaxSize = new Vector2(colorValueColumn.MemberMaxSize.X, value);
-                colorSliderColumn.MemberMaxSize = new Vector2(colorSliderColumn.MemberMaxSize.X, value);
-            }
-        }
+        //        _size.Y = (value);
+        //        value = (value - headerChain.Height - 15f) / 3f;
+        //        colorNameColumn.MemberMaxSize = new Vector2(colorNameColumn.MemberMaxSize.X, value);
+        //        colorValueColumn.MemberMaxSize = new Vector2(colorValueColumn.MemberMaxSize.X, value);
+        //        colorSliderColumn.MemberMaxSize = new Vector2(colorSliderColumn.MemberMaxSize.X, value);
+        //    }
+        //}
 
         /// <summary>
         /// Text rendered by the label
@@ -209,17 +209,17 @@ namespace Sisk.BuildColors.UI {
             }
         }
 
-        public override float Width {
-            set {
-                if (value > Padding.X) {
-                    value -= Padding.X;
-                }
+        //public override float Width {
+        //    set {
+        //        if (value > Padding.X) {
+        //            value -= Padding.X;
+        //        }
 
-                _size.X = (value);
-                display.Width = value - name.Width;
-                colorSliderColumn.Width = display.Width;
-            }
-        }
+        //        _size.X = (value);
+        //        display.Width = value - name.Width;
+        //        colorSliderColumn.Width = display.Width;
+        //    }
+        //}
 
         /// <summary>
         /// Set focus for slider corresponding to the given color channel index [0, 2].
@@ -227,25 +227,25 @@ namespace Sisk.BuildColors.UI {
         public void SetChannelFocused(int channel) {
             channel = MathHelper.Clamp(channel, 0, 2);
 
-            if (!sliders[channel].MouseInput.HasFocus) {
+            if (!sliders[channel].FocusHandler.HasFocus) {
                 focusedChannel = channel;
             }
         }
 
         protected override void HandleInput(Vector2 cursorPos) {
             if (focusedChannel != -1) {
-                sliders[focusedChannel].MouseInput.GetInputFocus();
+                sliders[focusedChannel].FocusHandler.GetInputFocus();
                 focusedChannel = -1;
             }
 
             for (var i = 0; i < sliders.Length; i++) {
-                if (sliders[i].MouseInput.HasFocus) {
+                if (sliders[i].FocusHandler.HasFocus) {
                     if (SharedBinds.UpArrow.IsNewPressed) {
                         i = MathHelper.Clamp(i - 1, 0, sliders.Length - 1);
-                        sliders[i].MouseInput.GetInputFocus();
+                        sliders[i].FocusHandler.GetInputFocus();
                     } else if (SharedBinds.DownArrow.IsNewPressed) {
                         i = MathHelper.Clamp(i + 1, 0, sliders.Length - 1);
-                        sliders[i].MouseInput.GetInputFocus();
+                        sliders[i].FocusHandler.GetInputFocus();
                     }
 
                     if (SharedBinds.LeftArrow.IsPressed) {
@@ -317,9 +317,9 @@ namespace Sisk.BuildColors.UI {
 
         private void SetColorFromSlider() {
             _color = new Vector3() {
-                X = sliders[0].Current,
-                Y = sliders[1].Current,
-                Z = sliders[2].Current,
+                X = sliders[0].Value,
+                Y = sliders[1].Value,
+                Z = sliders[2].Value,
             };
 
             display.Color = (_color / new Vector3(360f, 100f, 100f)).HSVtoColor();
@@ -353,9 +353,9 @@ namespace Sisk.BuildColors.UI {
         }
 
         private void SetColorsToSliders() {
-            sliders[0].Current = _color.X;
-            sliders[1].Current = _color.Y;
-            sliders[2].Current = _color.Z;
+            sliders[0].Value = _color.X;
+            sliders[1].Value = _color.Y;
+            sliders[2].Value = _color.Z;
         }
 
         private void SetColorToTextBoxes() {
