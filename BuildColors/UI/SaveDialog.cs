@@ -1,25 +1,23 @@
-﻿using RichHudFramework.UI;
+using RichHudFramework.UI;
 using System;
 using VRageMath;
 
 namespace Sisk.BuildColors.UI {
 
-    public class SaveWindow : WindowBase {
+    /// <summary>
+    /// Modal dialog for saving color sets with a custom name.
+    /// </summary>
+    public class SaveDialog : DialogBase {
         private readonly TextField _text;
         private Settings.Models.ColorSet _colorset;
 
-        public SaveWindow(HudParentBase parent = null, Settings.Models.ColorSet? colorSet = null) : base(parent) {
+        public SaveDialog(HudParentBase parent = null, Settings.Models.ColorSet? colorSet = null) : base(parent) {
             if (colorSet.HasValue) {
                 _colorset = colorSet.Value;
             }
 
-            BodyColor = new Color(41, 54, 62, 150);
-            BorderColor = new Color(58, 68, 77);
-            AllowResizing = false;
-            Size = new Vector2(330, 150f);
-            Padding = new Vector2(10f, 10f);
+            Size = new Vector2(330, 180f);
             HeaderText = "Name your color set";
-            ZOffset = 0;
 
             _text = new TextField() {
                 Text = "",
@@ -45,8 +43,6 @@ namespace Sisk.BuildColors.UI {
             };
 
             var layout = new HudChain(true) {
-                ParentAlignment = ParentAlignments.Inner,
-                DimAlignment = DimAlignments.Width,
                 CollectionContainer = { _text, controls },
                 Spacing = 10f,
             };
@@ -72,7 +68,7 @@ namespace Sisk.BuildColors.UI {
 
         private void OnCancelClicked(object sender, EventArgs e) {
             HudSoundUtils.PlaySound("HudLockingLost");
-            Unregister();
+            Close();
         }
 
         private void OnMouseOver(object sender, EventArgs e) {
@@ -81,8 +77,8 @@ namespace Sisk.BuildColors.UI {
 
         private void OnSaveClicked(object sender, EventArgs e) {
             HudSoundUtils.PlaySound("HudBleep");
-            Unregister();
             SaveClicked?.Invoke(this, e);
+            Close();
         }
     }
 }

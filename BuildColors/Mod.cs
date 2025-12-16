@@ -2,7 +2,9 @@ using Sandbox.ModAPI;
 using Sisk.BuildColors.Localization;
 using Sisk.BuildColors.Settings;
 using Sisk.BuildColors.Settings.Models;
+using Sisk.BuildColors.Settings.Models.PaintJobs;
 using Sisk.BuildColors.UI;
+using Sisk.BuildColors.Services;
 using Sisk.Utils.CommandHandler;
 using Sisk.Utils.Localization.Extensions;
 using System;
@@ -19,8 +21,8 @@ namespace Sisk.BuildColors {
     public class Mod : MySessionComponentBase {
         public const string NAME = "BuildColors";
         private const string COLOR_SETS_FILE = "ColorSets.xml";
+        private const string PAINT_JOBS_FILE = "PaintJobs.xml";
         private const string SERVER_MEMORY_FILE = "BuildColorsServerMemory.xml";
-
         private readonly CommandHandler _commandHandler = new CommandHandler(NAME);
         private BuildColorUI _ui;
 
@@ -44,6 +46,16 @@ namespace Sisk.BuildColors {
         ///     Available color sets.
         /// </summary>
         public ColorSets ColorSets { get; private set; }
+
+        /// <summary>
+        ///     Stored paint jobs.
+        /// </summary>
+        public PaintJobSet PaintJobs { get; private set; }
+
+        /// <summary>
+        ///     Runtime service for manipulating and applying paint jobs.
+        /// </summary>
+        public PaintJobService PaintJobService { get; private set; }
 
         /// <summary>
         ///     Server memory.
@@ -92,13 +104,14 @@ namespace Sisk.BuildColors {
             }
 
             LoadColorSets();
+            LoadPaintJobs();
+            PaintJobService = new PaintJobService(this);
             if (MyAPIGateway.Multiplayer.MultiplayerActive && !MyAPIGateway.Utilities.IsDedicated) {
                 LoadServerColor();
                 MyAPIGateway.Session.OnSessionReady += OnSessionReady;
             }
 
             MyAPIGateway.Utilities.MessageEntered += OnMessageEntered;
-            MyAPIGateway.Gui.GuiControlRemoved += OnGuiControlRemoved;
         }
 
         /// <summary>
@@ -145,6 +158,12 @@ namespace Sisk.BuildColors {
             MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(ModText.BC_ColorSetSaved.GetString(), colorSet.Name));
         }
 
+        internal void SavePaintJobs() {
+            if (PaintJobs != null) {
+                FileHandler.Save(PAINT_JOBS_FILE, PaintJobs);
+            }
+        }
+
         /// <summary>
         ///     Unregister events and stuff like that.
         /// </summary>
@@ -153,9 +172,24 @@ namespace Sisk.BuildColors {
                 SaveServerMemory();
                 MyAPIGateway.Session.OnSessionReady -= OnSessionReady;
             }
+            SavePaintJobs();
             MyAPIGateway.Utilities.MessageEntered -= OnMessageEntered;
-            MyAPIGateway.Gui.GuiControlRemoved -= OnGuiControlRemoved;
             Static = null;
+        }
+
+        private void ApplyJobCommand(string arguments) {
+            if (string.IsNullOrWhiteSpace(arguments)) {
+                MyAPIGateway.Utilities.ShowMessage(NAME, $"Usage: /{Acronym} ApplyJob <JobName>");
+                return;
+            }
+
+            var job = PaintJobs?.FirstOrDefault(r => string.Equals(r.Name, arguments, StringComparison.InvariantCultureIgnoreCase));
+            if (job == null) {
+                MyAPIGateway.Utilities.ShowMessage(NAME, $"No paint job named '{arguments}' found.");
+                return;
+            }
+
+            PaintJobService?.ApplyJobToSelection(job);
         }
 
         /// <summary>
@@ -169,6 +203,8 @@ namespace Sisk.BuildColors {
             _commandHandler.Register(new Command { Name = "Generate", Description = ModText.BC_Description_Generate.GetString(), Execute = GenerateColorSet });
             _commandHandler.Register(new Command { Name = "List", Description = ModText.BC_Description_List.GetString(), Execute = ListColorSets });
             _commandHandler.Register(new Command { Name = "Help", Description = ModText.BC_Description_Help.GetString(), Execute = _commandHandler.ShowHelp });
+            _commandHandler.Register(new Command { Name = "Jobs", Description = "List paint jobs.", Execute = ListPaintJobs });
+            _commandHandler.Register(new Command { Name = "ApplyJob", Description = "Apply a paint job to the targeted grid.", Execute = ApplyJobCommand });
         }
 
         private void GenerateColorSet(string arguments) {
@@ -188,6 +224,16 @@ namespace Sisk.BuildColors {
             MyAPIGateway.Utilities.ShowMessage(NAME, ColorSets.Any() ? string.Join(", ", ColorSets.Select(x => x.Name)) : ModText.BC_NoColorSetsAvailable.GetString());
         }
 
+        private void ListPaintJobs(string arguments) {
+            if (PaintJobs == null || PaintJobs.Count == 0) {
+                MyAPIGateway.Utilities.ShowMessage(NAME, "No paint jobs defined yet.");
+                return;
+            }
+
+            var names = PaintJobs.Select(r => r.Name).OrderBy(x => x, StringComparer.InvariantCultureIgnoreCase);
+            MyAPIGateway.Utilities.ShowMessage(NAME, string.Join(", ", names));
+        }
+
         private void LoadColorSets() {
             var colorSets = FileHandler.Load<ColorSets>(COLOR_SETS_FILE);
 
@@ -202,6 +248,20 @@ namespace Sisk.BuildColors {
             ColorSets = colorSets;
         }
 
+        private void LoadPaintJobs() {
+            var jobs = FileHandler.Load<PaintJobSet>(PAINT_JOBS_FILE);
+
+            if (jobs != null) {
+                if (jobs.Version < PaintJobSet.VERSION) {
+                    // todo: merge old and new paint job versions.
+                }
+            } else {
+                jobs = new PaintJobSet();
+            }
+
+            PaintJobs = jobs;
+        }
+
         private void LoadServerColor() {
             var serverMemory = FileHandler.Load<ServerMemory>(SERVER_MEMORY_FILE);
 
@@ -214,12 +274,6 @@ namespace Sisk.BuildColors {
             }
 
             ServerMemory = serverMemory;
-        }
-
-        private void OnGuiControlRemoved(object obj) {
-            if (obj.ToString().EndsWith("MyGuiScreenOptionsDisplay")) {
-                _ui?.UpdateScreenScaling();
-            }
         }
 
         private void OnMessageEntered(string messagetext, ref bool sendtoothers) {
