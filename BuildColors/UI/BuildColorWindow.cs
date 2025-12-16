@@ -35,7 +35,7 @@ namespace Sisk.BuildColors.UI {
             BorderColor = Style.BorderColor;
             BodyColor = Style.BodyBackgroundColor;
 
-            header.background.Color = Style.BodyBackgroundColor;
+            header.Background.Color = Style.BodyBackgroundColor;
             header.textElement.Offset = new Vector2(0, -10);
             header.Format = Style.HeaderText;
             header.Height = 63;
@@ -164,7 +164,7 @@ namespace Sisk.BuildColors.UI {
 
             var randomColorCheckbox = new BorderedCheckBox() {
                 ParentAlignment = ParentAlignments.Right,
-                IsBoxChecked = true,
+                Value = true,
             };
 
             var randomColorLayout = new HudChain(false) {
@@ -232,7 +232,7 @@ namespace Sisk.BuildColors.UI {
             randomColorCheckbox.MouseInput.LeftClicked += OnRandomColorChanged;
             _baseColorPicker.ColorChanged += OnBaseColorChanged;
 
-            _colorsetList.SelectionChanged += OnColorSetChanged;
+            _colorsetList.ValueChanged += OnColorSetChanged;
             _colorsetList.MouseInput.CursorEntered += OnMouseOver;
 
             _loadColorsetButton.MouseInput.LeftClicked += OnLoadClicked;
@@ -244,10 +244,10 @@ namespace Sisk.BuildColors.UI {
             saveActivColorsButton.MouseInput.LeftClicked += OnSaveActiveColorsClicked;
             saveActivColorsButton.MouseInput.CursorEntered += OnMouseOver;
 
-            _schemeDropdown.SelectionChanged += OnSchemeChanged;
+            _schemeDropdown.ValueChanged += OnSchemeChanged;
             _schemeDropdown.MouseInput.CursorEntered += OnMouseOver;
 
-            _presetDropdown.SelectionChanged += OnPresetChanged;
+            _presetDropdown.ValueChanged += OnPresetChanged;
             _presetDropdown.MouseInput.CursorEntered += OnMouseOver;
 
             _generateColorSchemeButton.MouseInput.LeftClicked += OnGenerateColorSchemeClicked;
@@ -298,8 +298,8 @@ namespace Sisk.BuildColors.UI {
         private void GenerateColorSet(bool reuseColor = false) {
             var generator = _schemeGenerator;
 
-            var preset = _presetDropdown.Selection.AssocMember;
-            var scheme = _schemeDropdown.Selection.AssocMember;
+            var preset = _presetDropdown.Value.AssocMember;
+            var scheme = _schemeDropdown.Value.AssocMember;
 
             var useDefinedBaseColor = _baseColorPicker.Visible;
 
@@ -325,8 +325,8 @@ namespace Sisk.BuildColors.UI {
         }
 
         private void OnColorSetChanged(object sender, EventArgs e) {
-            if (_colorsetList.Selection != null) {
-                var selection = _colorsetList.Selection.AssocMember;
+            if (_colorsetList.Value != null) {
+                var selection = _colorsetList.Value.AssocMember;
                 _colorsetPreview.SetColorSet(selection);
                 _loadColorsetButton.InputEnabled = true;
                 _removeColorsetButton.InputEnabled = true;
@@ -352,8 +352,8 @@ namespace Sisk.BuildColors.UI {
         }
 
         private void OnLoadClicked(object sender, EventArgs e) {
-            if (_colorsetList.Selection != null) {
-                var selection = _colorsetList.Selection.AssocMember;
+            if (_colorsetList.Value != null) {
+                var selection = _colorsetList.Value.AssocMember;
                 Mod.Static.LoadColorSet(selection.Name);
                 HudSoundUtils.PlaySound("HudBleep");
             }
@@ -371,14 +371,14 @@ namespace Sisk.BuildColors.UI {
         private void OnRandomColorChanged(object sender, EventArgs e) {
             var checkbox = sender as BorderedCheckBox;
             if (checkbox != null) {
-                _baseColorPicker.Visible = !checkbox.IsBoxChecked;
-                _generateColorSchemeButton.Visible = checkbox.IsBoxChecked;
+                _baseColorPicker.Visible = !checkbox.Value;
+                _generateColorSchemeButton.Visible = checkbox.Value;
             }
         }
 
         private void OnRemoveClicked(object sender, EventArgs e) {
-            if (_colorsetList.Selection != null) {
-                var selection = _colorsetList.Selection.AssocMember;
+            if (_colorsetList.Value != null) {
+                var selection = _colorsetList.Value.AssocMember;
                 Mod.Static.RemoveColorSet(selection.Name);
                 HudSoundUtils.PlaySound("HudLockingLost");
                 LoadColorSets();
@@ -417,7 +417,7 @@ namespace Sisk.BuildColors.UI {
 
             BorderColor = BorderColor.SetAlphaPct(opacity);
             BodyColor = BodyColor.SetAlphaPct(opacity);
-            header.background.Color = BodyColor.SetAlphaPct(opacity);
+            header.Background.Color = BodyColor.SetAlphaPct(opacity);
         }
     }
 }
