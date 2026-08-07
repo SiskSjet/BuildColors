@@ -19,7 +19,7 @@ namespace Sisk.BuildColors.UI {
             Size = new Vector2(330, 180f);
             HeaderText = "Name your color set";
 
-            _text = new TextField() {
+            _text = new GameInputBlockingTextField() {
                 Text = "",
                 Width = 310
             };

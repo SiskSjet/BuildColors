@@ -76,7 +76,7 @@ namespace Sisk.BuildColors.UI {
                 - LayoutMetrics.SECTION_SPACING * 2f;
 
             // Column 1 - job level settings and the rule list
-            _jobNameField = new TextField() { DimAlignment = DimAlignments.Width, Height = LayoutMetrics.CONTROL_HEIGHT };
+            _jobNameField = new GameInputBlockingTextField() { DimAlignment = DimAlignments.Width, Height = LayoutMetrics.CONTROL_HEIGHT };
 
             _includeSubgridsCheckbox = new BorderedCheckBox();
             _includeProjectedCheckbox = new BorderedCheckBox();
@@ -125,7 +125,7 @@ namespace Sisk.BuildColors.UI {
             jobColumn.Add(ruleButtons, 0f);
 
             // Column 2 - the selected rule
-            _ruleNameField = new TextField() { DimAlignment = DimAlignments.Width, Height = LayoutMetrics.CONTROL_HEIGHT };
+            _ruleNameField = new GameInputBlockingTextField() { DimAlignment = DimAlignments.Width, Height = LayoutMetrics.CONTROL_HEIGHT };
             _conditionSummaryLabel = CreateLabel(string.Empty);
             _editConditionsButton = CreateButton("Edit Conditions...");
 

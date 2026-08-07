@@ -98,8 +98,8 @@ namespace Sisk.BuildColors.UI {
                 _definitionDropdown.Add(option.DisplayLabel, option);
             }
 
-            _definitionTypeField = new TextField() { DimAlignment = DimAlignments.Width, Height = CONTROL_HEIGHT };
-            _definitionSubtypeField = new TextField() { DimAlignment = DimAlignments.Width, Height = CONTROL_HEIGHT };
+            _definitionTypeField = new GameInputBlockingTextField() { DimAlignment = DimAlignments.Width, Height = CONTROL_HEIGHT };
+            _definitionSubtypeField = new GameInputBlockingTextField() { DimAlignment = DimAlignments.Width, Height = CONTROL_HEIGHT };
 
             _definitionSection = new HudChain(true) {
                 CollectionContainer = {

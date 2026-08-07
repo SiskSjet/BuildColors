@@ -1,6 +1,6 @@
 using RichHudFramework;
 using RichHudFramework.UI;
-using Sandbox.ModAPI;
+using RichHudFramework.UI.Client;
 using VRageMath;
 
 namespace Sisk.BuildColors.UI {
