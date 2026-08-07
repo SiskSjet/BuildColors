@@ -27,10 +27,31 @@ namespace Sisk.BuildColors.UI {
             RichHudClient.Init(modName, HudInit, ClientReset);
         }
 
-        private void ClientReset() { }
+        /// <summary>
+        /// Rich HUD tears its API down on reset, so every handle cached from it has to be dropped. The next
+        /// HudInit rebuilds the window, the binds and the settings page.
+        /// </summary>
+        private void ClientReset() {
+            _mainWindow = null;
+            ReorderInput.Reset();
+        }
 
         private void HudInit() {
             _mainWindow = new MainWindow(HudMain.HighDpiRoot);
+            RegisterSettingsMenu();
+        }
+
+        /// <summary>
+        /// Publishes the mod's binds in the Rich HUD terminal so they can be rebound. Aliases are exposed
+        /// because every reorder bind carries a keyboard control plus a gamepad alternate.
+        /// </summary>
+        private void RegisterSettingsMenu() {
+            var controls = new RebindPage { Name = "Controls" };
+            controls.Add(ReorderInput.Binds, ReorderInput.DefaultBinds, true);
+
+            RichHudTerminal.Root.Name = Mod.NAME;
+            RichHudTerminal.Root.Enabled = true;
+            RichHudTerminal.Root.Add(controls);
         }
     }
 }

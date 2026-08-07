@@ -13,6 +13,7 @@ namespace Sisk.BuildColors.UI {
     /// </summary>
     public class PaintJobEditorDialog : DialogBase {
         private const float COLUMN_SPACING = 16f;
+        private const float DRAG_THRESHOLD = 6f;
         private const int COLUMN_COUNT = 2;
         private const float DIALOG_HEIGHT = 1000f;
         private const float MIN_DIALOG_WIDTH = 688f;
@@ -28,8 +29,7 @@ namespace Sisk.BuildColors.UI {
 
         private readonly ListBox<PaintRule> _ruleList;
         private readonly BorderedButton _removeRuleButton;
-        private readonly BorderedButton _moveRuleUpButton;
-        private readonly BorderedButton _moveRuleDownButton;
+        private readonly BorderedButton _moveRuleButton;
 
         private readonly TextField _ruleNameField;
         private readonly Label _conditionSummaryLabel;
@@ -46,6 +46,15 @@ namespace Sisk.BuildColors.UI {
         private PaintRuleConditionGroupDialog _activeConditionsDialog;
         private PaintRule _conditionsDialogRule;
         private PaintRule _loadedRule;
+
+        // Grab session state
+        private PaintRule _carriedRule;
+        private int _originIndex;
+        private int _slotIndex;
+        private bool _isGrabbed;
+        private bool _isMouseDrag;
+        private Vector2 _pressPosition;
+        private bool _isPressed;
 
         public PaintJobEditorDialog(PaintJob job, HudParentBase parent = null) : base(parent) {
             // Everything is edited on a working copy, so Cancel simply discards it and the stored job is
@@ -92,24 +101,16 @@ namespace Sisk.BuildColors.UI {
             var addRuleButton = CreateButton("Add Rule");
             _removeRuleButton = CreateButton("Remove Rule");
 
+            _moveRuleButton = CreateButton("Move");
+
             var ruleButtons = new HudChain(false) {
-                CollectionContainer = { { addRuleButton, 1f }, { _removeRuleButton, 1f } },
+                CollectionContainer = { { addRuleButton, 1f }, { _removeRuleButton, 1f }, { _moveRuleButton, 1f } },
                 Spacing = LayoutMetrics.ROW_SPACING,
                 SizingMode = HudChainSizingModes.FitMembersOffAxis,
                 Width = columnWidth,
                 Height = LayoutMetrics.BUTTON_HEIGHT,
             };
 
-            _moveRuleUpButton = CreateButton("Move Up");
-            _moveRuleDownButton = CreateButton("Move Down");
-
-            var ruleMoveButtons = new HudChain(false) {
-                CollectionContainer = { { _moveRuleUpButton, 1f }, { _moveRuleDownButton, 1f } },
-                Spacing = LayoutMetrics.ROW_SPACING,
-                SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                Width = columnWidth,
-                Height = LayoutMetrics.BUTTON_HEIGHT,
-            };
 
             var jobColumn = CreateColumn(columnWidth, columnHeight);
             jobColumn.Add(CreateLabel("Job Name"), 0f);
@@ -122,7 +123,6 @@ namespace Sisk.BuildColors.UI {
             jobColumn.Add(CreateLabel("Applied in order; the first matching rule wins."), 0f);
             jobColumn.Add(_ruleList, 1f);
             jobColumn.Add(ruleButtons, 0f);
-            jobColumn.Add(ruleMoveButtons, 0f);
 
             // Column 2 - the selected rule
             _ruleNameField = new TextField() { DimAlignment = DimAlignments.Width, Height = LayoutMetrics.CONTROL_HEIGHT };
@@ -208,10 +208,8 @@ namespace Sisk.BuildColors.UI {
             addRuleButton.MouseInput.CursorEntered += OnMouseOver;
             _removeRuleButton.MouseInput.LeftClicked += OnRemoveRule;
             _removeRuleButton.MouseInput.CursorEntered += OnMouseOver;
-            _moveRuleUpButton.MouseInput.LeftClicked += (s2, e2) => MoveSelectedRule(-1);
-            _moveRuleUpButton.MouseInput.CursorEntered += OnMouseOver;
-            _moveRuleDownButton.MouseInput.LeftClicked += (s2, e2) => MoveSelectedRule(1);
-            _moveRuleDownButton.MouseInput.CursorEntered += OnMouseOver;
+            _moveRuleButton.MouseInput.LeftClicked += OnMoveRuleClicked;
+            _moveRuleButton.MouseInput.CursorEntered += OnMouseOver;
 
             _editConditionsButton.MouseInput.LeftClicked += OnEditConditions;
             _editConditionsButton.MouseInput.CursorEntered += OnMouseOver;
@@ -306,18 +304,36 @@ namespace Sisk.BuildColors.UI {
             _ruleList.ClearEntries();
 
             var rules = _job.Rules;
+            var indicatorRow = -1;
+
             if (rules != null) {
-                foreach (var rule in rules) {
-                    _ruleList.Add(rule.Name, rule);
+                for (var i = 0; i <= rules.Count; i++) {
+                    // While a rule is carried its drop position is shown as an insertion row, so the
+                    // indicator looks the same whether it is being dragged or moved with the keyboard.
+                    if (_isGrabbed && i == _slotIndex) {
+                        indicatorRow = _ruleList.Count;
+                        _ruleList.Add(string.Format(">> {0} <<", _carriedRule.Name), null);
+                    }
+
+                    if (i < rules.Count) {
+                        _ruleList.Add(rules[i].Name, rules[i]);
+                    }
                 }
             }
 
-            if (_ruleList.Count > 0) {
-                var index = ruleToSelect != null && rules != null ? rules.IndexOf(ruleToSelect) : 0;
-                _ruleList.SetSelectionAt(index >= 0 && index < _ruleList.Count ? index : 0);
-            } else {
+            if (_ruleList.Count == 0) {
                 _loadedRule = null;
                 ClearRuleEditor();
+                UpdateRuleButtonState();
+                return;
+            }
+
+            if (_isGrabbed) {
+                // Keep the insertion row in view as it moves.
+                _ruleList.SetSelectionAt(indicatorRow >= 0 ? indicatorRow : 0);
+            } else {
+                var index = ruleToSelect != null && rules != null ? rules.IndexOf(ruleToSelect) : 0;
+                _ruleList.SetSelectionAt(index >= 0 && index < _ruleList.Count ? index : 0);
             }
 
             UpdateRuleButtonState();
@@ -484,7 +500,9 @@ namespace Sisk.BuildColors.UI {
         /// Pushes a renamed rule back into its list row so the list does not show a stale name.
         /// </summary>
         private void SyncRuleLabel(PaintRule rule) {
-            if (rule == null) {
+            // While a rule is carried the list holds an extra insertion row, so list indices no longer line
+            // up with the rule list and writing by index would relabel the wrong row.
+            if (rule == null || _isGrabbed) {
                 return;
             }
 
@@ -501,43 +519,196 @@ namespace Sisk.BuildColors.UI {
         }
 
         private void UpdateRuleButtonState() {
-            var rule = GetSelectedRule();
-            var hasRule = rule != null;
-            var index = hasRule ? _job.Rules.IndexOf(rule) : -1;
+            var hasRule = GetSelectedRule() != null;
 
-            _removeRuleButton.InputEnabled = _job.Rules.Count > 1 && hasRule;
-            _editConditionsButton.InputEnabled = hasRule;
-            _moveRuleUpButton.InputEnabled = index > 0;
-            _moveRuleDownButton.InputEnabled = index >= 0 && index < _job.Rules.Count - 1;
+            _removeRuleButton.InputEnabled = !_isGrabbed && _job.Rules.Count > 1 && hasRule;
+            _editConditionsButton.InputEnabled = !_isGrabbed && hasRule;
+            _moveRuleButton.InputEnabled = _isGrabbed || (hasRule && _job.Rules.Count > 1);
+            _moveRuleButton.Text = _isGrabbed ? "Drop" : "Move";
+
+            if (_isGrabbed) {
+                _statusLabel.Text = string.Format(
+                    "Moving {0}  -  Up/Down move, Enter/A drop, Esc/B cancel.", _carriedRule.Name);
+            }
         }
 
-        /// <summary>
-        /// Reorders the selected rule. Order decides which rule wins, so this changes what the job paints.
-        /// </summary>
-        private void MoveSelectedRule(int offset) {
-            var rule = GetSelectedRule();
-            if (rule == null) {
+        // ---- reordering ----
+        // Rules are a flat list, so a drop slot is just an index. The session mirrors the condition tree:
+        // pick a rule up, move it, put it down, with the mouse, the keyboard or a controller.
+
+        private void OnMoveRuleClicked(object sender, EventArgs e) {
+            if (_isGrabbed) {
+                DropRule();
+            } else {
+                BeginGrabRule(GetSelectedRule(), false);
+            }
+        }
+
+        private void BeginGrabRule(PaintRule rule, bool fromMouse) {
+            if (_isGrabbed || rule == null || _job.Rules.Count < 2 || _activeConditionsDialog != null) {
                 return;
             }
 
             var index = _job.Rules.IndexOf(rule);
-            var target = index + offset;
-
-            if (index < 0 || target < 0 || target >= _job.Rules.Count) {
+            if (index < 0) {
                 return;
             }
 
-            // Flush pending edits first, otherwise rebuilding the list would discard them.
+            // Flush edits before the list is rebuilt, otherwise they would be lost.
             SaveRuleData(_loadedRule);
 
-            _job.Rules.RemoveAt(index);
-            _job.Rules.Insert(target, rule);
+            _carriedRule = rule;
+            _originIndex = index;
+            _slotIndex = index;
+            _isGrabbed = true;
+            _isMouseDrag = fromMouse;
 
-            RefreshRules(rule);
+            _job.Rules.RemoveAt(index);
+            _ruleList.InputEnabled = false;
+
+            RefreshRules();
             HudSoundUtils.PlaySound("HudMouseClick");
         }
 
+        private void DropRule() {
+            if (!_isGrabbed) {
+                return;
+            }
+
+            var rule = _carriedRule;
+            _job.Rules.Insert(MathHelper.Clamp(_slotIndex, 0, _job.Rules.Count), rule);
+
+            EndGrabRule();
+            RefreshRules(rule);
+            HudSoundUtils.PlaySound("HudBleep");
+        }
+
+        private void CancelGrabRule() {
+            if (!_isGrabbed) {
+                return;
+            }
+
+            var rule = _carriedRule;
+            _job.Rules.Insert(MathHelper.Clamp(_originIndex, 0, _job.Rules.Count), rule);
+
+            EndGrabRule();
+            RefreshRules(rule);
+            HudSoundUtils.PlaySound("HudLockingLost");
+        }
+
+        private void EndGrabRule() {
+            _isGrabbed = false;
+            _isMouseDrag = false;
+            _isPressed = false;
+            _carriedRule = null;
+            _ruleList.InputEnabled = true;
+            _statusLabel.Text = string.Empty;
+        }
+
+        private void SetRuleSlot(int index) {
+            var clamped = MathHelper.Clamp(index, 0, _job.Rules.Count);
+
+            if (clamped == _slotIndex) {
+                return;
+            }
+
+            _slotIndex = clamped;
+            RefreshRules();
+        }
+
+        protected override void HandleInput(Vector2 cursorPos) {
+            base.HandleInput(cursorPos);
+
+            if (_activeConditionsDialog != null) {
+                return;
+            }
+
+            if (_isGrabbed) {
+                HandleGrabInput(cursorPos);
+                return;
+            }
+
+            var rule = GetSelectedRule();
+
+            if (ReorderInput.GrabPressed && rule != null && !_ruleList.IsMousedOver) {
+                BeginGrabRule(rule, false);
+                return;
+            }
+
+            if (SharedBinds.LeftButton.IsNewPressed && _ruleList.IsMousedOver) {
+                _isPressed = true;
+                _pressPosition = cursorPos;
+                return;
+            }
+
+            if (!SharedBinds.LeftButton.IsPressed) {
+                _isPressed = false;
+                return;
+            }
+
+            if (_isPressed && Math.Abs(cursorPos.Y - _pressPosition.Y) > DRAG_THRESHOLD) {
+                BeginGrabRule(GetSelectedRule(), true);
+            }
+        }
+
+        private void HandleGrabInput(Vector2 cursorPos) {
+            if (_isMouseDrag) {
+                UpdateRuleSlotFromCursor(cursorPos);
+
+                if (SharedBinds.LeftButton.IsReleased) {
+                    DropRule();
+                    return;
+                }
+
+                if (SharedBinds.RightButton.IsNewPressed) {
+                    CancelGrabRule();
+                    return;
+                }
+            }
+
+            switch (ReorderInput.Poll()) {
+                case ReorderIntent.Previous:
+                    SetRuleSlot(_slotIndex - 1);
+                    break;
+                case ReorderIntent.Next:
+                    SetRuleSlot(_slotIndex + 1);
+                    break;
+                case ReorderIntent.Drop:
+                    DropRule();
+                    break;
+                case ReorderIntent.Cancel:
+                    CancelGrabRule();
+                    break;
+            }
+        }
+
+        private void UpdateRuleSlotFromCursor(Vector2 cursorPos) {
+            var entries = _ruleList.EntryList;
+            if (entries.Count == 0) {
+                return;
+            }
+
+            var nearest = 0;
+            var nearestDistance = float.MaxValue;
+
+            for (var i = 0; i < entries.Count; i++) {
+                var distance = Math.Abs(entries[i].Element.Position.Y - cursorPos.Y);
+
+                if (distance < nearestDistance) {
+                    nearestDistance = distance;
+                    nearest = i;
+                }
+            }
+
+            SetRuleSlot(nearest);
+        }
+
         private void OnSaveClicked(object sender, EventArgs e) {
+            // A carried rule is detached from the job, so it has to be put back before anything is saved.
+            if (_isGrabbed) {
+                CancelGrabRule();
+            }
+
             SaveRuleData(GetSelectedRule());
 
             var name = _jobNameField.Text.ToString().Trim();
