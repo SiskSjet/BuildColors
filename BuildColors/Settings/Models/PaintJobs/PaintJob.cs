@@ -96,12 +96,6 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
                 if (rule.ConditionGroup.Children == null) {
                     rule.ConditionGroup.Children = new List<PaintRuleConditionGroup>();
                 }
-
-                // Only seed a placeholder for a completely empty group. A rule whose conditions live in
-                // nested groups must not get a stray condition added back on every refresh.
-                if (rule.ConditionGroup.Conditions.Count == 0 && rule.ConditionGroup.Children.Count == 0) {
-                    rule.ConditionGroup.Conditions.Add(new PaintRuleCondition());
-                }
             }
         }
     }

@@ -19,28 +19,31 @@ namespace Sisk.BuildColors.UI {
 
             switch (condition.Type) {
                 case PaintRuleConditionType.BlockColor:
-                    if (!condition.Color.Enabled) {
-                        return "Color (not configured)";
-                    }
-
-                    return string.Format("Color {0} {1}", comparison, DescribeColor(condition.Color.Value));
+                    return string.Format("Color {0} {1}", comparison, DescribeColor(condition.Color));
 
                 case PaintRuleConditionType.BlockDefinition:
-                    if (!condition.Definition.Enabled) {
-                        return "Block (not configured)";
-                    }
-
                     var typeId = string.IsNullOrWhiteSpace(condition.Definition.TypeId) ? "Any" : condition.Definition.TypeId;
                     var subtypeId = string.IsNullOrWhiteSpace(condition.Definition.SubtypeId) ? "Any" : condition.Definition.SubtypeId;
                     return string.Format("Block {0} {1}/{2}", comparison, typeId, subtypeId);
 
                 case PaintRuleConditionType.BlockSkin:
-                    if (!condition.Skin.Enabled) {
-                        return "Skin (not configured)";
-                    }
-
-                    var skinId = string.IsNullOrWhiteSpace(condition.Skin.SkinId) ? "No skin" : condition.Skin.SkinId;
+                    var skinId = string.IsNullOrWhiteSpace(condition.SkinId) ? "No skin" : condition.SkinId;
                     return string.Format("Skin {0} {1}", comparison, skinId);
+
+                case PaintRuleConditionType.BlockCategory:
+                    return string.Format("Block {0} {1}", comparison, DescribeCategory(condition.Category));
+
+                case PaintRuleConditionType.GridSize:
+                    return string.Format("Grid {0} {1}", comparison,
+                        condition.GridSize == PaintRuleGridSize.Small ? "small" : "large");
+
+                case PaintRuleConditionType.BlockIntegrity:
+                    return condition.Integrity == PaintRuleIntegrityState.BelowThreshold
+                        ? string.Format("Integrity {0} below {1:0.##}%", condition.Comparison == PaintRuleComparison.NotEquals ? "is not" : "is", condition.IntegrityThreshold)
+                        : string.Format("Block {0} {1}", comparison, DescribeIntegrity(condition.Integrity));
+
+                case PaintRuleConditionType.AnyBlock:
+                    return "Any block";
 
                 default:
                     return "Condition";
@@ -62,14 +65,50 @@ namespace Sisk.BuildColors.UI {
                 return "No conditions - this rule never matches";
             }
 
-            var operatorText = group.Operator == PaintRuleLogicalOperator.And ? "ALL" : "ANY";
-            var summary = string.Format("{0} condition(s), match {1}", conditionCount, operatorText);
+            var summary = string.Format("{0} condition(s), match {1}", conditionCount, DescribeOperator(group));
 
             if (groupCount > 0) {
                 summary += string.Format(", {0} nested group(s)", groupCount);
             }
 
             return summary;
+        }
+
+        /// <summary>
+        /// How a group combines its members, including the inversion if it is set.
+        /// </summary>
+        public static string DescribeOperator(PaintRuleConditionGroup group) {
+            if (group == null) {
+                return "ALL of";
+            }
+
+            var operatorText = group.Operator == PaintRuleLogicalOperator.And ? "ALL of" : "ANY of";
+
+            return group.Negate ? "NOT " + operatorText : operatorText;
+        }
+
+        private static string DescribeCategory(PaintRuleBlockCategory category) {
+            switch (category) {
+                case PaintRuleBlockCategory.LightArmor:
+                    return "light armor";
+                case PaintRuleBlockCategory.HeavyArmor:
+                    return "heavy armor";
+                case PaintRuleBlockCategory.Functional:
+                    return "a functional block";
+                default:
+                    return "armor";
+            }
+        }
+
+        private static string DescribeIntegrity(PaintRuleIntegrityState state) {
+            switch (state) {
+                case PaintRuleIntegrityState.Damaged:
+                    return "damaged";
+                case PaintRuleIntegrityState.Incomplete:
+                    return "under construction";
+                default:
+                    return "intact";
+            }
         }
 
         private static int CountConditions(PaintRuleConditionGroup group) {

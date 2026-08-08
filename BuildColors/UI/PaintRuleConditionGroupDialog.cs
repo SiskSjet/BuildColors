@@ -301,7 +301,7 @@ namespace Sisk.BuildColors.UI {
             var indent = new string(' ', node.Depth * INDENT_SPACES);
 
             if (node.IsGroup) {
-                var operatorText = node.Group.Operator == PaintRuleLogicalOperator.And ? "ALL of" : "ANY of";
+                var operatorText = PaintRuleConditionText.DescribeOperator(node.Group);
                 var label = node.Parent == null ? "Match " + operatorText : "Group - match " + operatorText;
                 return string.Format("{0}[ {1} ]", indent, label);
             }
@@ -315,8 +315,7 @@ namespace Sisk.BuildColors.UI {
 
         private string CarriedDescription() {
             if (_carriedGroup != null) {
-                var operatorText = _carriedGroup.Operator == PaintRuleLogicalOperator.And ? "ALL of" : "ANY of";
-                return "Group - match " + operatorText;
+                return "Group - match " + PaintRuleConditionText.DescribeOperator(_carriedGroup);
             }
 
             return PaintRuleConditionText.Describe(_carriedCondition);

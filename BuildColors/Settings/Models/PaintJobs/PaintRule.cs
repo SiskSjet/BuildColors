@@ -41,10 +41,6 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
                 rule.ConditionGroup = PaintRuleConditionGroup.CreateDefault();
             }
 
-            if (rule.ConditionGroup.Conditions.Count == 0) {
-                rule.ConditionGroup.Conditions.Add(new PaintRuleCondition());
-            }
-
             return rule;
         }
 

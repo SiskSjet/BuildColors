@@ -1,6 +1,7 @@
 using ProtoBuf;
-using Sisk.BuildColors.Settings.Models;
 using System.Xml.Serialization;
+
+using ColorModel = Sisk.BuildColors.Settings.Models.Color;
 
 namespace Sisk.BuildColors.Settings.Models.PaintJobs {
 
@@ -8,15 +9,15 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
     public class PaintRuleAction {
         [ProtoMember(1)]
         [XmlElement(Order = 1)]
-        public Color TargetColor { get; set; }
+        public ColorModel TargetColor { get; set; }
 
         [ProtoMember(2)]
         [XmlAttribute("applyColor")]
         public bool ApplyColor { get; set; } = true;
 
         [ProtoMember(3)]
-        [XmlElement(Order = 3)]
-        public PaintRuleSkinValue TargetSkin { get; set; }
+        [XmlAttribute("skin")]
+        public string TargetSkinId { get; set; }
 
         [ProtoMember(4)]
         [XmlAttribute("applySkin")]
@@ -29,7 +30,7 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
             return new PaintRuleAction {
                 TargetColor = TargetColor,
                 ApplyColor = ApplyColor,
-                TargetSkin = TargetSkin,
+                TargetSkinId = TargetSkinId,
                 ApplySkin = ApplySkin
             };
         }

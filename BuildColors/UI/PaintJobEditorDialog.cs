@@ -455,7 +455,7 @@ namespace Sisk.BuildColors.UI {
 
             _actionApplySkinCheckbox.Value = rule.Action.ApplySkin;
 
-            var skinIndex = DefinitionCatalog.IndexOfSkin(rule.Action.TargetSkin.SkinId);
+            var skinIndex = DefinitionCatalog.IndexOfSkin(rule.Action.TargetSkinId);
             _actionSkinDropdown.SetSelectionAt(skinIndex >= 0 ? skinIndex : 0);
         }
 
@@ -490,10 +490,7 @@ namespace Sisk.BuildColors.UI {
             rule.Action.ApplySkin = _actionApplySkinCheckbox.Value;
 
             var skin = _actionSkinDropdown.Value != null ? _actionSkinDropdown.Value.AssocMember : null;
-            rule.Action.TargetSkin = new PaintRuleSkinValue {
-                SkinId = skin != null ? skin.SkinId : string.Empty,
-                Enabled = rule.Action.ApplySkin
-            };
+            rule.Action.TargetSkinId = skin != null ? skin.SkinId : string.Empty;
         }
 
         /// <summary>

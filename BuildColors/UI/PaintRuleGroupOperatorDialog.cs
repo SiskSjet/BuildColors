@@ -10,12 +10,13 @@ namespace Sisk.BuildColors.UI {
     /// that groups and conditions are edited the same way.
     /// </summary>
     public class PaintRuleGroupOperatorDialog : DialogBase {
-        private const float DIALOG_HEIGHT = 320f;
+        private const float DIALOG_HEIGHT = 420f;
         private const float MIN_DIALOG_WIDTH = 420f;
         private const float PREFERRED_DIALOG_WIDTH = 520f;
 
         private readonly PaintRuleConditionGroup _group;
         private readonly Dropdown<PaintRuleLogicalOperator> _operatorDropdown;
+        private readonly BorderedCheckBox _negateCheckbox;
 
         public PaintRuleGroupOperatorDialog(PaintRuleConditionGroup group, bool isRoot, HudParentBase parent = null) : base(parent) {
             _group = group;
@@ -31,6 +32,27 @@ namespace Sisk.BuildColors.UI {
             _operatorDropdown.Add("Match ALL members (AND)", PaintRuleLogicalOperator.And);
             _operatorDropdown.Add("Match ANY member (OR)", PaintRuleLogicalOperator.Or);
             _operatorDropdown.SetSelection(_group.Operator);
+
+            _negateCheckbox = new BorderedCheckBox() { Value = _group.Negate };
+
+            // The label must not carry the width of the row, or it is drawn across the checkbox.
+            var negateLabel = new Label() {
+                Text = "Invert the result (NOT)",
+                Format = Style.BodyText,
+                AutoResize = false,
+                Height = LayoutMetrics.CHECKBOX_SIZE,
+            };
+
+            var negateRow = new HudChain(false) {
+                CollectionContainer = {
+                    { _negateCheckbox, 0f },
+                    { negateLabel, 1f }
+                },
+                Spacing = LayoutMetrics.ROW_SPACING,
+                SizingMode = HudChainSizingModes.FitMembersOffAxis,
+                Width = contentWidth,
+                Height = LayoutMetrics.CHECKBOX_SIZE,
+            };
 
             var saveButton = new BorderedButton() { Text = "Save", Padding = Vector2.Zero, Width = 140f, Height = LayoutMetrics.BUTTON_HEIGHT };
             var cancelButton = new BorderedButton() { Text = "Cancel", Padding = Vector2.Zero, Width = 140f, Height = LayoutMetrics.BUTTON_HEIGHT };
@@ -51,6 +73,8 @@ namespace Sisk.BuildColors.UI {
                     { CreateLabel("How should the members of this group be combined?"), 0f },
                     { CreateLabel("Operator"), 0f },
                     { _operatorDropdown, 0f },
+                    { negateRow, 0f },
+                    { CreateLabel("A group with nothing in it stays unmatched, inverted or not."), 0f },
                     { new EmptyHudElement(), 1f },
                     { buttonRow, 0f }
                 },
@@ -59,6 +83,7 @@ namespace Sisk.BuildColors.UI {
             };
 
             _operatorDropdown.MouseInput.CursorEntered += OnMouseOver;
+            _negateCheckbox.MouseInput.CursorEntered += OnMouseOver;
             saveButton.MouseInput.LeftClicked += OnSaveClicked;
             saveButton.MouseInput.CursorEntered += OnMouseOver;
             cancelButton.MouseInput.LeftClicked += OnCancelClicked;
@@ -81,6 +106,8 @@ namespace Sisk.BuildColors.UI {
             if (_operatorDropdown.Value != null) {
                 _group.Operator = _operatorDropdown.Value.AssocMember;
             }
+
+            _group.Negate = _negateCheckbox.Value;
 
             HudSoundUtils.PlaySound("HudBleep");
             Saved?.Invoke(this, EventArgs.Empty);

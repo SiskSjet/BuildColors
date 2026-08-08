@@ -15,6 +15,14 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
         [XmlAttribute("operator")]
         public PaintRuleLogicalOperator Operator { get; set; } = PaintRuleLogicalOperator.And;
 
+        /// <summary>
+        ///     Inverts the result of the group, which is what makes NOT expressions such as
+        ///     "not (armor and red)" possible. An empty group stays unmatched either way.
+        /// </summary>
+        [ProtoMember(4)]
+        [XmlAttribute("negate")]
+        public bool Negate { get; set; }
+
         [ProtoMember(2)]
         [XmlArray(Order = 2)]
         [XmlArrayItem]
@@ -31,6 +39,7 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
         public PaintRuleConditionGroup Clone() {
             var clone = new PaintRuleConditionGroup {
                 Operator = Operator,
+                Negate = Negate,
                 Conditions = new List<PaintRuleCondition>(),
                 Children = new List<PaintRuleConditionGroup>()
             };

@@ -8,20 +8,12 @@ using VRage.Game.ModAPI;
 using VRage.ModAPI;
 using VRageMath;
 
-using ColorModel = Sisk.BuildColors.Settings.Models.Color;
-
 namespace Sisk.BuildColors.Services {
 
     /// <summary>
     ///     Runtime helper that encapsulates persistence and execution of paint jobs.
     /// </summary>
     public class PaintJobService {
-
-        /// <summary>
-        ///     Per channel tolerance used when comparing a block color against a job color. The game stores colors as a
-        ///     color mask, so a round trip back to RGB is not always bit exact.
-        /// </summary>
-        private const int COLOR_CHANNEL_TOLERANCE = 2;
 
         private const float RAY_LENGTH = 120f;
 
@@ -112,6 +104,14 @@ namespace Sisk.BuildColors.Services {
             job.EnsureRules();
             var options = job.Options ?? new PaintJobOptions();
 
+            // Compiled once for the whole run: the rule tree does not change while it is applied, so every
+            // pattern, color and skin id is resolved here instead of per block.
+            var compiledJob = CompiledPaintJob.Compile(job);
+            if (compiledJob.IsEmpty) {
+                MyAPIGateway.Utilities.ShowMessage(Mod.NAME, $"Paint job '{job.Name}' has no rule that can match a block.");
+                return;
+            }
+
             var grids = CollectGrids(targetedGrid, options);
             var skippedGrids = 0;
             var changedBlocks = 0;
@@ -132,174 +132,19 @@ namespace Sisk.BuildColors.Services {
                         continue;
                     }
 
-                    var rule = FindMatchingRule(job, block);
-                    if (rule == null) {
+                    var action = compiledJob.FindAction(block);
+                    if (action == null) {
                         continue;
                     }
 
                     matchedBlocks++;
-                    if (ApplyAction(block, rule.Action)) {
+                    if (ApplyAction(block, action)) {
                         changedBlocks++;
                     }
                 }
             }
 
             ReportResult(job, targetedGrid, matchedBlocks, changedBlocks, skippedGrids);
-        }
-
-        /// <summary>
-        ///     Returns the first rule of the job whose conditions match the given block, or null when none match.
-        /// </summary>
-        private static PaintRule FindMatchingRule(PaintJob job, IMySlimBlock block) {
-            if (job.Rules == null) {
-                return null;
-            }
-
-            foreach (var rule in job.Rules) {
-                if (rule?.ConditionGroup == null || rule.Action == null) {
-                    continue;
-                }
-
-                if (GroupMatches(rule.ConditionGroup, block)) {
-                    return rule;
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        ///     Evaluates a condition group against a block. Conditions that were never configured are ignored, and a group
-        ///     without any configured condition never matches so an untouched job cannot repaint a whole grid.
-        /// </summary>
-        private static bool GroupMatches(PaintRuleConditionGroup group, IMySlimBlock block) {
-            var requireAll = group.Operator == PaintRuleLogicalOperator.And;
-            var evaluated = 0;
-            var matched = 0;
-
-            if (group.Conditions != null) {
-                foreach (var condition in group.Conditions) {
-                    if (!IsConfigured(condition)) {
-                        continue;
-                    }
-
-                    evaluated++;
-
-                    if (ConditionMatches(condition, block)) {
-                        matched++;
-                    } else if (requireAll) {
-                        return false;
-                    }
-                }
-            }
-
-            if (group.Children != null) {
-                foreach (var child in group.Children) {
-                    // An empty nested group carries no meaning; counting it would make an AND group
-                    // impossible to satisfy.
-                    if (!HasConfiguredContent(child)) {
-                        continue;
-                    }
-
-                    evaluated++;
-
-                    if (GroupMatches(child, block)) {
-                        matched++;
-                    } else if (requireAll) {
-                        return false;
-                    }
-                }
-            }
-
-            if (evaluated == 0) {
-                return false;
-            }
-
-            return requireAll ? matched == evaluated : matched > 0;
-        }
-
-        /// <summary>
-        ///     True when the group, or any group nested inside it, holds at least one configured condition.
-        /// </summary>
-        private static bool HasConfiguredContent(PaintRuleConditionGroup group) {
-            if (group == null) {
-                return false;
-            }
-
-            if (group.Conditions != null && group.Conditions.Any(IsConfigured)) {
-                return true;
-            }
-
-            return group.Children != null && group.Children.Any(HasConfiguredContent);
-        }
-
-        private static bool IsConfigured(PaintRuleCondition condition) {
-            if (condition == null) {
-                return false;
-            }
-
-            switch (condition.Type) {
-                case PaintRuleConditionType.BlockColor:
-                    return condition.Color.Enabled;
-                case PaintRuleConditionType.BlockDefinition:
-                    return condition.Definition.Enabled;
-                case PaintRuleConditionType.BlockSkin:
-                    return condition.Skin.Enabled;
-                default:
-                    return false;
-            }
-        }
-
-        private static bool ConditionMatches(PaintRuleCondition condition, IMySlimBlock block) {
-            bool matches;
-
-            switch (condition.Type) {
-                case PaintRuleConditionType.BlockColor:
-                    matches = ColorMatches(condition.Color.Value, block);
-                    break;
-                case PaintRuleConditionType.BlockDefinition:
-                    matches = DefinitionMatches(condition.Definition, block);
-                    break;
-                case PaintRuleConditionType.BlockSkin:
-                    matches = SkinMatches(condition.Skin, block);
-                    break;
-                default:
-                    return false;
-            }
-
-            return condition.Comparison == PaintRuleComparison.NotEquals ? !matches : matches;
-        }
-
-        private static bool ColorMatches(ColorModel expected, IMySlimBlock block) {
-            ColorModel actual = block.GetColorMask();
-
-            return Math.Abs(actual.R - expected.R) <= COLOR_CHANNEL_TOLERANCE
-                && Math.Abs(actual.G - expected.G) <= COLOR_CHANNEL_TOLERANCE
-                && Math.Abs(actual.B - expected.B) <= COLOR_CHANNEL_TOLERANCE;
-        }
-
-        private static bool DefinitionMatches(PaintRuleDefinitionValue expected, IMySlimBlock block) {
-            if (block.BlockDefinition == null) {
-                return false;
-            }
-
-            var definitionId = block.BlockDefinition.Id;
-
-            var typeMatches = string.IsNullOrWhiteSpace(expected.TypeId)
-                || string.Equals(definitionId.TypeId.ToString(), expected.TypeId, StringComparison.OrdinalIgnoreCase);
-
-            var subtypeMatches = string.IsNullOrWhiteSpace(expected.SubtypeId)
-                || string.Equals(definitionId.SubtypeName, expected.SubtypeId, StringComparison.OrdinalIgnoreCase);
-
-            return typeMatches && subtypeMatches;
-        }
-
-        private static bool SkinMatches(PaintRuleSkinValue expected, IMySlimBlock block) {
-            return string.Equals(GetSkinId(block), expected.SkinId ?? string.Empty, StringComparison.OrdinalIgnoreCase);
-        }
-
-        private static string GetSkinId(IMySlimBlock block) {
-            return block.SkinSubtypeId.String ?? string.Empty;
         }
 
         /// <summary>
@@ -319,15 +164,15 @@ namespace Sisk.BuildColors.Services {
 
             if (action.ApplyColor) {
                 Vector3 targetMask = action.TargetColor;
-                if (!ColorMatches(action.TargetColor, block)) {
+                if (!PaintColorMath.MaskEquals(block.GetColorMask(), targetMask)) {
                     grid.ColorBlocks(block.Min, block.Max, targetMask);
                     changed = true;
                 }
             }
 
             if (action.ApplySkin) {
-                var targetSkin = action.TargetSkin.SkinId ?? string.Empty;
-                if (!string.Equals(GetSkinId(block), targetSkin, StringComparison.OrdinalIgnoreCase)) {
+                var targetSkin = action.TargetSkinId ?? string.Empty;
+                if (!string.Equals(block.SkinSubtypeId.String ?? string.Empty, targetSkin, StringComparison.OrdinalIgnoreCase)) {
                     grid.SkinBlocks(block.Min, block.Max, null, targetSkin);
                     changed = true;
                 }

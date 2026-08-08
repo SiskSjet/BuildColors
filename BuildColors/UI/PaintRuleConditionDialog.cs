@@ -1,6 +1,7 @@
 using RichHudFramework.UI;
 using Sisk.BuildColors.Settings.Models.PaintJobs;
 using System;
+using System.Globalization;
 using VRageMath;
 
 using ColorModel = Sisk.BuildColors.Settings.Models.Color;
@@ -33,6 +34,7 @@ namespace Sisk.BuildColors.UI {
         private readonly PaintRuleCondition _condition;
         private readonly Dropdown<PaintRuleConditionType> _conditionTypeDropdown;
         private readonly Dropdown<PaintRuleComparison> _comparisonDropdown;
+        private readonly Label _comparisonLabel;
 
         private readonly HudChain _colorSection;
         private readonly ColorPickerHSV _colorPicker;
@@ -45,6 +47,20 @@ namespace Sisk.BuildColors.UI {
 
         private readonly HudChain _skinSection;
         private readonly Dropdown<SkinListEntry, DefinitionCatalog.SkinOption> _skinDropdown;
+
+        private readonly HudChain _categorySection;
+        private readonly Dropdown<PaintRuleBlockCategory> _categoryDropdown;
+
+        private readonly HudChain _gridSizeSection;
+        private readonly Dropdown<PaintRuleGridSize> _gridSizeDropdown;
+
+        private readonly HudChain _integritySection;
+        private readonly Dropdown<PaintRuleIntegrityState> _integrityDropdown;
+        private readonly TextField _integrityThresholdField;
+        private readonly HudChain _integrityThresholdRow;
+        private readonly Label _integrityThresholdHint;
+
+        private readonly HudChain _anyBlockSection;
 
         private readonly Label _statusLabel;
 
@@ -63,8 +79,12 @@ namespace Sisk.BuildColors.UI {
             _conditionTypeDropdown.Add("Block Color", PaintRuleConditionType.BlockColor);
             _conditionTypeDropdown.Add("Block Definition", PaintRuleConditionType.BlockDefinition);
             _conditionTypeDropdown.Add("Block Skin", PaintRuleConditionType.BlockSkin);
+            _conditionTypeDropdown.Add("Block Category", PaintRuleConditionType.BlockCategory);
+            _conditionTypeDropdown.Add("Grid Size", PaintRuleConditionType.GridSize);
+            _conditionTypeDropdown.Add("Block Integrity", PaintRuleConditionType.BlockIntegrity);
+            _conditionTypeDropdown.Add("Any Block", PaintRuleConditionType.AnyBlock);
 
-            var comparisonLabel = CreateLabel("Comparison");
+            _comparisonLabel = CreateLabel("Comparison");
             _comparisonDropdown = new Dropdown<PaintRuleComparison>() { DimAlignment = DimAlignments.Width, Height = CONTROL_HEIGHT };
             _comparisonDropdown.Add("Matches", PaintRuleComparison.Equals);
             _comparisonDropdown.Add("Does not match", PaintRuleComparison.NotEquals);
@@ -104,6 +124,7 @@ namespace Sisk.BuildColors.UI {
             _definitionSection = new HudChain(true) {
                 CollectionContainer = {
                     CreateLabel("Pick a block, or leave a field empty to match any value."),
+                    CreateLabel("Wildcards: * for any characters, ? for one. E.g. LargeHeavyBlockArmor*"),
                     _definitionDropdown,
                     CreateFieldRow("TypeId", _definitionTypeField, contentWidth),
                     CreateFieldRow("SubtypeId", _definitionSubtypeField, contentWidth)
@@ -111,7 +132,7 @@ namespace Sisk.BuildColors.UI {
                 Spacing = ROW_SPACING,
                 SizingMode = HudChainSizingModes.FitMembersOffAxis,
                 Width = contentWidth,
-                Height = LABEL_HEIGHT + CONTROL_HEIGHT * 3f + ROW_SPACING * 3f,
+                Height = LABEL_HEIGHT * 2f + CONTROL_HEIGHT * 3f + ROW_SPACING * 4f,
             };
 
             // Block skin section
@@ -126,6 +147,79 @@ namespace Sisk.BuildColors.UI {
                 SizingMode = HudChainSizingModes.FitMembersOffAxis,
                 Width = contentWidth,
                 Height = LABEL_HEIGHT + ROW_SPACING + CONTROL_HEIGHT,
+            };
+
+            // Block category section
+            _categoryDropdown = new Dropdown<PaintRuleBlockCategory>() { DimAlignment = DimAlignments.Width, Height = CONTROL_HEIGHT };
+            _categoryDropdown.Add("Armor (light or heavy)", PaintRuleBlockCategory.Armor);
+            _categoryDropdown.Add("Light armor", PaintRuleBlockCategory.LightArmor);
+            _categoryDropdown.Add("Heavy armor", PaintRuleBlockCategory.HeavyArmor);
+            _categoryDropdown.Add("Functional block (everything else)", PaintRuleBlockCategory.Functional);
+
+            _categorySection = new HudChain(true) {
+                CollectionContainer = {
+                    CreateLabel("The rule matches blocks of this kind, whatever their subtype."),
+                    _categoryDropdown
+                },
+                Spacing = ROW_SPACING,
+                SizingMode = HudChainSizingModes.FitMembersOffAxis,
+                Width = contentWidth,
+                Height = LABEL_HEIGHT + ROW_SPACING + CONTROL_HEIGHT,
+            };
+
+            // Grid size section
+            _gridSizeDropdown = new Dropdown<PaintRuleGridSize>() { DimAlignment = DimAlignments.Width, Height = CONTROL_HEIGHT };
+            _gridSizeDropdown.Add("Large grid", PaintRuleGridSize.Large);
+            _gridSizeDropdown.Add("Small grid", PaintRuleGridSize.Small);
+
+            _gridSizeSection = new HudChain(true) {
+                CollectionContainer = {
+                    CreateLabel("The rule matches blocks sitting on a grid of this size."),
+                    _gridSizeDropdown
+                },
+                Spacing = ROW_SPACING,
+                SizingMode = HudChainSizingModes.FitMembersOffAxis,
+                Width = contentWidth,
+                Height = LABEL_HEIGHT + ROW_SPACING + CONTROL_HEIGHT,
+            };
+
+            // Block integrity section
+            _integrityDropdown = new Dropdown<PaintRuleIntegrityState>() { DimAlignment = DimAlignments.Width, Height = CONTROL_HEIGHT };
+            _integrityDropdown.Add("Intact (fully built, undamaged)", PaintRuleIntegrityState.Intact);
+            _integrityDropdown.Add("Damaged", PaintRuleIntegrityState.Damaged);
+            _integrityDropdown.Add("Under construction", PaintRuleIntegrityState.Incomplete);
+            _integrityDropdown.Add("Integrity below threshold", PaintRuleIntegrityState.BelowThreshold);
+
+            _integrityThresholdField = new GameInputBlockingTextField() { DimAlignment = DimAlignments.Width, Height = CONTROL_HEIGHT };
+
+            // Only the threshold state has anything to do with the field, so it is shown with that state
+            // and hidden with every other one.
+            _integrityThresholdHint = CreateLabel("Blocks below this share of their full integrity match.");
+            _integrityThresholdRow = CreateFieldRow("Threshold (%)", _integrityThresholdField, contentWidth);
+
+            _integritySection = new HudChain(true) {
+                CollectionContainer = {
+                    CreateLabel("The rule matches blocks in this state."),
+                    _integrityDropdown,
+                    _integrityThresholdHint,
+                    _integrityThresholdRow
+                },
+                Spacing = ROW_SPACING,
+                SizingMode = HudChainSizingModes.FitMembersOffAxis,
+                Width = contentWidth,
+                Height = LABEL_HEIGHT * 2f + CONTROL_HEIGHT * 2f + ROW_SPACING * 3f,
+            };
+
+            // Catch all section
+            _anyBlockSection = new HudChain(true) {
+                CollectionContainer = {
+                    CreateLabel("Matches every block."),
+                    CreateLabel("Put such a rule last to paint whatever the rules above it did not match.")
+                },
+                Spacing = ROW_SPACING,
+                SizingMode = HudChainSizingModes.FitMembersOffAxis,
+                Width = contentWidth,
+                Height = LABEL_HEIGHT * 2f + ROW_SPACING,
             };
 
             _statusLabel = new Label() {
@@ -149,7 +243,7 @@ namespace Sisk.BuildColors.UI {
 
             // The sections are stacked in the same slot; only one is visible at a time.
             var sectionHost = new HudChain(true) {
-                CollectionContainer = { _colorSection, _definitionSection, _skinSection },
+                CollectionContainer = { _colorSection, _definitionSection, _skinSection, _categorySection, _gridSizeSection, _integritySection, _anyBlockSection },
                 Spacing = 0f,
                 SizingMode = HudChainSizingModes.FitMembersOffAxis,
                 Width = contentWidth,
@@ -163,7 +257,7 @@ namespace Sisk.BuildColors.UI {
                 CollectionContainer = {
                     typeLabel,
                     _conditionTypeDropdown,
-                    comparisonLabel,
+                    _comparisonLabel,
                     _comparisonDropdown,
                     CreateSeparator(),
                     { sectionHost, 1f },
@@ -175,9 +269,14 @@ namespace Sisk.BuildColors.UI {
             };
 
             _conditionTypeDropdown.ValueChanged += OnConditionTypeChanged;
+            _integrityDropdown.ValueChanged += OnIntegrityStateChanged;
             _definitionDropdown.ValueChanged += OnDefinitionSelected;
             _definitionDropdown.MouseInput.CursorEntered += OnMouseOver;
             _skinDropdown.MouseInput.CursorEntered += OnMouseOver;
+            _categoryDropdown.MouseInput.CursorEntered += OnMouseOver;
+            _gridSizeDropdown.MouseInput.CursorEntered += OnMouseOver;
+            _integrityDropdown.MouseInput.CursorEntered += OnMouseOver;
+            _integrityThresholdField.MouseInput.CursorEntered += OnMouseOver;
             _conditionTypeDropdown.MouseInput.CursorEntered += OnMouseOver;
             _comparisonDropdown.MouseInput.CursorEntered += OnMouseOver;
             saveButton.MouseInput.LeftClicked += OnSaveClicked;
@@ -206,6 +305,12 @@ namespace Sisk.BuildColors.UI {
             return new TexturedBox() { DimAlignment = DimAlignments.Width, Height = .75f, Color = Style.SeparatorColor };
         }
 
+        private static bool TryParseThreshold(string text, out float threshold) {
+            return float.TryParse(text.Trim(), NumberStyles.Float, CultureInfo.CurrentCulture, out threshold)
+                && threshold >= 0f
+                && threshold <= 100f;
+        }
+
         private static HudChain CreateFieldRow(string caption, TextField field, float width) {
             var captionLabel = new Label() {
                 Text = caption,
@@ -228,14 +333,20 @@ namespace Sisk.BuildColors.UI {
             _conditionTypeDropdown.SetSelection(_condition.Type);
             _comparisonDropdown.SetSelection(_condition.Comparison);
 
-            var color = _condition.Color.Value;
+            var color = _condition.Color;
             _colorPicker.Value = new VRageMath.Color(color.R, color.G, color.B);
 
             _definitionTypeField.Text = _condition.Definition.TypeId ?? string.Empty;
             _definitionSubtypeField.Text = _condition.Definition.SubtypeId ?? string.Empty;
 
-            var skinIndex = DefinitionCatalog.IndexOfSkin(_condition.Skin.SkinId);
+            var skinIndex = DefinitionCatalog.IndexOfSkin(_condition.SkinId);
             _skinDropdown.SetSelectionAt(skinIndex >= 0 ? skinIndex : 0);
+
+            _categoryDropdown.SetSelection(_condition.Category);
+            _gridSizeDropdown.SetSelection(_condition.GridSize);
+
+            _integrityDropdown.SetSelection(_condition.Integrity);
+            _integrityThresholdField.Text = _condition.IntegrityThreshold.ToString("0.##");
 
             UpdateSectionVisibility();
         }
@@ -250,6 +361,34 @@ namespace Sisk.BuildColors.UI {
             _colorSection.Visible = type == PaintRuleConditionType.BlockColor;
             _definitionSection.Visible = type == PaintRuleConditionType.BlockDefinition;
             _skinSection.Visible = type == PaintRuleConditionType.BlockSkin;
+            _categorySection.Visible = type == PaintRuleConditionType.BlockCategory;
+            _gridSizeSection.Visible = type == PaintRuleConditionType.GridSize;
+            _integritySection.Visible = type == PaintRuleConditionType.BlockIntegrity;
+            _anyBlockSection.Visible = type == PaintRuleConditionType.AnyBlock;
+
+            UpdateThresholdVisibility();
+
+            // A catch all that can be inverted is a condition that never matches, so it gets no comparison.
+            var comparable = type != PaintRuleConditionType.AnyBlock;
+            _comparisonLabel.Visible = comparable;
+            _comparisonDropdown.Visible = comparable;
+        }
+
+        private PaintRuleIntegrityState GetSelectedIntegrityState() {
+            return _integrityDropdown.Value != null ? _integrityDropdown.Value.AssocMember : PaintRuleIntegrityState.Damaged;
+        }
+
+        private void UpdateThresholdVisibility() {
+            var showThreshold = GetSelectedIntegrityState() == PaintRuleIntegrityState.BelowThreshold;
+
+            _integrityThresholdHint.Visible = showThreshold;
+            _integrityThresholdRow.Visible = showThreshold;
+        }
+
+        private void OnIntegrityStateChanged(object sender, EventArgs e) {
+            UpdateThresholdVisibility();
+            _statusLabel.Text = string.Empty;
+            HudSoundUtils.PlaySound("HudMouseClick");
         }
 
         private void OnConditionTypeChanged(object sender, EventArgs e) {
@@ -299,33 +438,46 @@ namespace Sisk.BuildColors.UI {
             var subtypeId = _definitionSubtypeField.Text.ToString().Trim();
 
             if (type == PaintRuleConditionType.BlockDefinition && string.IsNullOrEmpty(typeId) && string.IsNullOrEmpty(subtypeId)) {
-                _statusLabel.Text = "Set a TypeId or SubtypeId, otherwise the condition matches every block.";
+                _statusLabel.Text = "Set a TypeId or SubtypeId. For a catch all rule use the Any Block type instead.";
+                return false;
+            }
+
+            var integrityState = GetSelectedIntegrityState();
+            var threshold = _condition.IntegrityThreshold;
+
+            if (type == PaintRuleConditionType.BlockIntegrity && integrityState == PaintRuleIntegrityState.BelowThreshold
+                && !TryParseThreshold(_integrityThresholdField.Text.ToString(), out threshold)) {
+                _statusLabel.Text = "Enter a threshold between 0 and 100.";
                 return false;
             }
 
             _condition.Type = type;
 
-            if (_comparisonDropdown.Value != null) {
-                _condition.Comparison = _comparisonDropdown.Value.AssocMember;
-            }
+            _condition.Comparison = type != PaintRuleConditionType.AnyBlock && _comparisonDropdown.Value != null
+                ? _comparisonDropdown.Value.AssocMember
+                : PaintRuleComparison.Equals;
 
             var color = _colorPicker.Value;
-            _condition.Color = new PaintRuleColorValue {
-                Enabled = type == PaintRuleConditionType.BlockColor,
-                Value = new ColorModel(color.R, color.G, color.B)
-            };
+            _condition.Color = new ColorModel(color.R, color.G, color.B);
 
             _condition.Definition = new PaintRuleDefinitionValue {
-                Enabled = type == PaintRuleConditionType.BlockDefinition,
                 TypeId = typeId,
                 SubtypeId = subtypeId
             };
 
             var skin = _skinDropdown.Value != null ? _skinDropdown.Value.AssocMember : null;
-            _condition.Skin = new PaintRuleSkinValue {
-                Enabled = type == PaintRuleConditionType.BlockSkin,
-                SkinId = skin != null ? skin.SkinId : string.Empty
-            };
+            _condition.SkinId = skin != null ? skin.SkinId : string.Empty;
+
+            if (_categoryDropdown.Value != null) {
+                _condition.Category = _categoryDropdown.Value.AssocMember;
+            }
+
+            if (_gridSizeDropdown.Value != null) {
+                _condition.GridSize = _gridSizeDropdown.Value.AssocMember;
+            }
+
+            _condition.Integrity = integrityState;
+            _condition.IntegrityThreshold = threshold;
 
             _statusLabel.Text = string.Empty;
             return true;
