@@ -5,6 +5,7 @@
   - [🛠︰Info](#info)
   - [🛠︰Installation](#installation)
   - [🛠︰Color Sets](#color-sets)
+  - [🛠︰Paint Jobs](#paint-jobs)
   - [🛠︰Configs](#configs)
   - [🛠︰Support](#support)
   - [🛠︰Credits](#credits)
@@ -32,6 +33,73 @@ To save or load a color set you have to type the listed commands below in your c
 * **generate** [*name*] *- generates a random color set. It is not saved, only the color palette is changed*
 * **list** *- Lists all available color sets.*
 * **help** *- Shows a help window with all commands.*
+
+## 🛠︰Paint Jobs
+
+A paint job is a list of rules that is applied to the grid you are looking at. Each rule tests a block against a tree of conditions and paints it with a color, a skin, or both. The first matching rule wins.
+
+Paint jobs are edited in the paint job panel of the color picker screen, and everything that panel can do is also available in chat.
+
+`Usage: /bc [command] [arguments]`
+
+Names hold spaces, so arguments are quoted: `/bc ApplyJob "My Hull"`. Instead of a name you can select a job or rule by its position in the matching listing with `#2`.
+
+**Jobs**:
+* **jobs** *- Lists all paint jobs.*
+* **showjob** [*job*] *- Shows a paint job with its rules, conditions and their paths.*
+* **applyjob** [*job*] *- Applies a paint job to the targeted grid.*
+* **newjob** [*name*] *- Creates a new paint job.*
+* **removejob** [*job*] *- Removes a paint job.*
+* **renamejob** [*job*] [*new name*] *- Renames a paint job.*
+* **copyjob** [*job*] [*new name*] *- Copies a paint job.*
+* **joboption** [*job*] [*subgrids\|projected\|preview\|ownership*] [*on\|off*] *- Sets an option of a paint job. Without a value the option is flipped.*
+
+**Rules**:
+* **addrule** [*job*] [*rule name*] *- Adds a rule. Rules are tested top down, so the position matters.*
+* **removerule** [*job*] [*rule*] *- Removes a rule.*
+* **renamerule** [*job*] [*rule*] [*new name*] *- Renames a rule.*
+* **moverule** [*job*] [*rule*] [*position*] *- Moves a rule to another position.*
+* **ruleaction** [*job*] [*rule*] [*field=value ...*] *- Sets what the rule paints: `color=R,G,B` or `color=#RRGGBB`, `applycolor=on|off`, `skin=<id>`, `applyskin=on|off`. Naming a color or a skin turns applying it on.*
+
+**Conditions**:
+
+Conditions live in groups, and a group combines its members with `and` or `or` and can be negated, which is what makes expressions such as `(heavy armor and red) or damaged` possible. Every condition and group is addressed by a path that `showjob` prints: `0` is the root group, `1` its first member, `2.1` the first member of its second member. Members are numbered conditions first, nested groups after them.
+
+* **addcondition** [*job*] [*rule*] [*group path*] [*field=value ...*] *- Adds a condition, by default to the root group.*
+* **setcondition** [*job*] [*rule*] [*path*] [*field=value ...*] *- Changes a condition.*
+* **removecondition** [*job*] [*rule*] [*path*] *- Removes a condition or a group with everything in it.*
+* **movecondition** [*job*] [*rule*] [*path*] [*group path*] [*position*] *- Moves a condition or group into another group.*
+* **addgroup** [*job*] [*rule*] [*parent path*] [*and\|or*] [*not*] *- Adds a nested group.*
+* **setgroup** [*job*] [*rule*] [*path*] [*and\|or*] [*not=on\|off*] *- Changes how a group combines its members.*
+* **skins** [*filter*] *- Lists the armor skin ids that can be used.*
+
+Condition fields, where the first field you name also picks the type of a new condition:
+
+| Field | Value |
+| --- | --- |
+| `type` | `color`, `def`, `skin`, `category`, `gridsize`, `integrity`, `any` |
+| `is` | `is` or `isnot` |
+| `color` | `R,G,B` or `#RRGGBB` |
+| `def` | `TypeId/SubtypeId`, or just a subtype. `*` and `?` work as wildcards |
+| `deftype`, `subtype` | the two halves of `def` on their own |
+| `skin` | skin id from **skins**, or `none` for unskinned |
+| `category` | `armor`, `light`, `heavy`, `functional` |
+| `gridsize` | `large` or `small` |
+| `integrity` | `intact`, `damaged`, `incomplete`, `below` |
+| `threshold` | percentage used by `integrity=below` |
+
+An example, a job that paints heavy armor dark and everything damaged red:
+
+```
+/bc newjob "Hull"
+/bc addcondition "Hull" "#1" category=heavy
+/bc ruleaction "Hull" "#1" color=40,40,45
+/bc addrule "Hull" "Damage"
+/bc addcondition "Hull" "Damage" integrity=damaged
+/bc ruleaction "Hull" "Damage" color=#c81e1e
+/bc showjob "Hull"
+/bc applyjob "Hull"
+```
 
 ## 🛠︰Configs
 

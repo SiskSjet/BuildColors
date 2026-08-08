@@ -2,6 +2,7 @@
 using RichHudFramework.UI.Client;
 using Sandbox.ModAPI;
 using Sisk.BuildColors.Localization;
+using Sisk.BuildColors.Settings.Models.PaintJobs;
 using Sisk.Utils.Localization.Extensions;
 
 namespace Sisk.BuildColors.UI {
@@ -27,6 +28,14 @@ namespace Sisk.BuildColors.UI {
 
         public void Init(string modName) {
             RichHudClient.Init(modName, HudInit, ClientReset);
+        }
+
+        /// <summary>
+        /// Rebuilds the paint job list. The window only exists once Rich HUD has handed one out, so before
+        /// that there is nothing to refresh and the list is built from the current jobs anyway.
+        /// </summary>
+        public void RefreshPaintJobs(PaintJob jobToSelect = null) {
+            _mainWindow?.PaintJobPanel?.Refresh(jobToSelect);
         }
 
         /// <summary>

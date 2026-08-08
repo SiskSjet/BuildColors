@@ -562,4 +562,244 @@
   <data name="BC_UI_Desc_Underconstruction" xml:space="preserve">
     <value>under construction</value>
   </data>
+  <data name="BC_Description_ShowJob" xml:space="preserve">
+    <value>Shows a paint job with its rules and conditions.</value>
+  </data>
+  <data name="BC_Description_NewJob" xml:space="preserve">
+    <value>Creates a new paint job.</value>
+  </data>
+  <data name="BC_Description_RemoveJob" xml:space="preserve">
+    <value>Removes a paint job.</value>
+  </data>
+  <data name="BC_Description_RenameJob" xml:space="preserve">
+    <value>Renames a paint job.</value>
+  </data>
+  <data name="BC_Description_CopyJob" xml:space="preserve">
+    <value>Copies a paint job under a new name.</value>
+  </data>
+  <data name="BC_Description_JobOption" xml:space="preserve">
+    <value>Sets an option of a paint job.</value>
+  </data>
+  <data name="BC_Description_AddRule" xml:space="preserve">
+    <value>Adds a rule to a paint job.</value>
+  </data>
+  <data name="BC_Description_RemoveRule" xml:space="preserve">
+    <value>Removes a rule from a paint job.</value>
+  </data>
+  <data name="BC_Description_RenameRule" xml:space="preserve">
+    <value>Renames a rule of a paint job.</value>
+  </data>
+  <data name="BC_Description_MoveRule" xml:space="preserve">
+    <value>Moves a rule to another position.</value>
+  </data>
+  <data name="BC_Description_RuleAction" xml:space="preserve">
+    <value>Sets the color and skin a rule paints with.</value>
+  </data>
+  <data name="BC_Description_AddCondition" xml:space="preserve">
+    <value>Adds a condition to a rule.</value>
+  </data>
+  <data name="BC_Description_SetCondition" xml:space="preserve">
+    <value>Changes a condition of a rule.</value>
+  </data>
+  <data name="BC_Description_RemoveCondition" xml:space="preserve">
+    <value>Removes a condition or group from a rule.</value>
+  </data>
+  <data name="BC_Description_MoveCondition" xml:space="preserve">
+    <value>Moves a condition or group into another group.</value>
+  </data>
+  <data name="BC_Description_AddGroup" xml:space="preserve">
+    <value>Adds a condition group to a rule.</value>
+  </data>
+  <data name="BC_Description_SetGroup" xml:space="preserve">
+    <value>Changes how a condition group combines its members.</value>
+  </data>
+  <data name="BC_Description_Skins" xml:space="preserve">
+    <value>Lists the armor skins that can be used.</value>
+  </data>
+  <data name="BC_Cmd_Usage_ShowJob" xml:space="preserve">
+    <value>Usage: /{0} ShowJob "&lt;job&gt;"</value>
+  </data>
+  <data name="BC_Cmd_Usage_NewJob" xml:space="preserve">
+    <value>Usage: /{0} NewJob "&lt;name&gt;"</value>
+  </data>
+  <data name="BC_Cmd_Usage_RemoveJob" xml:space="preserve">
+    <value>Usage: /{0} RemoveJob "&lt;job&gt;"</value>
+  </data>
+  <data name="BC_Cmd_Usage_RenameJob" xml:space="preserve">
+    <value>Usage: /{0} RenameJob "&lt;job&gt;" "&lt;new name&gt;"</value>
+  </data>
+  <data name="BC_Cmd_Usage_CopyJob" xml:space="preserve">
+    <value>Usage: /{0} CopyJob "&lt;job&gt;" "&lt;new name&gt;"</value>
+  </data>
+  <data name="BC_Cmd_Usage_JobOption" xml:space="preserve">
+    <value>Usage: /{0} JobOption "&lt;job&gt;" &lt;subgrids|projected|preview|ownership&gt; [on|off]</value>
+  </data>
+  <data name="BC_Cmd_Usage_AddRule" xml:space="preserve">
+    <value>Usage: /{0} AddRule "&lt;job&gt;" ["&lt;rule name&gt;"]</value>
+  </data>
+  <data name="BC_Cmd_Usage_RemoveRule" xml:space="preserve">
+    <value>Usage: /{0} RemoveRule "&lt;job&gt;" "&lt;rule&gt;"</value>
+  </data>
+  <data name="BC_Cmd_Usage_RenameRule" xml:space="preserve">
+    <value>Usage: /{0} RenameRule "&lt;job&gt;" "&lt;rule&gt;" "&lt;new name&gt;"</value>
+  </data>
+  <data name="BC_Cmd_Usage_MoveRule" xml:space="preserve">
+    <value>Usage: /{0} MoveRule "&lt;job&gt;" "&lt;rule&gt;" &lt;position&gt;</value>
+  </data>
+  <data name="BC_Cmd_Usage_RuleAction" xml:space="preserve">
+    <value>Usage: /{0} RuleAction "&lt;job&gt;" "&lt;rule&gt;" [color=R,G,B] [applycolor=on|off] [skin=&lt;id&gt;] [applyskin=on|off]</value>
+  </data>
+  <data name="BC_Cmd_Usage_AddCondition" xml:space="preserve">
+    <value>Usage: /{0} AddCondition "&lt;job&gt;" "&lt;rule&gt;" [&lt;group path&gt;] &lt;field=value ...&gt; - fields: type, is, color, def, deftype, subtype, skin, category, gridsize, integrity, threshold</value>
+  </data>
+  <data name="BC_Cmd_Usage_SetCondition" xml:space="preserve">
+    <value>Usage: /{0} SetCondition "&lt;job&gt;" "&lt;rule&gt;" &lt;path&gt; &lt;field=value ...&gt;</value>
+  </data>
+  <data name="BC_Cmd_Usage_RemoveCondition" xml:space="preserve">
+    <value>Usage: /{0} RemoveCondition "&lt;job&gt;" "&lt;rule&gt;" &lt;path&gt;</value>
+  </data>
+  <data name="BC_Cmd_Usage_MoveCondition" xml:space="preserve">
+    <value>Usage: /{0} MoveCondition "&lt;job&gt;" "&lt;rule&gt;" &lt;path&gt; &lt;group path&gt; [position]</value>
+  </data>
+  <data name="BC_Cmd_Usage_AddGroup" xml:space="preserve">
+    <value>Usage: /{0} AddGroup "&lt;job&gt;" "&lt;rule&gt;" [&lt;parent path&gt;] [and|or] [not]</value>
+  </data>
+  <data name="BC_Cmd_Usage_SetGroup" xml:space="preserve">
+    <value>Usage: /{0} SetGroup "&lt;job&gt;" "&lt;rule&gt;" &lt;path&gt; [and|or] [not=on|off]</value>
+  </data>
+  <data name="BC_Cmd_JobCreated" xml:space="preserve">
+    <value>Paint job '{0}' created.</value>
+  </data>
+  <data name="BC_Cmd_JobExists" xml:space="preserve">
+    <value>A paint job named '{0}' already exists.</value>
+  </data>
+  <data name="BC_Cmd_JobRemoved" xml:space="preserve">
+    <value>Paint job '{0}' removed.</value>
+  </data>
+  <data name="BC_Cmd_JobRenamed" xml:space="preserve">
+    <value>Paint job '{0}' renamed to '{1}'.</value>
+  </data>
+  <data name="BC_Cmd_JobCopied" xml:space="preserve">
+    <value>Paint job '{0}' copied to '{1}'.</value>
+  </data>
+  <data name="BC_Cmd_OptionSet" xml:space="preserve">
+    <value>Option '{0}' of paint job '{1}' is now {2}.</value>
+  </data>
+  <data name="BC_Cmd_UnknownOption" xml:space="preserve">
+    <value>Unknown option '{0}'. Available options: {1}.</value>
+  </data>
+  <data name="BC_Cmd_RuleAdded" xml:space="preserve">
+    <value>Rule '{0}' added to paint job '{1}' at position {2}.</value>
+  </data>
+  <data name="BC_Cmd_RuleRemoved" xml:space="preserve">
+    <value>Rule '{0}' removed from paint job '{1}'.</value>
+  </data>
+  <data name="BC_Cmd_RuleRenamed" xml:space="preserve">
+    <value>Rule '{0}' renamed to '{1}'.</value>
+  </data>
+  <data name="BC_Cmd_RuleMoved" xml:space="preserve">
+    <value>Rule '{0}' moved to position {1}.</value>
+  </data>
+  <data name="BC_Cmd_RuleNotFound" xml:space="preserve">
+    <value>Paint job '{1}' has no rule '{0}'.</value>
+  </data>
+  <data name="BC_Cmd_RuleRequired" xml:space="preserve">
+    <value>A paint job needs at least one rule.</value>
+  </data>
+  <data name="BC_Cmd_ActionUpdated" xml:space="preserve">
+    <value>Rule '{0}' now paints {1}.</value>
+  </data>
+  <data name="BC_Cmd_ConditionAdded" xml:space="preserve">
+    <value>Condition [{0}] added: {1}</value>
+  </data>
+  <data name="BC_Cmd_ConditionUpdated" xml:space="preserve">
+    <value>Condition [{0}] is now: {1}</value>
+  </data>
+  <data name="BC_Cmd_NodeRemoved" xml:space="preserve">
+    <value>Removed [{0}]: {1}</value>
+  </data>
+  <data name="BC_Cmd_NodeMoved" xml:space="preserve">
+    <value>Moved {0} to [{1}].</value>
+  </data>
+  <data name="BC_Cmd_GroupAdded" xml:space="preserve">
+    <value>Group [{0}] added: {1}</value>
+  </data>
+  <data name="BC_Cmd_GroupUpdated" xml:space="preserve">
+    <value>Group [{0}] is now: {1}</value>
+  </data>
+  <data name="BC_Cmd_PathNotFound" xml:space="preserve">
+    <value>Nothing at path '{0}'. Use /{1} ShowJob to list the conditions with their paths.</value>
+  </data>
+  <data name="BC_Cmd_PathNotGroup" xml:space="preserve">
+    <value>'{0}' is a condition, not a group.</value>
+  </data>
+  <data name="BC_Cmd_PathIsGroup" xml:space="preserve">
+    <value>'{0}' is a group. Use /{1} SetGroup to change it.</value>
+  </data>
+  <data name="BC_Cmd_PathIsCondition" xml:space="preserve">
+    <value>'{0}' is a condition. Use /{1} SetCondition to change it.</value>
+  </data>
+  <data name="BC_Cmd_RootProtected" xml:space="preserve">
+    <value>The root group cannot be removed or moved.</value>
+  </data>
+  <data name="BC_Cmd_MoveIntoSelf" xml:space="preserve">
+    <value>A group cannot be moved into itself.</value>
+  </data>
+  <data name="BC_Cmd_InvalidPosition" xml:space="preserve">
+    <value>Invalid position '{0}'. Expected 1 to {1}.</value>
+  </data>
+  <data name="BC_Cmd_InvalidValue" xml:space="preserve">
+    <value>Invalid value '{0}' for '{1}'.</value>
+  </data>
+  <data name="BC_Cmd_UnknownField" xml:space="preserve">
+    <value>Unknown field '{0}'.</value>
+  </data>
+  <data name="BC_Cmd_UnknownSkin" xml:space="preserve">
+    <value>Unknown skin '{0}'. Use /{1} Skins to list the available skins.</value>
+  </data>
+  <data name="BC_Cmd_SkinList" xml:space="preserve">
+    <value>Skins: {0}</value>
+  </data>
+  <data name="BC_Cmd_NoSkinsMatched" xml:space="preserve">
+    <value>No skin matches '{0}'.</value>
+  </data>
+  <data name="BC_Cmd_On" xml:space="preserve">
+    <value>on</value>
+  </data>
+  <data name="BC_Cmd_Off" xml:space="preserve">
+    <value>off</value>
+  </data>
+  <data name="BC_Cmd_JobHeader" xml:space="preserve">
+    <value>Paint job '{0}'</value>
+  </data>
+  <data name="BC_Cmd_JobOptionsLine" xml:space="preserve">
+    <value>Options: subgrids {0}, projected {1}, preview {2}, ownership {3}</value>
+  </data>
+  <data name="BC_Cmd_ShowJobHint" xml:space="preserve">
+    <value>The path in brackets addresses a condition or a group: 0 is the root group, 2.1 the first member of its second member.</value>
+  </data>
+  <data name="BC_Cmd_RuleLine" xml:space="preserve">
+    <value>Rule {0}: {1}</value>
+  </data>
+  <data name="BC_Cmd_WhenLine" xml:space="preserve">
+    <value>  When:</value>
+  </data>
+  <data name="BC_Cmd_ThenLine" xml:space="preserve">
+    <value>  Then: {0}</value>
+  </data>
+  <data name="BC_Cmd_ActionColor" xml:space="preserve">
+    <value>color ({0}, {1}, {2})</value>
+  </data>
+  <data name="BC_Cmd_ActionSkin" xml:space="preserve">
+    <value>skin '{0}'</value>
+  </data>
+  <data name="BC_Cmd_ActionSkinNone" xml:space="preserve">
+    <value>no skin</value>
+  </data>
+  <data name="BC_Cmd_ActionNone" xml:space="preserve">
+    <value>nothing</value>
+  </data>
+  <data name="BC_Cmd_GroupText" xml:space="preserve">
+    <value>{0}:</value>
+  </data>
 </root>

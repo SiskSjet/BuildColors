@@ -158,6 +158,14 @@ namespace Sisk.BuildColors {
             MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(ModText.BC_ColorSetSaved.GetString(), colorSet.Name));
         }
 
+        /// <summary>
+        ///     Pulls the paint job list of the UI back in line after a console command changed it.
+        /// </summary>
+        /// <param name="jobToSelect">Job the list should end up on, or null to keep the current selection.</param>
+        internal void RefreshPaintJobs(PaintJob jobToSelect = null) {
+            _ui?.RefreshPaintJobs(jobToSelect);
+        }
+
         internal void SavePaintJobs() {
             if (PaintJobs != null) {
                 FileHandler.Save(PAINT_JOBS_FILE, PaintJobs);
@@ -177,21 +185,6 @@ namespace Sisk.BuildColors {
             Static = null;
         }
 
-        private void ApplyJobCommand(string arguments) {
-            if (string.IsNullOrWhiteSpace(arguments)) {
-                MyAPIGateway.Utilities.ShowMessage(NAME, ModText.BC_PaintJob_ApplyJobUsage.GetString(Acronym));
-                return;
-            }
-
-            var job = PaintJobs?.FirstOrDefault(r => string.Equals(r.Name, arguments, StringComparison.InvariantCultureIgnoreCase));
-            if (job == null) {
-                MyAPIGateway.Utilities.ShowMessage(NAME, ModText.BC_NoPaintJobFound.GetString(arguments));
-                return;
-            }
-
-            PaintJobService?.ApplyJobToSelection(job);
-        }
-
         /// <summary>
         ///     Create commands.
         /// </summary>
@@ -203,8 +196,8 @@ namespace Sisk.BuildColors {
             _commandHandler.Register(new Command { Name = "Generate", Description = ModText.BC_Description_Generate.GetString(), Execute = GenerateColorSet });
             _commandHandler.Register(new Command { Name = "List", Description = ModText.BC_Description_List.GetString(), Execute = ListColorSets });
             _commandHandler.Register(new Command { Name = "Help", Description = ModText.BC_Description_Help.GetString(), Execute = _commandHandler.ShowHelp });
-            _commandHandler.Register(new Command { Name = "Jobs", Description = ModText.BC_Description_Jobs.GetString(), Execute = ListPaintJobs });
-            _commandHandler.Register(new Command { Name = "ApplyJob", Description = ModText.BC_Description_ApplyJob.GetString(), Execute = ApplyJobCommand });
+
+            PaintJobCommands.Register(_commandHandler);
         }
 
         private void GenerateColorSet(string arguments) {
@@ -222,16 +215,6 @@ namespace Sisk.BuildColors {
         /// <param name="arguments"></param>
         private void ListColorSets(string arguments) {
             MyAPIGateway.Utilities.ShowMessage(NAME, ColorSets.Any() ? string.Join(", ", ColorSets.Select(x => x.Name)) : ModText.BC_NoColorSetsAvailable.GetString());
-        }
-
-        private void ListPaintJobs(string arguments) {
-            if (PaintJobs == null || PaintJobs.Count == 0) {
-                MyAPIGateway.Utilities.ShowMessage(NAME, ModText.BC_NoPaintJobsAvailable.GetString());
-                return;
-            }
-
-            var names = PaintJobs.Select(r => r.Name).OrderBy(x => x, StringComparer.InvariantCultureIgnoreCase);
-            MyAPIGateway.Utilities.ShowMessage(NAME, string.Join(", ", names));
         }
 
         private void LoadColorSets() {
