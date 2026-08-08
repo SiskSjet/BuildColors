@@ -2,8 +2,10 @@ using RichHudFramework;
 using RichHudFramework.UI;
 using RichHudFramework.UI.Client;
 using Sandbox.ModAPI;
+using Sisk.BuildColors.Localization;
 using Sisk.BuildColors.Settings.Models;
 using Sisk.BuildColors.Settings.Models.ColorSpace;
+using Sisk.Utils.Localization.Extensions;
 using System;
 using System.Linq;
 using VRageMath;
@@ -91,7 +93,7 @@ namespace Sisk.BuildColors.UI {
 
             var colorsetLabel = new Label() {
                 ParentAlignment = ParentAlignments.Left,
-                Text = "Color Sets",
+                Text = ModText.BC_UI_ColorSets.GetString(),
             };
 
             _colorsetList = new ListBox<ColorSet>() {
@@ -100,16 +102,16 @@ namespace Sisk.BuildColors.UI {
             };
 
             _loadColorsetButton = new BorderedButton() {
-                Text = "Load",
+                Text = ModText.BC_UI_Load.GetString(),
                 Padding = Vector2.Zero
             };
             _removeColorsetButton = new BorderedButton() {
-                Text = "Remove",
+                Text = ModText.BC_UI_Remove.GetString(),
                 Padding = Vector2.Zero
             };
             var saveActivColorsButton = new BorderedButton() {
                 ParentAlignment = ParentAlignments.Right,
-                Text = "Save (Color Picker)",
+                Text = ModText.BC_UI_SaveColorPicker.GetString(),
                 Padding = Vector2.Zero
             };
 
@@ -131,12 +133,12 @@ namespace Sisk.BuildColors.UI {
 
             var colorSchemeGeneratorLabel = new Label() {
                 ParentAlignment = ParentAlignments.Left,
-                Text = "Color Scheme Generator",
+                Text = ModText.BC_UI_ColorSchemeGenerator.GetString(),
             };
 
             var schemeLabel = new Label() {
                 ParentAlignment = ParentAlignments.Left,
-                Text = "Color Scheme",
+                Text = ModText.BC_UI_ColorScheme.GetString(),
             };
 
             _schemeDropdown = new Dropdown<ColorSchemeGenerator.Scheme>() {
@@ -156,7 +158,7 @@ namespace Sisk.BuildColors.UI {
 
             var presetLabel = new Label() {
                 ParentAlignment = ParentAlignments.Left,
-                Text = "Color Presets",
+                Text = ModText.BC_UI_ColorPresets.GetString(),
             };
 
             _presetDropdown = new Dropdown<ColorSchemeGenerator.Preset>() {
@@ -181,7 +183,7 @@ namespace Sisk.BuildColors.UI {
 
             var randomColorLabel = new Label() {
                 ParentAlignment = ParentAlignments.Left,
-                Text = "Random base color"
+                Text = ModText.BC_UI_RandomBaseColor.GetString()
             };
 
             var randomColorCheckbox = new BorderedCheckBox() {
@@ -198,17 +200,17 @@ namespace Sisk.BuildColors.UI {
             _baseColorPicker = new ColorPickerHSV2() {
                 ParentAlignment = ParentAlignments.Left,
                 DimAlignment = DimAlignments.Width,
-                Name = "Base color",
+                Name = ModText.BC_UI_BaseColor.GetString(),
                 Visible = false,
             };
 
             _generateColorSchemeButton = new BorderedButton() {
-                Text = "Generate",
+                Text = ModText.BC_UI_Generate.GetString(),
                 Padding = Vector2.Zero
             };
 
             var saveGeneratedColorSchemeButton = new BorderedButton() {
-                Text = "Save",
+                Text = ModText.BC_UI_Save.GetString(),
                 Padding = Vector2.Zero
             };
 
@@ -348,7 +350,7 @@ namespace Sisk.BuildColors.UI {
 
             // convert result to Color array.
             var colors = result.Select(x => (Settings.Models.Color)x).ToArray();
-            var colorSet = new ColorSet("Generated", colors);
+            var colorSet = new ColorSet(ModText.BC_UI_GeneratedColorSetName.GetString(), colors);
             _schemePreview.SetColorSet(colorSet);
         }
 

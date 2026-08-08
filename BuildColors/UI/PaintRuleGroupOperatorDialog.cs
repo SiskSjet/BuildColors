@@ -1,5 +1,7 @@
 using RichHudFramework.UI;
+using Sisk.BuildColors.Localization;
 using Sisk.BuildColors.Settings.Models.PaintJobs;
+using Sisk.Utils.Localization.Extensions;
 using System;
 using VRageMath;
 
@@ -24,20 +26,20 @@ namespace Sisk.BuildColors.UI {
             var dialogWidth = MathHelper.Clamp(DialogSafeArea.GetAvailableWidth(), MIN_DIALOG_WIDTH, PREFERRED_DIALOG_WIDTH);
 
             Size = new Vector2(dialogWidth, DIALOG_HEIGHT);
-            HeaderText = isRoot ? "Edit Conditions Root" : "Edit Group";
+            HeaderText = isRoot ? ModText.BC_UI_GroupDialogTitleRoot.GetString() : ModText.BC_UI_GroupDialogTitle.GetString();
 
             var contentWidth = dialogWidth - Padding.X - LayoutMetrics.CONTENT_PADDING_X;
 
             _operatorDropdown = new Dropdown<PaintRuleLogicalOperator>() { DimAlignment = DimAlignments.Width, Height = LayoutMetrics.CONTROL_HEIGHT };
-            _operatorDropdown.Add("Match ALL members (AND)", PaintRuleLogicalOperator.And);
-            _operatorDropdown.Add("Match ANY member (OR)", PaintRuleLogicalOperator.Or);
+            _operatorDropdown.Add(ModText.BC_UI_Operator_And.GetString(), PaintRuleLogicalOperator.And);
+            _operatorDropdown.Add(ModText.BC_UI_Operator_Or.GetString(), PaintRuleLogicalOperator.Or);
             _operatorDropdown.SetSelection(_group.Operator);
 
             _negateCheckbox = new BorderedCheckBox() { Value = _group.Negate };
 
             // The label must not carry the width of the row, or it is drawn across the checkbox.
             var negateLabel = new Label() {
-                Text = "Invert the result (NOT)",
+                Text = ModText.BC_UI_Operator_Negate.GetString(),
                 Format = Style.BodyText,
                 AutoResize = false,
                 Height = LayoutMetrics.CHECKBOX_SIZE,
@@ -54,8 +56,8 @@ namespace Sisk.BuildColors.UI {
                 Height = LayoutMetrics.CHECKBOX_SIZE,
             };
 
-            var saveButton = new BorderedButton() { Text = "Save", Padding = Vector2.Zero, Width = 140f, Height = LayoutMetrics.BUTTON_HEIGHT };
-            var cancelButton = new BorderedButton() { Text = "Cancel", Padding = Vector2.Zero, Width = 140f, Height = LayoutMetrics.BUTTON_HEIGHT };
+            var saveButton = new BorderedButton() { Text = ModText.BC_UI_Save.GetString(), Padding = Vector2.Zero, Width = 140f, Height = LayoutMetrics.BUTTON_HEIGHT };
+            var cancelButton = new BorderedButton() { Text = ModText.BC_UI_Cancel.GetString(), Padding = Vector2.Zero, Width = 140f, Height = LayoutMetrics.BUTTON_HEIGHT };
 
             var buttonRow = new HudChain(false) {
                 CollectionContainer = { saveButton, cancelButton },
@@ -70,11 +72,11 @@ namespace Sisk.BuildColors.UI {
                 DimAlignment = DimAlignments.UnpaddedSize,
                 SizingMode = HudChainSizingModes.FitMembersOffAxis,
                 CollectionContainer = {
-                    { CreateLabel("How should the members of this group be combined?"), 0f },
-                    { CreateLabel("Operator"), 0f },
+                    { CreateLabel(ModText.BC_UI_GroupHint.GetString()), 0f },
+                    { CreateLabel(ModText.BC_UI_Operator.GetString()), 0f },
                     { _operatorDropdown, 0f },
                     { negateRow, 0f },
-                    { CreateLabel("A group with nothing in it stays unmatched, inverted or not."), 0f },
+                    { CreateLabel(ModText.BC_UI_GroupHint_Empty.GetString()), 0f },
                     { new EmptyHudElement(), 1f },
                     { buttonRow, 0f }
                 },

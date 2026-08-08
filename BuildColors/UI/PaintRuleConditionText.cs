@@ -1,4 +1,6 @@
+using Sisk.BuildColors.Localization;
 using Sisk.BuildColors.Settings.Models.PaintJobs;
+using Sisk.Utils.Localization.Extensions;
 using System.Linq;
 
 using ColorModel = Sisk.BuildColors.Settings.Models.Color;
@@ -12,41 +14,40 @@ namespace Sisk.BuildColors.UI {
 
         public static string Describe(PaintRuleCondition condition) {
             if (condition == null) {
-                return "Unconfigured";
+                return ModText.BC_UI_Desc_Unconfigured.GetString();
             }
 
-            var comparison = condition.Comparison == PaintRuleComparison.NotEquals ? "is not" : "is";
+            var comparison = condition.Comparison == PaintRuleComparison.NotEquals ? ModText.BC_UI_Desc_IsNot.GetString() : ModText.BC_UI_Desc_Is.GetString();
 
             switch (condition.Type) {
                 case PaintRuleConditionType.BlockColor:
-                    return string.Format("Color {0} {1}", comparison, DescribeColor(condition.Color));
+                    return ModText.BC_UI_Desc_Color.GetString(comparison, DescribeColor(condition.Color));
 
                 case PaintRuleConditionType.BlockDefinition:
-                    var typeId = string.IsNullOrWhiteSpace(condition.Definition.TypeId) ? "Any" : condition.Definition.TypeId;
-                    var subtypeId = string.IsNullOrWhiteSpace(condition.Definition.SubtypeId) ? "Any" : condition.Definition.SubtypeId;
-                    return string.Format("Block {0} {1}/{2}", comparison, typeId, subtypeId);
+                    var typeId = string.IsNullOrWhiteSpace(condition.Definition.TypeId) ? ModText.BC_UI_Desc_Any.GetString() : condition.Definition.TypeId;
+                    var subtypeId = string.IsNullOrWhiteSpace(condition.Definition.SubtypeId) ? ModText.BC_UI_Desc_Any.GetString() : condition.Definition.SubtypeId;
+                    return ModText.BC_UI_Desc_BlockDefinition.GetString(comparison, typeId, subtypeId);
 
                 case PaintRuleConditionType.BlockSkin:
-                    var skinId = string.IsNullOrWhiteSpace(condition.SkinId) ? "No skin" : condition.SkinId;
-                    return string.Format("Skin {0} {1}", comparison, skinId);
+                    var skinId = string.IsNullOrWhiteSpace(condition.SkinId) ? ModText.BC_UI_Desc_NoSkin.GetString() : condition.SkinId;
+                    return ModText.BC_UI_Desc_Skin.GetString(comparison, skinId);
 
                 case PaintRuleConditionType.BlockCategory:
-                    return string.Format("Block {0} {1}", comparison, DescribeCategory(condition.Category));
+                    return ModText.BC_UI_Desc_BlockCategory.GetString(comparison, DescribeCategory(condition.Category));
 
                 case PaintRuleConditionType.GridSize:
-                    return string.Format("Grid {0} {1}", comparison,
-                        condition.GridSize == PaintRuleGridSize.Small ? "small" : "large");
+                    return ModText.BC_UI_Desc_GridSize.GetString(comparison, condition.GridSize == PaintRuleGridSize.Small ? ModText.BC_UI_Desc_GridSmall.GetString() : ModText.BC_UI_Desc_GridLarge.GetString());
 
                 case PaintRuleConditionType.BlockIntegrity:
                     return condition.Integrity == PaintRuleIntegrityState.BelowThreshold
-                        ? string.Format("Integrity {0} below {1:0.##}%", condition.Comparison == PaintRuleComparison.NotEquals ? "is not" : "is", condition.IntegrityThreshold)
-                        : string.Format("Block {0} {1}", comparison, DescribeIntegrity(condition.Integrity));
+                        ? ModText.BC_UI_Desc_IntegrityThreshold.GetString(comparison, condition.IntegrityThreshold)
+                        : ModText.BC_UI_Desc_BlockState.GetString(comparison, DescribeIntegrity(condition.Integrity));
 
                 case PaintRuleConditionType.AnyBlock:
-                    return "Any block";
+                    return ModText.BC_UI_Desc_AnyBlock.GetString();
 
                 default:
-                    return "Condition";
+                    return ModText.BC_UI_Desc_Condition.GetString();
             }
         }
 
@@ -55,20 +56,20 @@ namespace Sisk.BuildColors.UI {
         /// </summary>
         public static string DescribeGroup(PaintRuleConditionGroup group) {
             if (group == null) {
-                return "No conditions";
+                return ModText.BC_UI_Desc_NoConditions.GetString();
             }
 
             var conditionCount = CountConditions(group);
             var groupCount = CountGroups(group);
 
             if (conditionCount == 0) {
-                return "No conditions - this rule never matches";
+                return ModText.BC_UI_Desc_NoConditionsNeverMatches.GetString();
             }
 
-            var summary = string.Format("{0} condition(s), match {1}", conditionCount, DescribeOperator(group));
+            var summary = ModText.BC_UI_Desc_GroupSummary.GetString(conditionCount, DescribeOperator(group));
 
             if (groupCount > 0) {
-                summary += string.Format(", {0} nested group(s)", groupCount);
+                summary += ModText.BC_UI_Desc_GroupSummaryNested.GetString(groupCount);
             }
 
             return summary;
@@ -79,35 +80,35 @@ namespace Sisk.BuildColors.UI {
         /// </summary>
         public static string DescribeOperator(PaintRuleConditionGroup group) {
             if (group == null) {
-                return "ALL of";
+                return ModText.BC_UI_Desc_AllOf.GetString();
             }
 
-            var operatorText = group.Operator == PaintRuleLogicalOperator.And ? "ALL of" : "ANY of";
+            var operatorText = group.Operator == PaintRuleLogicalOperator.And ? ModText.BC_UI_Desc_AllOf.GetString() : ModText.BC_UI_Desc_AnyOf.GetString();
 
-            return group.Negate ? "NOT " + operatorText : operatorText;
+            return group.Negate ? ModText.BC_UI_Desc_Not.GetString(operatorText) : operatorText;
         }
 
         private static string DescribeCategory(PaintRuleBlockCategory category) {
             switch (category) {
                 case PaintRuleBlockCategory.LightArmor:
-                    return "light armor";
+                    return ModText.BC_UI_Desc_LightArmor.GetString();
                 case PaintRuleBlockCategory.HeavyArmor:
-                    return "heavy armor";
+                    return ModText.BC_UI_Desc_HeavyArmor.GetString();
                 case PaintRuleBlockCategory.Functional:
-                    return "a functional block";
+                    return ModText.BC_UI_Desc_Functional.GetString();
                 default:
-                    return "armor";
+                    return ModText.BC_UI_Desc_Armor.GetString();
             }
         }
 
         private static string DescribeIntegrity(PaintRuleIntegrityState state) {
             switch (state) {
                 case PaintRuleIntegrityState.Damaged:
-                    return "damaged";
+                    return ModText.BC_UI_Desc_Damaged.GetString();
                 case PaintRuleIntegrityState.Incomplete:
-                    return "under construction";
+                    return ModText.BC_UI_Desc_Underconstruction.GetString();
                 default:
-                    return "intact";
+                    return ModText.BC_UI_Desc_Intact.GetString();
             }
         }
 

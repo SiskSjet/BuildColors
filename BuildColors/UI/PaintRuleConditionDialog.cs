@@ -1,5 +1,7 @@
 using RichHudFramework.UI;
+using Sisk.BuildColors.Localization;
 using Sisk.BuildColors.Settings.Models.PaintJobs;
+using Sisk.Utils.Localization.Extensions;
 using System;
 using System.Globalization;
 using VRageMath;
@@ -70,30 +72,30 @@ namespace Sisk.BuildColors.UI {
             var dialogWidth = MathHelper.Clamp(DialogSafeArea.GetAvailableWidth(), MIN_DIALOG_WIDTH, PREFERRED_DIALOG_WIDTH);
 
             Size = new Vector2(dialogWidth, DIALOG_HEIGHT);
-            HeaderText = "Condition Editor";
+            HeaderText = ModText.BC_UI_ConditionEditorTitle.GetString();
 
             var contentWidth = dialogWidth - Padding.X - LayoutMetrics.CONTENT_PADDING_X;
 
-            var typeLabel = CreateLabel("Condition Type");
+            var typeLabel = CreateLabel(ModText.BC_UI_ConditionType.GetString());
             _conditionTypeDropdown = new Dropdown<PaintRuleConditionType>() { DimAlignment = DimAlignments.Width, Height = CONTROL_HEIGHT };
-            _conditionTypeDropdown.Add("Block Color", PaintRuleConditionType.BlockColor);
-            _conditionTypeDropdown.Add("Block Definition", PaintRuleConditionType.BlockDefinition);
-            _conditionTypeDropdown.Add("Block Skin", PaintRuleConditionType.BlockSkin);
-            _conditionTypeDropdown.Add("Block Category", PaintRuleConditionType.BlockCategory);
-            _conditionTypeDropdown.Add("Grid Size", PaintRuleConditionType.GridSize);
-            _conditionTypeDropdown.Add("Block Integrity", PaintRuleConditionType.BlockIntegrity);
-            _conditionTypeDropdown.Add("Any Block", PaintRuleConditionType.AnyBlock);
+            _conditionTypeDropdown.Add(ModText.BC_UI_ConditionType_BlockColor.GetString(), PaintRuleConditionType.BlockColor);
+            _conditionTypeDropdown.Add(ModText.BC_UI_ConditionType_BlockDefinition.GetString(), PaintRuleConditionType.BlockDefinition);
+            _conditionTypeDropdown.Add(ModText.BC_UI_ConditionType_BlockSkin.GetString(), PaintRuleConditionType.BlockSkin);
+            _conditionTypeDropdown.Add(ModText.BC_UI_ConditionType_BlockCategory.GetString(), PaintRuleConditionType.BlockCategory);
+            _conditionTypeDropdown.Add(ModText.BC_UI_ConditionType_GridSize.GetString(), PaintRuleConditionType.GridSize);
+            _conditionTypeDropdown.Add(ModText.BC_UI_ConditionType_BlockIntegrity.GetString(), PaintRuleConditionType.BlockIntegrity);
+            _conditionTypeDropdown.Add(ModText.BC_UI_ConditionType_AnyBlock.GetString(), PaintRuleConditionType.AnyBlock);
 
-            _comparisonLabel = CreateLabel("Comparison");
+            _comparisonLabel = CreateLabel(ModText.BC_UI_Comparison.GetString());
             _comparisonDropdown = new Dropdown<PaintRuleComparison>() { DimAlignment = DimAlignments.Width, Height = CONTROL_HEIGHT };
-            _comparisonDropdown.Add("Matches", PaintRuleComparison.Equals);
-            _comparisonDropdown.Add("Does not match", PaintRuleComparison.NotEquals);
+            _comparisonDropdown.Add(ModText.BC_UI_Comparison_Matches.GetString(), PaintRuleComparison.Equals);
+            _comparisonDropdown.Add(ModText.BC_UI_Comparison_DoesNotMatch.GetString(), PaintRuleComparison.NotEquals);
 
             // Block color section
             _colorPicker = new ColorPickerHSV() {
                 DimAlignment = DimAlignments.Width,
                 Height = LayoutMetrics.COLOR_PICKER_HEIGHT,
-                Name = "Block Color",
+                Name = ModText.BC_UI_ConditionType_BlockColor.GetString(),
             };
 
             _palette = new ColorPaletteSelector() { DimAlignment = DimAlignments.Width };
@@ -101,9 +103,9 @@ namespace Sisk.BuildColors.UI {
 
             _colorSection = new HudChain(true) {
                 CollectionContainer = {
-                    CreateLabel("The rule matches blocks painted with this color."),
+                    CreateLabel(ModText.BC_UI_ConditionHint_BlockColor.GetString()),
                     _colorPicker,
-                    CreateLabel("Or pick from your current build palette:"),
+                    CreateLabel(ModText.BC_UI_PickFromPalette.GetString()),
                     _palette
                 },
                 Spacing = ROW_SPACING,
@@ -123,8 +125,8 @@ namespace Sisk.BuildColors.UI {
 
             _definitionSection = new HudChain(true) {
                 CollectionContainer = {
-                    CreateLabel("Pick a block, or leave a field empty to match any value."),
-                    CreateLabel("Wildcards: * for any characters, ? for one. E.g. LargeHeavyBlockArmor*"),
+                    CreateLabel(ModText.BC_UI_ConditionHint_Definition.GetString()),
+                    CreateLabel(ModText.BC_UI_ConditionHint_Wildcards.GetString()),
                     _definitionDropdown,
                     CreateFieldRow("TypeId", _definitionTypeField, contentWidth),
                     CreateFieldRow("SubtypeId", _definitionSubtypeField, contentWidth)
@@ -140,7 +142,7 @@ namespace Sisk.BuildColors.UI {
 
             _skinSection = new HudChain(true) {
                 CollectionContainer = {
-                    CreateLabel("The rule matches blocks using this armor skin."),
+                    CreateLabel(ModText.BC_UI_ConditionHint_Skin.GetString()),
                     _skinDropdown
                 },
                 Spacing = ROW_SPACING,
@@ -151,14 +153,14 @@ namespace Sisk.BuildColors.UI {
 
             // Block category section
             _categoryDropdown = new Dropdown<PaintRuleBlockCategory>() { DimAlignment = DimAlignments.Width, Height = CONTROL_HEIGHT };
-            _categoryDropdown.Add("Armor (light or heavy)", PaintRuleBlockCategory.Armor);
-            _categoryDropdown.Add("Light armor", PaintRuleBlockCategory.LightArmor);
-            _categoryDropdown.Add("Heavy armor", PaintRuleBlockCategory.HeavyArmor);
-            _categoryDropdown.Add("Functional block (everything else)", PaintRuleBlockCategory.Functional);
+            _categoryDropdown.Add(ModText.BC_UI_Category_Armor.GetString(), PaintRuleBlockCategory.Armor);
+            _categoryDropdown.Add(ModText.BC_UI_Category_LightArmor.GetString(), PaintRuleBlockCategory.LightArmor);
+            _categoryDropdown.Add(ModText.BC_UI_Category_HeavyArmor.GetString(), PaintRuleBlockCategory.HeavyArmor);
+            _categoryDropdown.Add(ModText.BC_UI_Category_Functional.GetString(), PaintRuleBlockCategory.Functional);
 
             _categorySection = new HudChain(true) {
                 CollectionContainer = {
-                    CreateLabel("The rule matches blocks of this kind, whatever their subtype."),
+                    CreateLabel(ModText.BC_UI_ConditionHint_Category.GetString()),
                     _categoryDropdown
                 },
                 Spacing = ROW_SPACING,
@@ -169,12 +171,12 @@ namespace Sisk.BuildColors.UI {
 
             // Grid size section
             _gridSizeDropdown = new Dropdown<PaintRuleGridSize>() { DimAlignment = DimAlignments.Width, Height = CONTROL_HEIGHT };
-            _gridSizeDropdown.Add("Large grid", PaintRuleGridSize.Large);
-            _gridSizeDropdown.Add("Small grid", PaintRuleGridSize.Small);
+            _gridSizeDropdown.Add(ModText.BC_UI_GridSize_Large.GetString(), PaintRuleGridSize.Large);
+            _gridSizeDropdown.Add(ModText.BC_UI_GridSize_Small.GetString(), PaintRuleGridSize.Small);
 
             _gridSizeSection = new HudChain(true) {
                 CollectionContainer = {
-                    CreateLabel("The rule matches blocks sitting on a grid of this size."),
+                    CreateLabel(ModText.BC_UI_ConditionHint_GridSize.GetString()),
                     _gridSizeDropdown
                 },
                 Spacing = ROW_SPACING,
@@ -185,21 +187,21 @@ namespace Sisk.BuildColors.UI {
 
             // Block integrity section
             _integrityDropdown = new Dropdown<PaintRuleIntegrityState>() { DimAlignment = DimAlignments.Width, Height = CONTROL_HEIGHT };
-            _integrityDropdown.Add("Intact (fully built, undamaged)", PaintRuleIntegrityState.Intact);
-            _integrityDropdown.Add("Damaged", PaintRuleIntegrityState.Damaged);
-            _integrityDropdown.Add("Under construction", PaintRuleIntegrityState.Incomplete);
-            _integrityDropdown.Add("Integrity below threshold", PaintRuleIntegrityState.BelowThreshold);
+            _integrityDropdown.Add(ModText.BC_UI_Integrity_Intact.GetString(), PaintRuleIntegrityState.Intact);
+            _integrityDropdown.Add(ModText.BC_UI_Integrity_Damaged.GetString(), PaintRuleIntegrityState.Damaged);
+            _integrityDropdown.Add(ModText.BC_UI_Integrity_Incomplete.GetString(), PaintRuleIntegrityState.Incomplete);
+            _integrityDropdown.Add(ModText.BC_UI_Integrity_BelowThreshold.GetString(), PaintRuleIntegrityState.BelowThreshold);
 
             _integrityThresholdField = new GameInputBlockingTextField() { DimAlignment = DimAlignments.Width, Height = CONTROL_HEIGHT };
 
             // Only the threshold state has anything to do with the field, so it is shown with that state
             // and hidden with every other one.
-            _integrityThresholdHint = CreateLabel("Blocks below this share of their full integrity match.");
-            _integrityThresholdRow = CreateFieldRow("Threshold (%)", _integrityThresholdField, contentWidth);
+            _integrityThresholdHint = CreateLabel(ModText.BC_UI_ConditionHint_IntegrityThreshold.GetString());
+            _integrityThresholdRow = CreateFieldRow(ModText.BC_UI_ThresholdPercent.GetString(), _integrityThresholdField, contentWidth);
 
             _integritySection = new HudChain(true) {
                 CollectionContainer = {
-                    CreateLabel("The rule matches blocks in this state."),
+                    CreateLabel(ModText.BC_UI_ConditionHint_Integrity.GetString()),
                     _integrityDropdown,
                     _integrityThresholdHint,
                     _integrityThresholdRow
@@ -213,8 +215,8 @@ namespace Sisk.BuildColors.UI {
             // Catch all section
             _anyBlockSection = new HudChain(true) {
                 CollectionContainer = {
-                    CreateLabel("Matches every block."),
-                    CreateLabel("Put such a rule last to paint whatever the rules above it did not match.")
+                    CreateLabel(ModText.BC_UI_ConditionHint_AnyBlock.GetString()),
+                    CreateLabel(ModText.BC_UI_ConditionHint_AnyBlockOrder.GetString())
                 },
                 Spacing = ROW_SPACING,
                 SizingMode = HudChainSizingModes.FitMembersOffAxis,
@@ -230,8 +232,8 @@ namespace Sisk.BuildColors.UI {
                 Height = STATUS_HEIGHT,
             };
 
-            var saveButton = new BorderedButton() { Text = "Save", Padding = Vector2.Zero, Width = 140f, Height = BUTTON_ROW_HEIGHT };
-            var cancelButton = new BorderedButton() { Text = "Cancel", Padding = Vector2.Zero, Width = 140f, Height = BUTTON_ROW_HEIGHT };
+            var saveButton = new BorderedButton() { Text = ModText.BC_UI_Save.GetString(), Padding = Vector2.Zero, Width = 140f, Height = BUTTON_ROW_HEIGHT };
+            var cancelButton = new BorderedButton() { Text = ModText.BC_UI_Cancel.GetString(), Padding = Vector2.Zero, Width = 140f, Height = BUTTON_ROW_HEIGHT };
 
             var buttonRow = new HudChain(false) {
                 CollectionContainer = { saveButton, cancelButton },
@@ -438,7 +440,7 @@ namespace Sisk.BuildColors.UI {
             var subtypeId = _definitionSubtypeField.Text.ToString().Trim();
 
             if (type == PaintRuleConditionType.BlockDefinition && string.IsNullOrEmpty(typeId) && string.IsNullOrEmpty(subtypeId)) {
-                _statusLabel.Text = "Set a TypeId or SubtypeId. For a catch all rule use the Any Block type instead.";
+                _statusLabel.Text = ModText.BC_UI_Status_DefinitionRequired.GetString();
                 return false;
             }
 
@@ -447,7 +449,7 @@ namespace Sisk.BuildColors.UI {
 
             if (type == PaintRuleConditionType.BlockIntegrity && integrityState == PaintRuleIntegrityState.BelowThreshold
                 && !TryParseThreshold(_integrityThresholdField.Text.ToString(), out threshold)) {
-                _statusLabel.Text = "Enter a threshold between 0 and 100.";
+                _statusLabel.Text = ModText.BC_UI_Status_ThresholdRange.GetString();
                 return false;
             }
 

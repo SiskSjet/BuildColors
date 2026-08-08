@@ -1,4 +1,6 @@
 using RichHudFramework.UI;
+using Sisk.BuildColors.Localization;
+using Sisk.Utils.Localization.Extensions;
 using System;
 using VRageMath;
 
@@ -17,7 +19,7 @@ namespace Sisk.BuildColors.UI {
             }
 
             Size = new Vector2(330, 180f);
-            HeaderText = "Name your color set";
+            HeaderText = ModText.BC_UI_SaveDialogTitle.GetString();
 
             _text = new GameInputBlockingTextField() {
                 Text = "",
@@ -25,13 +27,13 @@ namespace Sisk.BuildColors.UI {
             };
 
             var save = new BorderedButton() {
-                Text = "Save",
+                Text = ModText.BC_UI_Save.GetString(),
                 Padding = Vector2.Zero,
                 Width = 150
             };
 
             var cancel = new BorderedButton() {
-                Text = "Cancel",
+                Text = ModText.BC_UI_Cancel.GetString(),
                 Padding = Vector2.Zero,
                 Width = 150
             };

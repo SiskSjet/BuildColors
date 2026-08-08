@@ -1,5 +1,7 @@
 using RichHudFramework.UI;
+using Sisk.BuildColors.Localization;
 using Sisk.BuildColors.Settings.Models.PaintJobs;
+using Sisk.Utils.Localization.Extensions;
 using System;
 using VRageMath;
 
@@ -65,7 +67,7 @@ namespace Sisk.BuildColors.UI {
             var dialogWidth = MathHelper.Clamp(DialogSafeArea.GetAvailableWidth(), MIN_DIALOG_WIDTH, PREFERRED_DIALOG_WIDTH);
 
             Size = new Vector2(dialogWidth, DIALOG_HEIGHT);
-            HeaderText = "Paint Job Editor";
+            HeaderText = ModText.BC_UI_PaintJobEditorTitle.GetString();
 
             var contentWidth = dialogWidth - Padding.X - LayoutMetrics.CONTENT_PADDING_X;
             var contentHeight = DIALOG_HEIGHT - Padding.Y - HEADER_HEIGHT - LayoutMetrics.CONTENT_PADDING_Y;
@@ -85,10 +87,10 @@ namespace Sisk.BuildColors.UI {
 
             var optionsLayout = new HudChain(true) {
                 CollectionContainer = {
-                    CreateCheckboxRow(_includeSubgridsCheckbox, "Include subgrids", columnWidth),
-                    CreateCheckboxRow(_includeProjectedCheckbox, "Include projected grids", columnWidth),
-                    CreateCheckboxRow(_includePreviewCheckbox, "Include preview grids", columnWidth),
-                    CreateCheckboxRow(_respectOwnershipCheckbox, "Respect ownership", columnWidth)
+                    CreateCheckboxRow(_includeSubgridsCheckbox, ModText.BC_UI_Option_IncludeSubgrids.GetString(), columnWidth),
+                    CreateCheckboxRow(_includeProjectedCheckbox, ModText.BC_UI_Option_IncludeProjected.GetString(), columnWidth),
+                    CreateCheckboxRow(_includePreviewCheckbox, ModText.BC_UI_Option_IncludePreview.GetString(), columnWidth),
+                    CreateCheckboxRow(_respectOwnershipCheckbox, ModText.BC_UI_Option_RespectOwnership.GetString(), columnWidth)
                 },
                 Spacing = 6f,
                 SizingMode = HudChainSizingModes.FitMembersOffAxis,
@@ -98,10 +100,10 @@ namespace Sisk.BuildColors.UI {
 
             _ruleList = new ListBox<PaintRule>() { DimAlignment = DimAlignments.Width };
 
-            var addRuleButton = CreateButton("Add Rule");
-            _removeRuleButton = CreateButton("Remove Rule");
+            var addRuleButton = CreateButton(ModText.BC_UI_AddRule.GetString());
+            _removeRuleButton = CreateButton(ModText.BC_UI_RemoveRule.GetString());
 
-            _moveRuleButton = CreateButton("Move");
+            _moveRuleButton = CreateButton(ModText.BC_UI_Move.GetString());
 
             var ruleButtons = new HudChain(false) {
                 CollectionContainer = { { addRuleButton, 1f }, { _removeRuleButton, 1f }, { _moveRuleButton, 1f } },
@@ -111,30 +113,29 @@ namespace Sisk.BuildColors.UI {
                 Height = LayoutMetrics.BUTTON_HEIGHT,
             };
 
-
             var jobColumn = CreateColumn(columnWidth, columnHeight);
-            jobColumn.Add(CreateLabel("Job Name"), 0f);
+            jobColumn.Add(CreateLabel(ModText.BC_UI_JobName.GetString()), 0f);
             jobColumn.Add(_jobNameField, 0f);
             jobColumn.Add(CreateSeparator(), 0f);
-            jobColumn.Add(CreateLabel("Options"), 0f);
+            jobColumn.Add(CreateLabel(ModText.BC_UI_Options.GetString()), 0f);
             jobColumn.Add(optionsLayout, 0f);
             jobColumn.Add(CreateSeparator(), 0f);
-            jobColumn.Add(CreateLabel("Rules"), 0f);
-            jobColumn.Add(CreateLabel("Applied in order; the first matching rule wins."), 0f);
+            jobColumn.Add(CreateLabel(ModText.BC_UI_Rules.GetString()), 0f);
+            jobColumn.Add(CreateLabel(ModText.BC_UI_RulesHint.GetString()), 0f);
             jobColumn.Add(_ruleList, 1f);
             jobColumn.Add(ruleButtons, 0f);
 
             // Column 2 - the selected rule
             _ruleNameField = new GameInputBlockingTextField() { DimAlignment = DimAlignments.Width, Height = LayoutMetrics.CONTROL_HEIGHT };
             _conditionSummaryLabel = CreateLabel(string.Empty);
-            _editConditionsButton = CreateButton("Edit Conditions...");
+            _editConditionsButton = CreateButton(ModText.BC_UI_EditConditions.GetString());
 
             // Action applied to matching blocks
             _actionApplyColorCheckbox = new BorderedCheckBox();
             _actionColorPicker = new ColorPickerHSV() {
                 DimAlignment = DimAlignments.Width,
                 Height = LayoutMetrics.COLOR_PICKER_HEIGHT,
-                Name = "Target Color",
+                Name = ModText.BC_UI_TargetColor.GetString(),
             };
 
             _actionPalette = new ColorPaletteSelector() { DimAlignment = DimAlignments.Width };
@@ -146,21 +147,21 @@ namespace Sisk.BuildColors.UI {
             // Column 2 holds everything about the selected rule. Members stack from the top, so any
             // leftover height simply stays empty.
             var ruleColumn = CreateColumn(columnWidth, columnHeight);
-            ruleColumn.Add(CreateLabel("Rule Details"), 0f);
-            ruleColumn.Add(CreateLabel("Rule Name"), 0f);
+            ruleColumn.Add(CreateLabel(ModText.BC_UI_RuleDetails.GetString()), 0f);
+            ruleColumn.Add(CreateLabel(ModText.BC_UI_RuleName.GetString()), 0f);
             ruleColumn.Add(_ruleNameField, 0f);
             ruleColumn.Add(CreateSeparator(), 0f);
-            ruleColumn.Add(CreateLabel("When"), 0f);
+            ruleColumn.Add(CreateLabel(ModText.BC_UI_When.GetString()), 0f);
             ruleColumn.Add(_conditionSummaryLabel, 0f);
             ruleColumn.Add(_editConditionsButton, 0f);
             ruleColumn.Add(CreateSeparator(), 0f);
-            ruleColumn.Add(CreateLabel("Then paint with"), 0f);
-            ruleColumn.Add(CreateCheckboxRow(_actionApplyColorCheckbox, "Apply color", columnWidth), 0f);
+            ruleColumn.Add(CreateLabel(ModText.BC_UI_ThenPaintWith.GetString()), 0f);
+            ruleColumn.Add(CreateCheckboxRow(_actionApplyColorCheckbox, ModText.BC_UI_ApplyColor.GetString(), columnWidth), 0f);
             ruleColumn.Add(_actionColorPicker, 0f);
-            ruleColumn.Add(CreateLabel("Or pick from your current build palette:"), 0f);
+            ruleColumn.Add(CreateLabel(ModText.BC_UI_PickFromPalette.GetString()), 0f);
             ruleColumn.Add(_actionPalette, 0f);
-            ruleColumn.Add(CreateCheckboxRow(_actionApplySkinCheckbox, "Apply skin", columnWidth), 0f);
-            ruleColumn.Add(CreateLabel("Target Skin"), 0f);
+            ruleColumn.Add(CreateCheckboxRow(_actionApplySkinCheckbox, ModText.BC_UI_ApplySkin.GetString(), columnWidth), 0f);
+            ruleColumn.Add(CreateLabel(ModText.BC_UI_TargetSkin.GetString()), 0f);
             ruleColumn.Add(_actionSkinDropdown, 0f);
 
             var mainColumns = new HudChain(false) {
@@ -179,10 +180,10 @@ namespace Sisk.BuildColors.UI {
                 Height = LayoutMetrics.STATUS_HEIGHT,
             };
 
-            var saveButton = CreateButton("Save");
+            var saveButton = CreateButton(ModText.BC_UI_Save.GetString());
             saveButton.Width = 150f;
 
-            var cancelButton = CreateButton("Cancel");
+            var cancelButton = CreateButton(ModText.BC_UI_Cancel.GetString());
             cancelButton.Width = 150f;
 
             var buttonRow = new HudChain(false) {
@@ -370,10 +371,10 @@ namespace Sisk.BuildColors.UI {
             SaveRuleData(_loadedRule);
 
             var index = _job.Rules.Count + 1;
-            var name = string.Format("Rule {0}", index);
+            var name = ModText.BC_UI_DefaultRuleName.GetString(index);
             while (_job.Rules.Exists(rule => string.Equals(rule.Name, name, StringComparison.InvariantCultureIgnoreCase))) {
                 index++;
-                name = string.Format("Rule {0}", index);
+                name = ModText.BC_UI_DefaultRuleName.GetString(index);
             }
 
             var newRule = PaintRule.CreateDefault(name);
@@ -390,7 +391,7 @@ namespace Sisk.BuildColors.UI {
             }
 
             if (_job.Rules.Count <= 1) {
-                _statusLabel.Text = "A paint job needs at least one rule.";
+                _statusLabel.Text = ModText.BC_UI_Status_NeedsRule.GetString();
                 HudSoundUtils.PlaySound("HudLockingLost");
                 return;
             }
@@ -521,11 +522,10 @@ namespace Sisk.BuildColors.UI {
             _removeRuleButton.InputEnabled = !_isGrabbed && _job.Rules.Count > 1 && hasRule;
             _editConditionsButton.InputEnabled = !_isGrabbed && hasRule;
             _moveRuleButton.InputEnabled = _isGrabbed || (hasRule && _job.Rules.Count > 1);
-            _moveRuleButton.Text = _isGrabbed ? "Drop" : "Move";
+            _moveRuleButton.Text = _isGrabbed ? ModText.BC_UI_Drop.GetString() : ModText.BC_UI_Move.GetString();
 
             if (_isGrabbed) {
-                _statusLabel.Text = string.Format(
-                    "Moving {0}  -  Up/Down move, Enter/A drop, Esc/B cancel.", _carriedRule.Name);
+                _statusLabel.Text = ModText.BC_UI_Status_MovingRule.GetString(_carriedRule.Name);
             }
         }
 
@@ -710,7 +710,7 @@ namespace Sisk.BuildColors.UI {
 
             var name = _jobNameField.Text.ToString().Trim();
             if (string.IsNullOrEmpty(name)) {
-                _statusLabel.Text = "Job name cannot be empty.";
+                _statusLabel.Text = ModText.BC_UI_Status_JobNameEmpty.GetString();
                 HudSoundUtils.PlaySound("HudLockingLost");
                 return;
             }

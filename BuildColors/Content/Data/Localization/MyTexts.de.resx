@@ -147,4 +147,439 @@
   <data name="BC_Description_Generate" xml:space="preserve">
     <value>Generiert ein color set.</value>
   </data>
+  <data name="BC_Description_ApplyJob" xml:space="preserve">
+    <value>Wendet einen Lackierauftrag auf das anvisierte Grid an.</value>
+  </data>
+  <data name="BC_Description_Jobs" xml:space="preserve">
+    <value>Listet alle Lackieraufträge auf.</value>
+  </data>
+  <data name="BC_NoPaintJobFound" xml:space="preserve">
+    <value>Kein Lackierauftrag mit dem Namen '{0}' gefunden.</value>
+  </data>
+  <data name="BC_NoPaintJobsAvailable" xml:space="preserve">
+    <value>Noch keine Lackieraufträge definiert.</value>
+  </data>
+  <data name="BC_PaintJob_AlreadyUpToDate" xml:space="preserve">
+    <value>Lackierauftrag '{0}' hat auf '{2}' {1} Block/Blöcke getroffen, alle bereits aktuell.</value>
+  </data>
+  <data name="BC_PaintJob_ApplyJobUsage" xml:space="preserve">
+    <value>Verwendung: /{0} ApplyJob &lt;Auftragsname&gt;</value>
+  </data>
+  <data name="BC_PaintJob_GridsSkipped" xml:space="preserve">
+    <value> {0} Grid(s) wegen Besitzverhältnissen übersprungen.</value>
+  </data>
+  <data name="BC_PaintJob_NoBlocksMatched" xml:space="preserve">
+    <value>Lackierauftrag '{0}' hat auf '{1}' keine Blöcke getroffen.</value>
+  </data>
+  <data name="BC_PaintJob_NoLocalPlayer" xml:space="preserve">
+    <value>Lokaler Spieler konnte zum Anwenden eines Lackierauftrags nicht ermittelt werden.</value>
+  </data>
+  <data name="BC_PaintJob_NoMatchingRule" xml:space="preserve">
+    <value>Lackierauftrag '{0}' hat keine Regel, die auf einen Block zutreffen kann.</value>
+  </data>
+  <data name="BC_PaintJob_NoTarget" xml:space="preserve">
+    <value>Ziele auf ein Grid, bevor du einen Lackierauftrag anwendest.</value>
+  </data>
+  <data name="BC_PaintJob_Updated" xml:space="preserve">
+    <value>Lackierauftrag '{0}' hat auf '{3}' {1} von {2} passenden Blöcken aktualisiert.</value>
+  </data>
+  <data name="BC_UI_AddCondition" xml:space="preserve">
+    <value>Bedingung hinzufügen</value>
+  </data>
+  <data name="BC_UI_AddGroup" xml:space="preserve">
+    <value>Gruppe hinzufügen</value>
+  </data>
+  <data name="BC_UI_AddRule" xml:space="preserve">
+    <value>Regel hinzufügen</value>
+  </data>
+  <data name="BC_UI_Apply" xml:space="preserve">
+    <value>Anwenden</value>
+  </data>
+  <data name="BC_UI_Cancel" xml:space="preserve">
+    <value>Abbrechen</value>
+  </data>
+  <data name="BC_UI_Controls" xml:space="preserve">
+    <value>Steuerung</value>
+  </data>
+  <data name="BC_UI_Done" xml:space="preserve">
+    <value>Fertig</value>
+  </data>
+  <data name="BC_UI_Drop" xml:space="preserve">
+    <value>Ablegen</value>
+  </data>
+  <data name="BC_UI_Edit" xml:space="preserve">
+    <value>Bearbeiten</value>
+  </data>
+  <data name="BC_UI_Generate" xml:space="preserve">
+    <value>Generieren</value>
+  </data>
+  <data name="BC_UI_Load" xml:space="preserve">
+    <value>Laden</value>
+  </data>
+  <data name="BC_UI_Move" xml:space="preserve">
+    <value>Verschieben</value>
+  </data>
+  <data name="BC_UI_New" xml:space="preserve">
+    <value>Neu</value>
+  </data>
+  <data name="BC_UI_Refresh" xml:space="preserve">
+    <value>Aktualisieren</value>
+  </data>
+  <data name="BC_UI_Remove" xml:space="preserve">
+    <value>Entfernen</value>
+  </data>
+  <data name="BC_UI_RemoveRule" xml:space="preserve">
+    <value>Regel entfernen</value>
+  </data>
+  <data name="BC_UI_Save" xml:space="preserve">
+    <value>Speichern</value>
+  </data>
+  <data name="BC_UI_BaseColor" xml:space="preserve">
+    <value>Basisfarbe</value>
+  </data>
+  <data name="BC_UI_ColorPresets" xml:space="preserve">
+    <value>Farbvorlagen</value>
+  </data>
+  <data name="BC_UI_ColorScheme" xml:space="preserve">
+    <value>Farbschema</value>
+  </data>
+  <data name="BC_UI_ColorSchemeGenerator" xml:space="preserve">
+    <value>Farbschema-Generator</value>
+  </data>
+  <data name="BC_UI_ColorSets" xml:space="preserve">
+    <value>Farbsets</value>
+  </data>
+  <data name="BC_UI_GeneratedColorSetName" xml:space="preserve">
+    <value>Generiert</value>
+  </data>
+  <data name="BC_UI_RandomBaseColor" xml:space="preserve">
+    <value>Zufällige Basisfarbe</value>
+  </data>
+  <data name="BC_UI_SaveColorPicker" xml:space="preserve">
+    <value>Speichern (Farbwähler)</value>
+  </data>
+  <data name="BC_UI_SaveDialogTitle" xml:space="preserve">
+    <value>Farbset benennen</value>
+  </data>
+  <data name="BC_UI_ApplyColor" xml:space="preserve">
+    <value>Farbe anwenden</value>
+  </data>
+  <data name="BC_UI_ApplySkin" xml:space="preserve">
+    <value>Skin anwenden</value>
+  </data>
+  <data name="BC_UI_DefaultPaintJobName" xml:space="preserve">
+    <value>Lackierauftrag {0}</value>
+  </data>
+  <data name="BC_UI_DefaultRuleName" xml:space="preserve">
+    <value>Regel {0}</value>
+  </data>
+  <data name="BC_UI_DefaultRuleNameFallback" xml:space="preserve">
+    <value>Regel</value>
+  </data>
+  <data name="BC_UI_EditConditions" xml:space="preserve">
+    <value>Bedingungen bearbeiten...</value>
+  </data>
+  <data name="BC_UI_JobName" xml:space="preserve">
+    <value>Auftragsname</value>
+  </data>
+  <data name="BC_UI_NewPaintJobName" xml:space="preserve">
+    <value>Neuer Lackierauftrag</value>
+  </data>
+  <data name="BC_UI_Option_IncludeProjected" xml:space="preserve">
+    <value>Projizierte Grids einbeziehen</value>
+  </data>
+  <data name="BC_UI_Option_IncludePreview" xml:space="preserve">
+    <value>Vorschau-Grids einbeziehen</value>
+  </data>
+  <data name="BC_UI_Option_IncludeSubgrids" xml:space="preserve">
+    <value>Untergrids einbeziehen</value>
+  </data>
+  <data name="BC_UI_Option_RespectOwnership" xml:space="preserve">
+    <value>Besitzverhältnisse beachten</value>
+  </data>
+  <data name="BC_UI_Options" xml:space="preserve">
+    <value>Optionen</value>
+  </data>
+  <data name="BC_UI_PaintJobEditorTitle" xml:space="preserve">
+    <value>Lackierauftrag-Editor</value>
+  </data>
+  <data name="BC_UI_PaintJobs" xml:space="preserve">
+    <value>Lackieraufträge</value>
+  </data>
+  <data name="BC_UI_PickFromPalette" xml:space="preserve">
+    <value>Oder aus der aktuellen Baupalette wählen:</value>
+  </data>
+  <data name="BC_UI_RuleDetails" xml:space="preserve">
+    <value>Regeldetails</value>
+  </data>
+  <data name="BC_UI_RuleName" xml:space="preserve">
+    <value>Regelname</value>
+  </data>
+  <data name="BC_UI_Rules" xml:space="preserve">
+    <value>Regeln</value>
+  </data>
+  <data name="BC_UI_RulesHint" xml:space="preserve">
+    <value>Werden der Reihe nach angewendet; die erste passende Regel gewinnt.</value>
+  </data>
+  <data name="BC_UI_TargetColor" xml:space="preserve">
+    <value>Zielfarbe</value>
+  </data>
+  <data name="BC_UI_TargetSkin" xml:space="preserve">
+    <value>Ziel-Skin</value>
+  </data>
+  <data name="BC_UI_ThenPaintWith" xml:space="preserve">
+    <value>Dann lackieren mit</value>
+  </data>
+  <data name="BC_UI_When" xml:space="preserve">
+    <value>Wenn</value>
+  </data>
+  <data name="BC_UI_Category_Armor" xml:space="preserve">
+    <value>Panzerung (leicht oder schwer)</value>
+  </data>
+  <data name="BC_UI_Category_Functional" xml:space="preserve">
+    <value>Funktionsblock (alles andere)</value>
+  </data>
+  <data name="BC_UI_Category_HeavyArmor" xml:space="preserve">
+    <value>Schwere Panzerung</value>
+  </data>
+  <data name="BC_UI_Category_LightArmor" xml:space="preserve">
+    <value>Leichte Panzerung</value>
+  </data>
+  <data name="BC_UI_Comparison" xml:space="preserve">
+    <value>Vergleich</value>
+  </data>
+  <data name="BC_UI_Comparison_DoesNotMatch" xml:space="preserve">
+    <value>Trifft nicht zu</value>
+  </data>
+  <data name="BC_UI_Comparison_Matches" xml:space="preserve">
+    <value>Trifft zu</value>
+  </data>
+  <data name="BC_UI_ConditionEditorTitle" xml:space="preserve">
+    <value>Bedingungs-Editor</value>
+  </data>
+  <data name="BC_UI_ConditionHint_AnyBlock" xml:space="preserve">
+    <value>Trifft auf jeden Block zu.</value>
+  </data>
+  <data name="BC_UI_ConditionHint_AnyBlockOrder" xml:space="preserve">
+    <value>Setze eine solche Regel ans Ende, um alles zu lackieren, was die Regeln darüber nicht getroffen haben.</value>
+  </data>
+  <data name="BC_UI_ConditionHint_BlockColor" xml:space="preserve">
+    <value>Die Regel trifft auf Blöcke zu, die mit dieser Farbe lackiert sind.</value>
+  </data>
+  <data name="BC_UI_ConditionHint_Category" xml:space="preserve">
+    <value>Die Regel trifft auf Blöcke dieser Art zu, unabhängig vom Subtyp.</value>
+  </data>
+  <data name="BC_UI_ConditionHint_Definition" xml:space="preserve">
+    <value>Wähle einen Block, oder lasse ein Feld leer, um jeden Wert zu treffen.</value>
+  </data>
+  <data name="BC_UI_ConditionHint_GridSize" xml:space="preserve">
+    <value>Die Regel trifft auf Blöcke auf einem Grid dieser Größe zu.</value>
+  </data>
+  <data name="BC_UI_ConditionHint_Integrity" xml:space="preserve">
+    <value>Die Regel trifft auf Blöcke in diesem Zustand zu.</value>
+  </data>
+  <data name="BC_UI_ConditionHint_IntegrityThreshold" xml:space="preserve">
+    <value>Blöcke unterhalb dieses Anteils ihrer vollen Integrität treffen zu.</value>
+  </data>
+  <data name="BC_UI_ConditionHint_Skin" xml:space="preserve">
+    <value>Die Regel trifft auf Blöcke mit diesem Panzerungs-Skin zu.</value>
+  </data>
+  <data name="BC_UI_ConditionHint_Wildcards" xml:space="preserve">
+    <value>Platzhalter: * für beliebig viele Zeichen, ? für genau eines. Z. B. LargeHeavyBlockArmor*</value>
+  </data>
+  <data name="BC_UI_ConditionType" xml:space="preserve">
+    <value>Bedingungstyp</value>
+  </data>
+  <data name="BC_UI_ConditionType_AnyBlock" xml:space="preserve">
+    <value>Beliebiger Block</value>
+  </data>
+  <data name="BC_UI_ConditionType_BlockCategory" xml:space="preserve">
+    <value>Blockkategorie</value>
+  </data>
+  <data name="BC_UI_ConditionType_BlockColor" xml:space="preserve">
+    <value>Blockfarbe</value>
+  </data>
+  <data name="BC_UI_ConditionType_BlockDefinition" xml:space="preserve">
+    <value>Blockdefinition</value>
+  </data>
+  <data name="BC_UI_ConditionType_BlockIntegrity" xml:space="preserve">
+    <value>Blockintegrität</value>
+  </data>
+  <data name="BC_UI_ConditionType_BlockSkin" xml:space="preserve">
+    <value>Block-Skin</value>
+  </data>
+  <data name="BC_UI_ConditionType_GridSize" xml:space="preserve">
+    <value>Gridgröße</value>
+  </data>
+  <data name="BC_UI_GridSize_Large" xml:space="preserve">
+    <value>Großes Grid</value>
+  </data>
+  <data name="BC_UI_GridSize_Small" xml:space="preserve">
+    <value>Kleines Grid</value>
+  </data>
+  <data name="BC_UI_Integrity_BelowThreshold" xml:space="preserve">
+    <value>Integrität unter Schwellwert</value>
+  </data>
+  <data name="BC_UI_Integrity_Damaged" xml:space="preserve">
+    <value>Beschädigt</value>
+  </data>
+  <data name="BC_UI_Integrity_Incomplete" xml:space="preserve">
+    <value>Im Bau</value>
+  </data>
+  <data name="BC_UI_Integrity_Intact" xml:space="preserve">
+    <value>Intakt (fertig gebaut, unbeschädigt)</value>
+  </data>
+  <data name="BC_UI_NoSkinDefault" xml:space="preserve">
+    <value>Kein Skin (Standard)</value>
+  </data>
+  <data name="BC_UI_ThresholdPercent" xml:space="preserve">
+    <value>Schwellwert (%)</value>
+  </data>
+  <data name="BC_UI_ConditionsDialogTitle" xml:space="preserve">
+    <value>Bedingungen - {0}</value>
+  </data>
+  <data name="BC_UI_ConditionsHint" xml:space="preserve">
+    <value>Ziehe eine Zeile, um sie zu verschieben, oder wähle eine aus und drücke Verschieben. Gruppen verknüpfen ihre Mitglieder mit UND oder ODER.</value>
+  </data>
+  <data name="BC_UI_GroupDialogTitle" xml:space="preserve">
+    <value>Gruppe bearbeiten</value>
+  </data>
+  <data name="BC_UI_GroupDialogTitleRoot" xml:space="preserve">
+    <value>Bedingungswurzel bearbeiten</value>
+  </data>
+  <data name="BC_UI_GroupHint" xml:space="preserve">
+    <value>Wie sollen die Mitglieder dieser Gruppe verknüpft werden?</value>
+  </data>
+  <data name="BC_UI_GroupHint_Empty" xml:space="preserve">
+    <value>Eine leere Gruppe trifft nie zu, ob invertiert oder nicht.</value>
+  </data>
+  <data name="BC_UI_Operator" xml:space="preserve">
+    <value>Operator</value>
+  </data>
+  <data name="BC_UI_Operator_And" xml:space="preserve">
+    <value>ALLE Mitglieder treffen zu (UND)</value>
+  </data>
+  <data name="BC_UI_Operator_Negate" xml:space="preserve">
+    <value>Ergebnis umkehren (NICHT)</value>
+  </data>
+  <data name="BC_UI_Operator_Or" xml:space="preserve">
+    <value>EIN BELIEBIGES Mitglied trifft zu (ODER)</value>
+  </data>
+  <data name="BC_UI_Status_DefinitionRequired" xml:space="preserve">
+    <value>Setze eine TypeId oder SubtypeId. Für eine Auffangregel nutze stattdessen den Typ 'Beliebiger Block'.</value>
+  </data>
+  <data name="BC_UI_Status_GroupAdded" xml:space="preserve">
+    <value>Gruppe hinzugefügt. Wähle sie aus und füge ihr Bedingungen hinzu.</value>
+  </data>
+  <data name="BC_UI_Status_JobNameEmpty" xml:space="preserve">
+    <value>Der Auftragsname darf nicht leer sein.</value>
+  </data>
+  <data name="BC_UI_Status_MovingCondition" xml:space="preserve">
+    <value>Verschiebe {0}  -  Hoch/Runter bewegen, Links/Rechts Gruppe wechseln, Enter/A ablegen, Esc/B abbrechen.</value>
+  </data>
+  <data name="BC_UI_Status_MovingRule" xml:space="preserve">
+    <value>Verschiebe {0}  -  Hoch/Runter bewegen, Enter/A ablegen, Esc/B abbrechen.</value>
+  </data>
+  <data name="BC_UI_Status_NeedsRule" xml:space="preserve">
+    <value>Ein Lackierauftrag braucht mindestens eine Regel.</value>
+  </data>
+  <data name="BC_UI_Status_ThresholdRange" xml:space="preserve">
+    <value>Gib einen Schwellwert zwischen 0 und 100 ein.</value>
+  </data>
+  <data name="BC_UI_Desc_AllOf" xml:space="preserve">
+    <value>ALLE von</value>
+  </data>
+  <data name="BC_UI_Desc_Any" xml:space="preserve">
+    <value>Beliebig</value>
+  </data>
+  <data name="BC_UI_Desc_AnyBlock" xml:space="preserve">
+    <value>Beliebiger Block</value>
+  </data>
+  <data name="BC_UI_Desc_AnyOf" xml:space="preserve">
+    <value>BELIEBIGE von</value>
+  </data>
+  <data name="BC_UI_Desc_Armor" xml:space="preserve">
+    <value>Panzerung</value>
+  </data>
+  <data name="BC_UI_Desc_BlockCategory" xml:space="preserve">
+    <value>Block {0} {1}</value>
+  </data>
+  <data name="BC_UI_Desc_BlockDefinition" xml:space="preserve">
+    <value>Block {0} {1}/{2}</value>
+  </data>
+  <data name="BC_UI_Desc_BlockState" xml:space="preserve">
+    <value>Block {0} {1}</value>
+  </data>
+  <data name="BC_UI_Desc_Color" xml:space="preserve">
+    <value>Farbe {0} {1}</value>
+  </data>
+  <data name="BC_UI_Desc_Condition" xml:space="preserve">
+    <value>Bedingung</value>
+  </data>
+  <data name="BC_UI_Desc_Damaged" xml:space="preserve">
+    <value>beschädigt</value>
+  </data>
+  <data name="BC_UI_Desc_Functional" xml:space="preserve">
+    <value>ein Funktionsblock</value>
+  </data>
+  <data name="BC_UI_Desc_GridLarge" xml:space="preserve">
+    <value>groß</value>
+  </data>
+  <data name="BC_UI_Desc_GridSize" xml:space="preserve">
+    <value>Grid {0} {1}</value>
+  </data>
+  <data name="BC_UI_Desc_GridSmall" xml:space="preserve">
+    <value>klein</value>
+  </data>
+  <data name="BC_UI_Desc_GroupSummary" xml:space="preserve">
+    <value>{0} Bedingung(en), Treffer {1}</value>
+  </data>
+  <data name="BC_UI_Desc_GroupSummaryNested" xml:space="preserve">
+    <value>, {0} verschachtelte Gruppe(n)</value>
+  </data>
+  <data name="BC_UI_Desc_HeavyArmor" xml:space="preserve">
+    <value>schwere Panzerung</value>
+  </data>
+  <data name="BC_UI_Desc_Intact" xml:space="preserve">
+    <value>intakt</value>
+  </data>
+  <data name="BC_UI_Desc_IntegrityThreshold" xml:space="preserve">
+    <value>Integrität {0} unter {1:0.##}%</value>
+  </data>
+  <data name="BC_UI_Desc_Is" xml:space="preserve">
+    <value>ist</value>
+  </data>
+  <data name="BC_UI_Desc_IsNot" xml:space="preserve">
+    <value>ist nicht</value>
+  </data>
+  <data name="BC_UI_Desc_LightArmor" xml:space="preserve">
+    <value>leichte Panzerung</value>
+  </data>
+  <data name="BC_UI_Desc_MatchGroup" xml:space="preserve">
+    <value>Gruppe - Treffer {0}</value>
+  </data>
+  <data name="BC_UI_Desc_MatchRoot" xml:space="preserve">
+    <value>Treffer {0}</value>
+  </data>
+  <data name="BC_UI_Desc_NoConditions" xml:space="preserve">
+    <value>Keine Bedingungen</value>
+  </data>
+  <data name="BC_UI_Desc_NoConditionsNeverMatches" xml:space="preserve">
+    <value>Keine Bedingungen - diese Regel trifft nie zu</value>
+  </data>
+  <data name="BC_UI_Desc_NoSkin" xml:space="preserve">
+    <value>Kein Skin</value>
+  </data>
+  <data name="BC_UI_Desc_Not" xml:space="preserve">
+    <value>NICHT {0}</value>
+  </data>
+  <data name="BC_UI_Desc_Skin" xml:space="preserve">
+    <value>Skin {0} {1}</value>
+  </data>
+  <data name="BC_UI_Desc_Unconfigured" xml:space="preserve">
+    <value>Nicht konfiguriert</value>
+  </data>
+  <data name="BC_UI_Desc_Underconstruction" xml:space="preserve">
+    <value>im Bau</value>
+  </data>
 </root>

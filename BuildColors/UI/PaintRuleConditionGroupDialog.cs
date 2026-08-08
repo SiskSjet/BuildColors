@@ -1,5 +1,7 @@
 using RichHudFramework.UI;
+using Sisk.BuildColors.Localization;
 using Sisk.BuildColors.Settings.Models.PaintJobs;
+using Sisk.Utils.Localization.Extensions;
 using System;
 using System.Collections.Generic;
 using VRageMath;
@@ -69,19 +71,19 @@ namespace Sisk.BuildColors.UI {
             var dialogWidth = MathHelper.Clamp(DialogSafeArea.GetAvailableWidth(), MIN_DIALOG_WIDTH, PREFERRED_DIALOG_WIDTH);
 
             Size = new Vector2(dialogWidth, DIALOG_HEIGHT);
-            HeaderText = string.Format("Conditions - {0}", _rule.Name);
+            HeaderText = ModText.BC_UI_ConditionsDialogTitle.GetString(_rule.Name);
 
             var contentWidth = dialogWidth - Padding.X - LayoutMetrics.CONTENT_PADDING_X;
 
-            var helpLabel = CreateLabel("Drag a row to move it, or select one and press Move. Groups combine their members with AND or OR.");
+            var helpLabel = CreateLabel(ModText.BC_UI_ConditionsHint.GetString());
 
             _treeList = new ListBox<ConditionNode>() { DimAlignment = DimAlignments.Width };
 
-            _addConditionButton = CreateButton("Add Condition");
-            _addGroupButton = CreateButton("Add Group");
-            _editButton = CreateButton("Edit");
-            _removeButton = CreateButton("Remove");
-            _moveButton = CreateButton("Move");
+            _addConditionButton = CreateButton(ModText.BC_UI_AddCondition.GetString());
+            _addGroupButton = CreateButton(ModText.BC_UI_AddGroup.GetString());
+            _editButton = CreateButton(ModText.BC_UI_Edit.GetString());
+            _removeButton = CreateButton(ModText.BC_UI_Remove.GetString());
+            _moveButton = CreateButton(ModText.BC_UI_Move.GetString());
 
             var treeButtons = new HudChain(false) {
                 CollectionContainer = {
@@ -102,10 +104,10 @@ namespace Sisk.BuildColors.UI {
                 Height = LayoutMetrics.STATUS_HEIGHT,
             };
 
-            var doneButton = CreateButton("Done");
+            var doneButton = CreateButton(ModText.BC_UI_Done.GetString());
             doneButton.Width = 150f;
 
-            var cancelButton = CreateButton("Cancel");
+            var cancelButton = CreateButton(ModText.BC_UI_Cancel.GetString());
             cancelButton.Width = 150f;
 
             var buttonRow = new HudChain(false) {
@@ -302,7 +304,7 @@ namespace Sisk.BuildColors.UI {
 
             if (node.IsGroup) {
                 var operatorText = PaintRuleConditionText.DescribeOperator(node.Group);
-                var label = node.Parent == null ? "Match " + operatorText : "Group - match " + operatorText;
+                var label = node.Parent == null ? ModText.BC_UI_Desc_MatchRoot.GetString(operatorText) : ModText.BC_UI_Desc_MatchGroup.GetString(operatorText);
                 return string.Format("{0}[ {1} ]", indent, label);
             }
 
@@ -315,7 +317,7 @@ namespace Sisk.BuildColors.UI {
 
         private string CarriedDescription() {
             if (_carriedGroup != null) {
-                return "Group - match " + PaintRuleConditionText.DescribeOperator(_carriedGroup);
+                return ModText.BC_UI_Desc_MatchGroup.GetString(PaintRuleConditionText.DescribeOperator(_carriedGroup));
             }
 
             return PaintRuleConditionText.Describe(_carriedCondition);
@@ -347,12 +349,10 @@ namespace Sisk.BuildColors.UI {
             _editButton.InputEnabled = !_isGrabbed && node != null;
             _removeButton.InputEnabled = !_isGrabbed && movable;
             _moveButton.InputEnabled = _isGrabbed || movable;
-            _moveButton.Text = _isGrabbed ? "Drop" : "Move";
+            _moveButton.Text = _isGrabbed ? ModText.BC_UI_Drop.GetString() : ModText.BC_UI_Move.GetString();
 
             if (_isGrabbed) {
-                _statusLabel.Text = string.Format(
-                    "Moving {0}  -  Up/Down move, Left/Right change group, Enter/A drop, Esc/B cancel.",
-                    CarriedDescription());
+                _statusLabel.Text = ModText.BC_UI_Status_MovingCondition.GetString(CarriedDescription());
             }
         }
 
@@ -663,7 +663,7 @@ namespace Sisk.BuildColors.UI {
             target.Children.Add(group);
 
             RefreshTree(group);
-            _statusLabel.Text = "Group added. Select it and add conditions to it.";
+            _statusLabel.Text = ModText.BC_UI_Status_GroupAdded.GetString();
             HudSoundUtils.PlaySound("HudMouseClick");
         }
 

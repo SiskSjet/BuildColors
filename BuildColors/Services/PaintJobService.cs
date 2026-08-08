@@ -1,5 +1,7 @@
 using Sandbox.ModAPI;
+using Sisk.BuildColors.Localization;
 using Sisk.BuildColors.Settings.Models.PaintJobs;
+using Sisk.Utils.Localization.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,11 +43,11 @@ namespace Sisk.BuildColors.Services {
                 job.Name = name;
             } else {
                 var index = (_mod.PaintJobs?.Count ?? 0) + 1;
-                while (_mod.PaintJobs.Any(r => string.Equals(r.Name, $"Paint Job {index}", StringComparison.InvariantCultureIgnoreCase))) {
+                while (_mod.PaintJobs.Any(r => string.Equals(r.Name, ModText.BC_UI_DefaultPaintJobName.GetString(index), StringComparison.InvariantCultureIgnoreCase))) {
                     index++;
                 }
 
-                job.Name = $"Paint Job {index}";
+                job.Name = ModText.BC_UI_DefaultPaintJobName.GetString(index);
             }
 
             job.EnsureRules();
@@ -91,13 +93,13 @@ namespace Sisk.BuildColors.Services {
 
             var player = MyAPIGateway.Session?.LocalHumanPlayer;
             if (player == null) {
-                MyAPIGateway.Utilities.ShowMessage(Mod.NAME, "Unable to resolve local player for applying a paint job.");
+                MyAPIGateway.Utilities.ShowMessage(Mod.NAME, ModText.BC_PaintJob_NoLocalPlayer.GetString());
                 return;
             }
 
             var targetedGrid = GetTargetedGrid(player);
             if (targetedGrid == null) {
-                MyAPIGateway.Utilities.ShowMessage(Mod.NAME, "Aim at a grid before applying a paint job.");
+                MyAPIGateway.Utilities.ShowMessage(Mod.NAME, ModText.BC_PaintJob_NoTarget.GetString());
                 return;
             }
 
@@ -108,7 +110,7 @@ namespace Sisk.BuildColors.Services {
             // pattern, color and skin id is resolved here instead of per block.
             var compiledJob = CompiledPaintJob.Compile(job);
             if (compiledJob.IsEmpty) {
-                MyAPIGateway.Utilities.ShowMessage(Mod.NAME, $"Paint job '{job.Name}' has no rule that can match a block.");
+                MyAPIGateway.Utilities.ShowMessage(Mod.NAME, ModText.BC_PaintJob_NoMatchingRule.GetString(job.Name));
                 return;
             }
 
@@ -252,15 +254,15 @@ namespace Sisk.BuildColors.Services {
             string message;
 
             if (matchedBlocks == 0) {
-                message = $"Paint job '{job.Name}' matched no blocks on '{grid.DisplayName}'.";
+                message = ModText.BC_PaintJob_NoBlocksMatched.GetString(job.Name, grid.DisplayName);
             } else if (changedBlocks == 0) {
-                message = $"Paint job '{job.Name}' matched {matchedBlocks} block(s) on '{grid.DisplayName}', all already up to date.";
+                message = ModText.BC_PaintJob_AlreadyUpToDate.GetString(job.Name, matchedBlocks, grid.DisplayName);
             } else {
-                message = $"Paint job '{job.Name}' updated {changedBlocks} of {matchedBlocks} matching block(s) on '{grid.DisplayName}'.";
+                message = ModText.BC_PaintJob_Updated.GetString(job.Name, changedBlocks, matchedBlocks, grid.DisplayName);
             }
 
             if (skippedGrids > 0) {
-                message += $" {skippedGrids} grid(s) skipped due to ownership.";
+                message += ModText.BC_PaintJob_GridsSkipped.GetString(skippedGrids);
             }
 
             MyAPIGateway.Utilities.ShowMessage(Mod.NAME, message);

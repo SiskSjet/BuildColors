@@ -1,5 +1,7 @@
 using Sandbox.Definitions;
 using Sandbox.ModAPI;
+using Sisk.BuildColors.Localization;
+using Sisk.Utils.Localization.Extensions;
 using System.Collections.Generic;
 using System.Linq;
 using RichHudFramework.UI;
@@ -83,7 +85,7 @@ namespace Sisk.BuildColors.UI {
                 .OrderBy(option => option.DisplayLabel, System.StringComparer.InvariantCultureIgnoreCase)
                 .ToList();
 
-            options.Insert(0, new BlockDefinitionOption { TypeId = string.Empty, SubtypeId = string.Empty, DisplayName = "Any block" });
+            options.Insert(0, new BlockDefinitionOption { TypeId = string.Empty, SubtypeId = string.Empty, DisplayName = ModText.BC_UI_Desc_AnyBlock.GetString() });
 
             return options;
         }
@@ -109,7 +111,7 @@ namespace Sisk.BuildColors.UI {
                 .OrderBy(option => option.DisplayName, System.StringComparer.InvariantCultureIgnoreCase)
                 .ToList();
 
-            options.Insert(0, new SkinOption { SkinId = string.Empty, DisplayName = "No skin (default)" });
+            options.Insert(0, new SkinOption { SkinId = string.Empty, DisplayName = ModText.BC_UI_NoSkinDefault.GetString() });
 
             return options;
         }

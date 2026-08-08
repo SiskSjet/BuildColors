@@ -1,6 +1,8 @@
 ﻿using RichHudFramework.Client;
 using RichHudFramework.UI.Client;
 using Sandbox.ModAPI;
+using Sisk.BuildColors.Localization;
+using Sisk.Utils.Localization.Extensions;
 
 namespace Sisk.BuildColors.UI {
 
@@ -46,7 +48,7 @@ namespace Sisk.BuildColors.UI {
         /// because every reorder bind carries a keyboard control plus a gamepad alternate.
         /// </summary>
         private void RegisterSettingsMenu() {
-            var controls = new RebindPage { Name = "Controls" };
+            var controls = new RebindPage { Name = ModText.BC_UI_Controls.GetString() };
             controls.Add(ReorderInput.Binds, ReorderInput.DefaultBinds, true);
 
             RichHudTerminal.Root.Name = Mod.NAME;

@@ -2,7 +2,9 @@ using RichHudFramework;
 using RichHudFramework.UI;
 using RichHudFramework.UI.Client;
 using Sandbox.ModAPI;
+using Sisk.BuildColors.Localization;
 using Sisk.BuildColors.Settings.Models.PaintJobs;
+using Sisk.Utils.Localization.Extensions;
 using System;
 using System.Linq;
 using VRageMath;
@@ -54,7 +56,7 @@ namespace Sisk.BuildColors.UI {
             };
 
             _header = new Label() {
-                Text = "Paint Jobs",
+                Text = ModText.BC_UI_PaintJobs.GetString(),
                 Format = Style.HeaderText,
                 Padding = new Vector2(50f, 0f),
             };
@@ -66,7 +68,7 @@ namespace Sisk.BuildColors.UI {
             };
 
             var label = new Label() {
-                Text = "Paint Jobs",
+                Text = ModText.BC_UI_PaintJobs.GetString(),
                 ParentAlignment = ParentAlignments.Left
             };
 
@@ -82,19 +84,19 @@ namespace Sisk.BuildColors.UI {
             };
 
             _newJobButton = new BorderedButton() {
-                Text = "New",
+                Text = ModText.BC_UI_New.GetString(),
                 Padding = Vector2.Zero
             };
 
             _editJobButton = new BorderedButton() {
                 ParentAlignment = ParentAlignments.Right,
-                Text = "Edit",
+                Text = ModText.BC_UI_Edit.GetString(),
                 Padding = Vector2.Zero,
                 InputEnabled = false
             };
 
             _removeJobButton = new BorderedButton() {
-                Text = "Remove",
+                Text = ModText.BC_UI_Remove.GetString(),
                 Padding = Vector2.Zero,
                 InputEnabled = false
             };
@@ -110,13 +112,13 @@ namespace Sisk.BuildColors.UI {
             };
 
             _applyJobButton = new BorderedButton() {
-                Text = "Apply",
+                Text = ModText.BC_UI_Apply.GetString(),
                 Padding = Vector2.Zero,
                 InputEnabled = false
             };
 
             _refreshButton = new BorderedButton() {
-                Text = "Refresh",
+                Text = ModText.BC_UI_Refresh.GetString(),
                 Padding = Vector2.Zero,
             };
 

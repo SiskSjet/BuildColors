@@ -179,13 +179,13 @@ namespace Sisk.BuildColors {
 
         private void ApplyJobCommand(string arguments) {
             if (string.IsNullOrWhiteSpace(arguments)) {
-                MyAPIGateway.Utilities.ShowMessage(NAME, $"Usage: /{Acronym} ApplyJob <JobName>");
+                MyAPIGateway.Utilities.ShowMessage(NAME, ModText.BC_PaintJob_ApplyJobUsage.GetString(Acronym));
                 return;
             }
 
             var job = PaintJobs?.FirstOrDefault(r => string.Equals(r.Name, arguments, StringComparison.InvariantCultureIgnoreCase));
             if (job == null) {
-                MyAPIGateway.Utilities.ShowMessage(NAME, $"No paint job named '{arguments}' found.");
+                MyAPIGateway.Utilities.ShowMessage(NAME, ModText.BC_NoPaintJobFound.GetString(arguments));
                 return;
             }
 
@@ -203,8 +203,8 @@ namespace Sisk.BuildColors {
             _commandHandler.Register(new Command { Name = "Generate", Description = ModText.BC_Description_Generate.GetString(), Execute = GenerateColorSet });
             _commandHandler.Register(new Command { Name = "List", Description = ModText.BC_Description_List.GetString(), Execute = ListColorSets });
             _commandHandler.Register(new Command { Name = "Help", Description = ModText.BC_Description_Help.GetString(), Execute = _commandHandler.ShowHelp });
-            _commandHandler.Register(new Command { Name = "Jobs", Description = "List paint jobs.", Execute = ListPaintJobs });
-            _commandHandler.Register(new Command { Name = "ApplyJob", Description = "Apply a paint job to the targeted grid.", Execute = ApplyJobCommand });
+            _commandHandler.Register(new Command { Name = "Jobs", Description = ModText.BC_Description_Jobs.GetString(), Execute = ListPaintJobs });
+            _commandHandler.Register(new Command { Name = "ApplyJob", Description = ModText.BC_Description_ApplyJob.GetString(), Execute = ApplyJobCommand });
         }
 
         private void GenerateColorSet(string arguments) {
@@ -226,7 +226,7 @@ namespace Sisk.BuildColors {
 
         private void ListPaintJobs(string arguments) {
             if (PaintJobs == null || PaintJobs.Count == 0) {
-                MyAPIGateway.Utilities.ShowMessage(NAME, "No paint jobs defined yet.");
+                MyAPIGateway.Utilities.ShowMessage(NAME, ModText.BC_NoPaintJobsAvailable.GetString());
                 return;
             }
 

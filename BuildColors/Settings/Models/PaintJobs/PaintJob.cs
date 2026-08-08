@@ -1,4 +1,6 @@
 using ProtoBuf;
+using Sisk.BuildColors.Localization;
+using Sisk.Utils.Localization.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
@@ -24,7 +26,7 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
 
         [ProtoMember(2)]
         [XmlAttribute("name")]
-        public string Name { get; set; } = "New Paint Job";
+        public string Name { get; set; } = ModText.BC_UI_NewPaintJobName.GetString();
 
         [ProtoMember(3)]
         [XmlElement(Order = 3)]
@@ -81,7 +83,7 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
             }
 
             if (Rules.Count == 0) {
-                Rules.Add(PaintRule.CreateDefault("Rule 1"));
+                Rules.Add(PaintRule.CreateDefault(ModText.BC_UI_DefaultRuleName.GetString(1)));
             }
 
             foreach (var rule in Rules) {

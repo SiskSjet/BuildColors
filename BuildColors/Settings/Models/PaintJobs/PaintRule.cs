@@ -1,4 +1,6 @@
 using ProtoBuf;
+using Sisk.BuildColors.Localization;
+using Sisk.Utils.Localization.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
@@ -10,7 +12,7 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
 
         public PaintRule() {
             Id = Guid.NewGuid();
-            Name = "Rule";
+            Name = ModText.BC_UI_DefaultRuleNameFallback.GetString();
             ConditionGroup = PaintRuleConditionGroup.CreateDefault();
             Action = new PaintRuleAction();
         }
@@ -69,7 +71,7 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
         }
 
         public override string ToString() {
-            return string.IsNullOrWhiteSpace(Name) ? "Rule" : Name;
+            return string.IsNullOrWhiteSpace(Name) ? ModText.BC_UI_DefaultRuleNameFallback.GetString() : Name;
         }
     }
 }
