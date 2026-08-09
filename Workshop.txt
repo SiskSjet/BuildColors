@@ -1,145 +1,257 @@
-﻿This mod allows you to create customized color sets for building, which can then be easily imported into another world.
+[h1]Build Colors[/h1]
+Save your build palette under a name and load it in any world, on any server. Let the mod roll a matching palette for you. And set up paint jobs that repaint a whole grid with one keypress, armor dark, damaged blocks red, a gradient from keel to deck.
 
-[h2]🛠︰Color Sets ・────────・・・[/h2]
-To save or load a color set you have to type the listed commands below in your chat box.
+Palettes and paint jobs can also be handed straight to another player.
 
-[CODE]Usage: /bc [command] [arguments][/CODE]
+This mod is best used with [url=https://steamcommunity.com/workshop/filedetails/?id=1965654081]Rich HUD Master[/url], add it to your world too.
 
-[b]Available commands[/b]:
+[hr][/hr]
+[h2]Opening the build color panel[/h2]
+Open the game's color picker (default [b]P[/b]). Everything the mod does sits in the free space left of the vanilla controls, in one panel with three pages: [b]Color Sets[/b], [b]Generator[/b] and [b]Paint Jobs[/b].
+
+[hr][/hr]
+[h2]Color Sets[/h2]
+A color set is your fourteen build color slots saved under a name. The page shows the selected set next to the palette you are building with, so you can compare before you load.
+
+[list]
+[*][b]Double click[/b] a set to load it, this replaces your whole palette
+[*][b]Load row 1[/b] / [b]Load row 2[/b] load only that half and leave the rest alone
+[*]Click a swatch to change that single slot
+[*][b]Save current palette[/b] stores what you have now
+[*]Rename, duplicate, favourite, share or remove a set from the same page
+[/list]
+
+Favourites sit at the top, and the filter box narrows a long list as you type.
+
+[hr][/hr]
+[h2]Generator[/h2]
+The [b]Generator[/b] page builds a palette for you instead of you picking fourteen colors by hand.
+
+[olist]
+[*]Pick a [b]color scheme[/b], analogous, complementary, triadic, monochromatic, hull and accent, and more
+[*]Optionally pick a [b]preset[/b] for the mood (with no preset the palette follows your base color)
+[*]Choose where the [b]base color[/b] comes from: random, from your palette, sampled from the grid you are looking at, or picked by hand
+[*]Hit [b]Generate[/b]
+[/olist]
+
+The first row is a light-to-dark ramp of the main color, the number keys you build most of a hull with. The second row holds the accents plus a few greys, slightly tinted so they do not look dirty next to your main color. You decide how many greys.
+
+Click a generated swatch to edit it, [b]right click[/b] to lock it. Locked colors survive the next roll, so you can work a palette out one color at a time. Changing the scheme, the preset or the greys re-rolls in place, so you see what that change did.
+
+Happy with it? Save it as a color set.
+
+[hr][/hr]
+[h2]Paint Jobs[/h2]
+A paint job is a list of rules that gets applied to the grid you are looking at. Each rule says [i]which blocks[/i] (heavy armor, damaged, a specific block, a size, a skin) and [i]what they get[/i], a color, an armor skin, or both. Rules are checked top down and the first match wins, so put your special cases above your catch-all.
+
+A rule can paint more than a flat color:
+
+[list]
+[*][b]Gradient[/b]: fades between colors along an axis, e.g. dark keel to light deck
+[*][b]Camo[/b]: patches
+[*][b]Scatter[/b]: random pick per block, with weights
+[*][b]Pattern[/b]: stripes or checkers
+[/list]
+
+The same job on the same build always gives the same result, so applying it twice changes nothing.
+
+Jobs are edited on the [b]Paint Jobs[/b] page: jobs, the rules of the selected job, and the details of the selected rule side by side. Edits are saved as you make them, there is no save button.
+
+[h3]Hotkeys[/h3]
+One job is the [b]active[/b] one, whatever you last selected on the Paint Jobs page. These work with no menu open and can be rebound in the Rich HUD terminal under Build Colors ▸ Controls.
+
 [table]
-[tr]
-	[th]Command[/th]
-	[th]Arguments[/th]
-	[th]Description[/th]
-[/tr]
-[tr]
-	[td]save[/td]
-	[td]name[/td]
-	[td]Saves a Color Set with the given name.[/td]
-[/tr]
-[tr]
-	[td]load[/td]
-	[td]name[/td]
-	[td]Loads a Color Set with the given name.[/td]
-[/tr]
-[tr]
-	[td]remove[/td]
-	[td]name[/td]
-	[td]Removes a Color Set with given name.[/td]
-[/tr]
-[tr]
-	[td]generate[/td]
-	[td][/td]
-	[td]generates a random color set. It is not saved, only the color palette is changed[/td]
-[/tr]
-[tr]
-	[td]list[/td]
-	[td][/td]
-	[td]Lists all available color sets.[/td]
-[/tr]
-[tr]
-	[td]help[/td]
-	[td][/td]
-	[td]Shows a help window with all commands[/td]
-[/tr]
+[tr][th]Default[/th][th]Does[/th][/tr]
+[tr][td]Alt + P[/td][td]Apply the active paint job to the grid you are looking at[/td][/tr]
+[tr][td]Alt + Z[/td][td]Undo the last application[/td][/tr]
+[tr][td]Alt + .[/td][td]Next paint job[/td][/tr]
+[tr][td]Alt + ,[/td][td]Previous paint job[/td][/tr]
 [/table]
 
-[h2]🛠︰Configs ・──────────・・・[/h2]
-This mod can create two config files.
-[OLD can be removed] [strike]For servers a settings.xml file is created in your world storage.[/strike]
-Color sets are saved in ColorSets.xml in your global storage:
-"%appdata%\SpaceEngineers\Storage\ColorSets.xml"
+The last ten applications can be undone, until you leave the world.
 
-[h2]🛠︰Known issues ・──────・・・[/h2]
-The UI has a problem when naming a color set. Pressing keys bound to game actions triggers those actions instead. For example, pressing 'P' closes the Color-picker Screen. While it's a bit annoying, pressing 'P' again allows you to continue. Unfortunately, I don't know how to fix this issue.
+[hr][/hr]
+[h2]Sharing[/h2]
+[b]Share[/b] on a color set or a paint job asks who gets it, one player, or everyone online, and sends it over.
 
-[h2]🛠︰Support ・──────────・・・[/h2]
-It would be nice if you could consider supporting me 
+Nothing lands in someone's list uninvited. A share shows up in their [b]Inbox[/b] and only [b]Accept[/b] keeps it, saved under a free name so nothing of theirs is overwritten. [b]Decline[/b] throws it away.
+
+Shares only reach players who are online, and the inbox is emptied when you leave.
+
+[hr][/hr]
+[h2]Chat commands[/h2]
+Everything the panel does is also available in chat. Type [b]/bc help[/b] in game for the full list.
+
+[code]/bc [command] [arguments][/code]
+
+[table]
+[tr][th]Command[/th][th]Description[/th][/tr]
+[tr][td]save [name][/td][td]Saves your current palette as a color set.[/td][/tr]
+[tr][td]load [name][/td][td]Loads a color set.[/td][/tr]
+[tr][td]remove [name][/td][td]Deletes a color set.[/td][/tr]
+[tr][td]list[/td][td]Lists your color sets.[/td][/tr]
+[tr][td]generate [scheme] [preset][/td][td]Rolls a palette into your build colors. Both arguments optional.[/td][/tr]
+[tr][td]jobs[/td][td]Lists your paint jobs.[/td][/tr]
+[tr][td]showjob [job][/td][td]Shows a paint job with its rules.[/td][/tr]
+[tr][td]applyjob [job][/td][td]Applies a paint job to the grid you are looking at.[/td][/tr]
+[tr][td]undojob[/td][td]Undoes the last application.[/td][/tr]
+[tr][td]share [name] [player][/td][td]Sends a color set. Without a player it goes to everyone online.[/td][/tr]
+[tr][td]sharejob [job] [player][/td][td]Sends a paint job.[/td][/tr]
+[tr][td]shares[/td][td]Lists what others sent you.[/td][/tr]
+[tr][td]accept / decline [name][/td][td]Keeps or drops a share.[/td][/tr]
+[tr][td]help[/td][td]Shows all commands.[/td][/tr]
+[/table]
+
+Names with spaces go in quotes: [b]/bc applyjob "My Hull"[/b]. Instead of a name you can use a position from the listing, like [b]#2[/b].
+
+[hr][/hr]
+[h2]Where your stuff is saved[/h2]
+Your color sets and paint jobs live in your global storage, so they follow you into every world:
+[code]%appdata%\SpaceEngineers\Storage\ColorSets.xml
+%appdata%\SpaceEngineers\Storage\PaintJobs.xml[/code]
+
+[hr][/hr]
+[h2]Support[/h2]
+It would be nice if you could consider supporting me
 
 [url=https://ko-fi.com/sisksjet][img]https://steamuserimages-a.akamaihd.net/ugc/2287333413738438809/074D2B10C793252F866EEB91EC748E0E8B3C3210/?imw=64&imh=64&ima=fit&impolicy=Letterbox&letterbox=false[/img][/url] [url=https://patreon.com/sisk][img]https://steamuserimages-a.akamaihd.net/ugc/2287333413738613768/8FE59EC78463E3EFA52D59347D83D3C9838BF6E6/?imw=64&imh=64&ima=fit&impolicy=Letterbox&letterbox=false[/img][/url] [url=https://paypal.me/sisksjet][img]https://steamuserimages-a.akamaihd.net/ugc/2287333413738619680/36B89C41163487AD5BFB13B2C673E0F153171D29/?imw=64&imh=64&ima=fit&impolicy=Letterbox&letterbox=true[/img][/url]
 
-or join my [url=https://discord.gg/2s22YCqSFg]Discord[/url] if you have suggestions, wishes, or just want to know what else I'm working on. My Discord is new, so there is not much going on yet.
+or join my [url=https://discord.gg/2s22YCqSFg]Discord[/url] if you have suggestions, wishes, or just want to know what else I'm working on.
 You can also check out my other mods in my [url=https://steamcommunity.com/id/sisksjet/myworkshopfiles/?appid=244850]Workshop[/url].
 
-[h2]🛠︰Github ・───────────・・・[/h2]
-The source for this mod can be found at [url=https://github.com/SiskSjet/BuildColors] BuildColors [/url] and is licensed under [url=https://github.com/SiskSjet/BuildColors/blob/master/LICENSE] MIT [/url]
-You can use my code as you like, just a license and a copyright notice is required, but please do not flood the workshop with copies of this mod.
-If you think some features are missing, try to ask first
+[hr][/hr]
+[h2]Github[/h2]
+The source for this mod can be found at [url=https://github.com/SiskSjet/BuildColors]BuildColors[/url] and is licensed under [url=https://github.com/SiskSjet/BuildColors/blob/master/LICENSE]MIT[/url]. You can use my code as you like, a license and a copyright notice is all that is required, but please do not flood the workshop with copies of this mod. If you think a feature is missing, ask first.
 
-[h2]🛠︰Credits ・──────────・・・[/h2]
-Thanks [url=https://steamcommunity.com/id/zigglegarf] Dark Helmet [/url] for the awesome UI library: [url=https://steamcommunity.com/workshop/filedetails/?id=1965654081] Rich HUD Master [/url] 
+[h2]Credits[/h2]
+Thanks [url=https://steamcommunity.com/id/zigglegarf]Dark Helmet[/url] for the awesome UI library: [url=https://steamcommunity.com/workshop/filedetails/?id=1965654081]Rich HUD Master[/url]
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[hr][/hr]
 
+[h1]Build Colors, Deutsch[/h1]
+Speichere deine Baufarben unter einem Namen und lade sie in jeder Welt, auf jedem Server. Lass dir vom Mod eine passende Palette erzeugen. Und richte Paint Jobs ein, die ein ganzes Grid mit einem Tastendruck neu lackieren, Panzerung dunkel, beschädigte Blöcke rot, ein Verlauf vom Kiel bis zum Deck.
 
-Mithilfe dieses Mods können individuelle Farbsätze zum Bauen erstellt werden, die sich problemlos in andere Welten importieren lassen.
+Farbsätze und Paint Jobs lassen sich auch direkt an andere Spieler weitergeben.
 
-[h2]🛠︰Color Sets ・────────・・・[/h2]
-Um einen Color Set zu speichern oder zu laden, müssen Sie die folgenden Befehle in Ihre Chat-Box eingeben.
+Dieser Mod wird am besten mit [url=https://steamcommunity.com/workshop/filedetails/?id=1965654081]Rich HUD Master[/url] verwendet, füge ihn ebenfalls zu deiner Welt hinzu.
 
-[CODE]Usage: /bc [command] [arguments][/CODE]
+[hr][/hr]
+[h2]Das Build-Color-Panel öffnen[/h2]
+Öffne die Farbauswahl des Spiels (standardmäßig [b]P[/b]). Alles sitzt im freien Bereich links neben den normalen Reglern, in einem Panel mit drei Seiten: [b]Color Sets[/b], [b]Generator[/b] und [b]Paint Jobs[/b].
 
-[b]Available commands[/b]:
+[hr][/hr]
+[h2]Color Sets[/h2]
+Ein Color Set sind deine vierzehn Baufarben-Slots unter einem Namen. Die Seite zeigt den ausgewählten Satz neben deiner aktuellen Palette, damit du vor dem Laden vergleichen kannst.
+
+[list]
+[*][b]Doppelklick[/b] lädt einen Satz, das ersetzt die gesamte Palette
+[*][b]Load row 1[/b] / [b]Load row 2[/b] laden nur diese Hälfte, der Rest bleibt
+[*]Klick auf ein Farbfeld ändert nur diesen Slot
+[*][b]Save current palette[/b] speichert, was du gerade hast
+[*]Umbenennen, kopieren, favorisieren, teilen oder löschen auf derselben Seite
+[/list]
+
+Favoriten stehen oben, das Filterfeld verkleinert eine lange Liste beim Tippen.
+
+[hr][/hr]
+[h2]Generator[/h2]
+Die Seite [b]Generator[/b] baut eine Palette für dich, statt vierzehn Farben von Hand zu wählen.
+
+[olist]
+[*]Wähle ein [b]Farbschema[/b], analog, komplementär, triadisch, monochrom, Hull und Akzent, und mehr
+[*]Optional ein [b]Preset[/b] für die Stimmung (ohne Preset folgt die Palette deiner Basisfarbe)
+[*]Lege fest, woher die [b]Basisfarbe[/b] kommt: zufällig, aus deiner Palette, vom Grid vor dir abgenommen, oder selbst gewählt
+[*][b]Generate[/b] drücken
+[/olist]
+
+Die erste Reihe ist ein Verlauf von hell nach dunkel in der Hauptfarbe, die Zahlentasten, mit denen du den Großteil eines Rumpfes baust. Die zweite Reihe enthält die Akzente und ein paar Grautöne, leicht getönt, damit sie neben der Hauptfarbe nicht schmutzig wirken. Wie viele Grautöne, entscheidest du.
+
+Klick auf ein erzeugtes Farbfeld bearbeitet es, [b]Rechtsklick[/b] sperrt es. Gesperrte Farben bleiben beim nächsten Würfeln erhalten, so kannst du eine Palette Farbe für Farbe herausarbeiten. Schema, Preset oder Grautöne zu ändern würfelt an derselben Stelle neu, du siehst also, was die Änderung bewirkt hat.
+
+Zufrieden? Als Color Set speichern.
+
+[hr][/hr]
+[h2]Paint Jobs[/h2]
+Ein Paint Job ist eine Liste von Regeln, die auf das Grid vor dir angewendet wird. Jede Regel sagt, [i]welche Blöcke[/i] (schwere Panzerung, beschädigt, ein bestimmter Block, eine Größe, ein Skin) und [i]was sie bekommen[/i], eine Farbe, einen Armor Skin, oder beides. Regeln werden von oben nach unten geprüft, die erste Übereinstimmung gewinnt, Spezialfälle also nach oben.
+
+Eine Regel kann mehr als eine einfarbige Fläche malen:
+
+[list]
+[*][b]Gradient[/b]: Verlauf zwischen Farben entlang einer Achse, z. B. dunkler Kiel bis helles Deck
+[*][b]Camo[/b]: Flecken
+[*][b]Scatter[/b]: zufällige Farbe pro Block, mit Gewichtung
+[*][b]Pattern[/b]: Streifen oder Schachbrett
+[/list]
+
+Derselbe Job auf demselben Bau ergibt immer dasselbe Ergebnis, ein zweiter Durchlauf ändert also nichts.
+
+Jobs werden auf der Seite [b]Paint Jobs[/b] bearbeitet: Jobs, die Regeln des ausgewählten Jobs und die Details der ausgewählten Regel nebeneinander. Änderungen werden sofort gespeichert, es gibt keinen Speichern-Knopf.
+
+[h3]Tastenbelegung[/h3]
+Ein Job ist der [b]aktive[/b], der, den du zuletzt auf der Paint-Jobs-Seite ausgewählt hast. Die Tasten funktionieren ohne offenes Menü und können im Rich HUD Terminal unter Build Colors ▸ Controls neu belegt werden.
+
 [table]
-[tr]
-	[th]Befehl[/th]
-	[th]Argument[/th]
-	[th]Beschreibung[/th]
-[/tr]
-[tr]
-	[td]save[/td]
-	[td]name[/td]
-	[td]Speichert ein Color Set mit dem angegebenen namen.[/td]
-[/tr]
-[tr]
-	[td]load[/td]
-	[td]name[/td]
-	[td]Lädt ein Color Set mit dem angegebenen Namen.[/td]
-[/tr]
-[tr]
-	[td]remove[/td]
-	[td]name[/td]
-	[td]Entfernt ein Color Set mit dem angegebenen Namen.[/td]
-[/tr]
-[tr]
-	[td]generate[/td]
-	[td][/td]
-	[td]Generiert einen zufälligen Farbsatz. Dieser wird nicht gespeichert, sondern nur die Farbpalette geändert.[/td]
-[/tr]
-[tr]
-	[td]list[/td]
-	[td][/td]
-	[td]Listet alle verfügbaren Color Sets auf.[/td]
-[/tr]
-[tr]
-	[td]help[/td]
-	[td][/td]
-	[td]Zeigt ein Hilfefenster mit allen Befehlen an.[/td]
-[/tr]
+[tr][th]Standard[/th][th]Funktion[/th][/tr]
+[tr][td]Alt + P[/td][td]Wendet den aktiven Paint Job auf das Grid vor dir an[/td][/tr]
+[tr][td]Alt + Z[/td][td]Macht die letzte Anwendung rückgängig[/td][/tr]
+[tr][td]Alt + .[/td][td]Nächster Paint Job[/td][/tr]
+[tr][td]Alt + ,[/td][td]Vorheriger Paint Job[/td][/tr]
 [/table]
 
-[h2]🛠︰Configs ・──────────・・・[/h2]
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬⠀▬▬▬⠀▬▬⠀▬
-Diese Mod kann zwei Konfigurationsdateien erstellen.
-[ALT kann entfernt werden] [strike]Für Server wird eine settings.xml-Datei in eurem World Storage erstellt.[/strike]
-Color Sets werden in ColorSets.xml in Ihrem globalen Speicher gespeichert:
-"%appdata%\SpaceEngineers\Storage\ColorSets.xml"
+Die letzten zehn Anwendungen lassen sich rückgängig machen, bis du die Welt verlässt.
 
-[h2]🛠︰BUGS ・─────────────・・・[/h2]
-Es gibt ein Problem mit der Benutzeroberfläche, wenn du versuchst, einen Farbsatz zu benennen. Wenn du Tasten drückst, die an Spielfunktionen gebunden sind, wird die Spielfunktion ausgeführt. Wenn du beispielsweise 'P' drückst, wird der Farbauswahlbildschirm geschlossen. Es ist etwas nervig, aber du kannst erneut 'P' drücken, um fortzufahren. Leider habe ich keine Ahnung, wie man das beheben kann.
+[hr][/hr]
+[h2]Teilen[/h2]
+[b]Share[/b] bei einem Color Set oder Paint Job fragt, wer es bekommt, ein Spieler oder alle Online, und schickt es los.
 
-[h2]🛠︰Support ・──────────・・・[/h2]
+Nichts landet unaufgefordert in einer fremden Liste. Eine Sendung erscheint in der [b]Inbox[/b] des Empfängers, und erst [b]Accept[/b] übernimmt sie, gespeichert unter einem freien Namen, damit nichts überschrieben wird. [b]Decline[/b] verwirft sie.
+
+Erreichbar sind nur Spieler, die online sind, und die Inbox wird beim Verlassen geleert.
+
+[hr][/hr]
+[h2]Chat-Befehle[/h2]
+Alles, was das Panel kann, geht auch per Chat. [b]/bc help[/b] im Spiel zeigt die vollständige Liste.
+
+[code]/bc [Befehl] [Argumente][/code]
+
+[table]
+[tr][th]Befehl[/th][th]Beschreibung[/th][/tr]
+[tr][td]save [name][/td][td]Speichert die aktuelle Palette als Color Set.[/td][/tr]
+[tr][td]load [name][/td][td]Lädt ein Color Set.[/td][/tr]
+[tr][td]remove [name][/td][td]Löscht ein Color Set.[/td][/tr]
+[tr][td]list[/td][td]Listet alle Color Sets auf.[/td][/tr]
+[tr][td]generate [schema] [preset][/td][td]Würfelt eine Palette in die Baufarben. Beide Argumente optional.[/td][/tr]
+[tr][td]jobs[/td][td]Listet alle Paint Jobs auf.[/td][/tr]
+[tr][td]showjob [job][/td][td]Zeigt einen Paint Job mit seinen Regeln.[/td][/tr]
+[tr][td]applyjob [job][/td][td]Wendet einen Paint Job auf das Grid vor dir an.[/td][/tr]
+[tr][td]undojob[/td][td]Macht die letzte Anwendung rückgängig.[/td][/tr]
+[tr][td]share [name] [spieler][/td][td]Sendet ein Color Set. Ohne Spieler geht es an alle Online.[/td][/tr]
+[tr][td]sharejob [job] [spieler][/td][td]Sendet einen Paint Job.[/td][/tr]
+[tr][td]shares[/td][td]Listet auf, was andere dir geschickt haben.[/td][/tr]
+[tr][td]accept / decline [name][/td][td]Übernimmt oder verwirft eine Sendung.[/td][/tr]
+[tr][td]help[/td][td]Zeigt alle Befehle.[/td][/tr]
+[/table]
+
+Namen mit Leerzeichen in Anführungszeichen: [b]/bc applyjob "My Hull"[/b]. Statt eines Namens geht auch die Position aus der Liste, z. B. [b]#2[/b].
+
+[hr][/hr]
+[h2]Speicherort[/h2]
+Color Sets und Paint Jobs liegen im globalen Speicher und sind damit in jeder Welt verfügbar:
+[code]%appdata%\SpaceEngineers\Storage\ColorSets.xml
+%appdata%\SpaceEngineers\Storage\PaintJobs.xml[/code]
+
+[hr][/hr]
+[h2]Support[/h2]
 Es wäre schön, wenn ihr mich unterstützen würdet
 
 [url=https://ko-fi.com/sisksjet][img]https://steamuserimages-a.akamaihd.net/ugc/2287333413738438809/074D2B10C793252F866EEB91EC748E0E8B3C3210/?imw=64&imh=64&ima=fit&impolicy=Letterbox&letterbox=false[/img][/url] [url=https://patreon.com/sisk][img]https://steamuserimages-a.akamaihd.net/ugc/2287333413738613768/8FE59EC78463E3EFA52D59347D83D3C9838BF6E6/?imw=64&imh=64&ima=fit&impolicy=Letterbox&letterbox=false[/img][/url] [url=https://paypal.me/sisksjet][img]https://steamuserimages-a.akamaihd.net/ugc/2287333413738619680/36B89C41163487AD5BFB13B2C673E0F153171D29/?imw=64&imh=64&ima=fit&impolicy=Letterbox&letterbox=true[/img][/url]
 
-oder meinem [url=https://discord.gg/2s22YCqSFg]Discord[/url] beitretet, wenn ihr Vorschläge oder Wünsche haben oder einfach nur wissen möchten, woran ich sonst noch arbeite. Mein Discord ist neu, daher ist noch nicht viel los.
-Ihr könnt euch auch meine anderen Mods in meinem [url=https://steamcommunity.com/id/sisksjet/myworkshopfiles/?appid=244850]Workshop[/url] ansehen.
+oder tretet meinem [url=https://discord.gg/2s22YCqSFg]Discord[/url] bei, wenn ihr Vorschläge oder Wünsche habt oder einfach wissen wollt, woran ich sonst noch arbeite.
+Meine anderen Mods findet ihr in meinem [url=https://steamcommunity.com/id/sisksjet/myworkshopfiles/?appid=244850]Workshop[/url].
 
-[h2]🛠︰Github ・───────────・・・[/h2]
-Den Source code dieser Mod kann unter [url=https://github.com/SiskSjet/BuildColors] BuildColors [/url] gefunden werden und ist lizenziert unter [url=https://github.com/SiskSjet/BuildColors/blob/master/LICENSE] MIT [/url]
-Du kannst meinen Code benutzen wie du magst, nur ein Lizenz und ein Copyright-Hinweis ist erforderlich, aber bitte überflute den Workshop nicht mit Kopien dieser Mod.
-Wenn ihr der Meinung seid, dass einige Funktionen fehlen, versucht sie zuerst anzufragen
+[hr][/hr]
+[h2]Github[/h2]
+Der Quellcode dieses Mods liegt unter [url=https://github.com/SiskSjet/BuildColors]BuildColors[/url] und ist unter [url=https://github.com/SiskSjet/BuildColors/blob/master/LICENSE]MIT[/url] lizenziert. Du kannst meinen Code nutzen wie du magst, nur Lizenz und Copyright-Hinweis sind erforderlich, aber bitte überflutet den Workshop nicht mit Kopien dieses Mods. Wenn ihr meint, dass eine Funktion fehlt, fragt zuerst.
 
-[h2]🛠︰Credits ・──────────・・・[/h2]
-Danke an [url=https://steamcommunity.com/id/zigglegarf] Dark Helmet [/url] für die fantastische UI Bibliothek: [url=https://steamcommunity.com/workshop/filedetails/?id=1965654081] Rich HUD Master [/url] 
+[h2]Credits[/h2]
+Danke an [url=https://steamcommunity.com/id/zigglegarf]Dark Helmet[/url] für die fantastische UI-Bibliothek: [url=https://steamcommunity.com/workshop/filedetails/?id=1965654081]Rich HUD Master[/url]
