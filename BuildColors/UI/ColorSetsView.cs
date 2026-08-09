@@ -1,5 +1,4 @@
 ﻿using RichHudFramework.UI;
-using Sandbox.ModAPI;
 using Sisk.BuildColors.Localization;
 using Sisk.BuildColors.Services;
 using Sisk.BuildColors.Settings.Models;
@@ -26,13 +25,14 @@ namespace Sisk.BuildColors.UI {
         private readonly SwatchGrid _setGrid;
 
         private readonly ActionButton _duplicateButton;
-        private readonly ActionButton _exportButton;
         private readonly ActionButton _favoriteButton;
+        private readonly ActionButton _inboxButton;
         private readonly ActionButton _loadButton;
         private readonly ActionButton _loadRow1Button;
         private readonly ActionButton _loadRow2Button;
         private readonly ActionButton _removeButton;
         private readonly ActionButton _renameButton;
+        private readonly ActionButton _shareButton;
 
         private DateTime _lastClickTime;
         private string _lastSelectedName;
@@ -54,13 +54,13 @@ namespace Sisk.BuildColors.UI {
             _list = ControlFactory.CreateList<ColorSet>(listContentWidth, Math.Max(listHeight, LayoutMetrics.CONTROL_HEIGHT));
 
             var saveButton = ControlFactory.CreateButton(ModText.BC_UI_SaveCurrentPalette.GetString());
-            var importButton = ControlFactory.CreateButton(ModText.BC_UI_Import.GetString());
+            _inboxButton = ControlFactory.CreateButton(ModText.BC_Share_Inbox.GetString());
 
             listCard.Content.Add(ControlFactory.CreateControlRow(ModText.BC_UI_Filter.GetString(), _filterField, listContentWidth), 0f);
             listCard.Content.Add(_list, 0f);
             listCard.Content.Add(ControlFactory.CreateCaption(ModText.BC_UI_ColorSetsHint.GetString(), listContentWidth), 0f);
             listCard.Content.Add(ControlFactory.CreateButtonRow(listContentWidth, saveButton), 0f);
-            listCard.Content.Add(ControlFactory.CreateButtonRow(listContentWidth, importButton), 0f);
+            listCard.Content.Add(ControlFactory.CreateButtonRow(listContentWidth, _inboxButton), 0f);
 
             _detailCard = new Card(ModText.BC_UI_NoColorSetSelected.GetString(), detailWidth, height);
             var detailContentWidth = Card.ContentWidth(detailWidth);
@@ -84,7 +84,7 @@ namespace Sisk.BuildColors.UI {
             _renameButton = ControlFactory.CreateButton(ModText.BC_UI_Rename.GetString());
             _duplicateButton = ControlFactory.CreateButton(ModText.BC_UI_Duplicate.GetString());
             _favoriteButton = ControlFactory.CreateButton(ModText.BC_UI_Favorite.GetString());
-            _exportButton = ControlFactory.CreateButton(ModText.BC_UI_Export.GetString());
+            _shareButton = ControlFactory.CreateButton(ModText.BC_Share_Share.GetString());
             _removeButton = ControlFactory.CreateButton(ModText.BC_UI_Remove.GetString(), role: ButtonRole.Danger);
 
             _detailCard.Content.Add(ControlFactory.CreateCaption(ModText.BC_UI_SetColors.GetString(), detailContentWidth), 0f);
@@ -98,7 +98,7 @@ namespace Sisk.BuildColors.UI {
             _detailCard.Content.Add(ControlFactory.CreateButtonRow(detailContentWidth, _loadButton), 0f);
             _detailCard.Content.Add(ControlFactory.CreateButtonRow(detailContentWidth, _loadRow1Button, _loadRow2Button), 0f);
             _detailCard.Content.Add(ControlFactory.CreateButtonRow(detailContentWidth, _renameButton, _duplicateButton), 0f);
-            _detailCard.Content.Add(ControlFactory.CreateButtonRow(detailContentWidth, _favoriteButton, _exportButton, _removeButton), 0f);
+            _detailCard.Content.Add(ControlFactory.CreateButtonRow(detailContentWidth, _favoriteButton, _shareButton, _removeButton), 0f);
 
             var layout = ControlFactory.CreateRow(width, height, LayoutMetrics.SECTION_SPACING);
             layout.Add(listCard, 0f);
@@ -110,7 +110,7 @@ namespace Sisk.BuildColors.UI {
             _filterField.TextChanged += OnFilterChanged;
 
             saveButton.MouseInput.LeftClicked += OnSaveCurrentPalette;
-            importButton.MouseInput.LeftClicked += OnImport;
+            _inboxButton.MouseInput.LeftClicked += OnOpenInbox;
 
             _loadButton.MouseInput.LeftClicked += OnLoad;
             _loadRow1Button.MouseInput.LeftClicked += OnLoadFirstRow;
@@ -118,13 +118,26 @@ namespace Sisk.BuildColors.UI {
             _renameButton.MouseInput.LeftClicked += OnRename;
             _duplicateButton.MouseInput.LeftClicked += OnDuplicate;
             _favoriteButton.MouseInput.LeftClicked += OnToggleFavorite;
-            _exportButton.MouseInput.LeftClicked += OnExport;
+            _shareButton.MouseInput.LeftClicked += OnShare;
             _removeButton.MouseInput.LeftClicked += OnRemove;
 
             Refresh();
         }
 
+        /// <summary>
+        /// Puts the number of waiting shares on the inbox button.
+        /// </summary>
+        public override void RefreshShares() {
+            var count = Mod.Static?.Inbox?.Count ?? 0;
+
+            _inboxButton.Text = count > 0
+                ? ModText.BC_Share_InboxWithCount.GetString(count)
+                : ModText.BC_Share_Inbox.GetString();
+        }
+
         public override void Refresh() {
+            RefreshShares();
+
             var selected = _list.Value != null ? _list.Value.AssocMember.Name : _lastSelectedName;
             var filter = _filterField.Text.ToString().Trim();
 
@@ -217,7 +230,7 @@ namespace Sisk.BuildColors.UI {
             _renameButton.InputEnabled = hasSelection;
             _duplicateButton.InputEnabled = hasSelection;
             _favoriteButton.InputEnabled = hasSelection;
-            _exportButton.InputEnabled = hasSelection;
+            _shareButton.InputEnabled = hasSelection;
             _removeButton.InputEnabled = hasSelection;
 
             if (hasSelection) {
@@ -384,7 +397,7 @@ namespace Sisk.BuildColors.UI {
                 return;
             }
 
-            var dialog = new SaveDialog(ModText.BC_UI_Duplicate.GetString(), UniqueName(original.Name));
+            var dialog = new SaveDialog(ModText.BC_UI_Duplicate.GetString(), Mod.Static?.UniqueColorSetName(original.Name));
 
             dialog.Saved += (sender2, args2) => {
                 var name = dialog.Name;
@@ -421,54 +434,35 @@ namespace Sisk.BuildColors.UI {
             Refresh();
         }
 
-        private void OnExport(object sender, EventArgs args) {
+        private void OnShare(object sender, EventArgs args) {
             ColorSet selection;
 
             if (ActiveDialog != null || !TryGetSelected(out selection)) {
                 return;
             }
 
-            var dialog = new CodeDialog(
-                ModText.BC_UI_Export.GetString(),
-                ModText.BC_UI_ExportHint.GetString(),
-                ModText.BC_UI_Done.GetString(),
-                ColorSetCode.Encode(selection));
+            var set = selection.Upgraded();
+            var dialog = new ShareDialog(ModText.BC_Share_ShareTitle.GetString(set.Name));
+
+            dialog.Confirmed += recipient => ShareService.Share(new SharePacket { Kind = ShareKind.ColorSet, ColorSet = set }, recipient);
 
             OpenDialog(dialog);
         }
 
-        private void OnImport(object sender, EventArgs args) {
+        private void OnOpenInbox(object sender, EventArgs args) {
             if (ActiveDialog != null) {
                 return;
             }
 
-            var dialog = new CodeDialog(
-                ModText.BC_UI_Import.GetString(),
-                ModText.BC_UI_ImportHint.GetString(),
-                ModText.BC_UI_Import.GetString());
+            var inbox = Mod.Static?.Inbox;
 
-            dialog.Submitted += (sender2, args2) => {
-                ColorSet imported;
+            if (inbox == null) {
+                return;
+            }
 
-                if (!ColorSetCode.TryDecode(dialog.Text, out imported)) {
-                    MyAPIGateway.Utilities.ShowMessage(Mod.NAME, ModText.BC_InvalidColorSetCode.GetString());
-                    HudSoundUtils.PlaySound("HudLockingLost");
-                    return;
-                }
+            var dialog = new InboxDialog(inbox);
 
-                if (string.IsNullOrEmpty(imported.Name)) {
-                    imported = imported.WithName(ModText.BC_UI_ImportedSetName.GetString());
-                }
-
-                if (Mod.Static != null && Mod.Static.HasColorSet(imported.Name)) {
-                    imported = imported.WithName(UniqueName(imported.Name));
-                }
-
-                Mod.Static?.SaveColorSet(imported);
-                _lastSelectedName = imported.Name;
-
-                Refresh();
-            };
+            dialog.Closed += (sender2, args2) => Refresh();
 
             OpenDialog(dialog);
         }
@@ -492,17 +486,5 @@ namespace Sisk.BuildColors.UI {
             OpenDialog(dialog);
         }
 
-        private string UniqueName(string name) {
-            var sets = Mod.Static?.ColorSets;
-            var candidate = ModText.BC_UI_CopyOfName.GetString(name);
-            var index = 2;
-
-            while (sets != null && sets.Any(set => StringComparer.InvariantCultureIgnoreCase.Equals(set.Name, candidate))) {
-                candidate = string.Format("{0} {1}", ModText.BC_UI_CopyOfName.GetString(name), index);
-                index++;
-            }
-
-            return candidate;
-        }
     }
 }

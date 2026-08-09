@@ -27,7 +27,9 @@ namespace Sisk.BuildColors.UI {
         private readonly ListBox<PaintJob> _jobList;
         private readonly TextField _jobNameField;
         private readonly ActionButton _copyJobButton;
+        private readonly ActionButton _inboxButton;
         private readonly ActionButton _removeJobButton;
+        private readonly ActionButton _shareJobButton;
 
         private readonly Card _rulesCard;
         private readonly ListBox<PaintRule> _ruleList;
@@ -131,11 +133,14 @@ namespace Sisk.BuildColors.UI {
             var newJobButton = ControlFactory.CreateButton(ModText.BC_UI_New.GetString());
             _copyJobButton = ControlFactory.CreateButton(ModText.BC_UI_Copy.GetString());
             _removeJobButton = ControlFactory.CreateButton(ModText.BC_UI_Remove.GetString(), role: ButtonRole.Danger);
+            _shareJobButton = ControlFactory.CreateButton(ModText.BC_Share_Share.GetString());
+            _inboxButton = ControlFactory.CreateButton(ModText.BC_Share_Inbox.GetString());
 
             jobsCard.Content.Add(_jobList, 0f);
             jobsCard.Content.Add(ControlFactory.CreateCaption(ModText.BC_UI_JobName.GetString(), jobsContentWidth), 0f);
             jobsCard.Content.Add(_jobNameField, 0f);
             jobsCard.Content.Add(ControlFactory.CreateButtonRow(jobsContentWidth, newJobButton, _copyJobButton, _removeJobButton), 0f);
+            jobsCard.Content.Add(ControlFactory.CreateButtonRow(jobsContentWidth, _shareJobButton, _inboxButton), 0f);
 
             _rulesCard = new Card(ModText.BC_UI_Rules.GetString(), rulesWidth, rulesHeight);
             var rulesContentWidth = Card.ContentWidth(rulesWidth);
@@ -346,6 +351,8 @@ namespace Sisk.BuildColors.UI {
 
             _applyButton.MouseInput.LeftClicked += OnApply;
             _undoButton.MouseInput.LeftClicked += OnUndo;
+            _shareJobButton.MouseInput.LeftClicked += OnShareJob;
+            _inboxButton.MouseInput.LeftClicked += OnOpenInbox;
 
             ShowTab(true);
             Refresh();
@@ -364,6 +371,7 @@ namespace Sisk.BuildColors.UI {
         /// </summary>
         public void Refresh(PaintJob jobToSelect) {
             RefreshHotkeyHint();
+            RefreshShares();
 
             var jobs = Service != null ? Service.GetJobs() : null;
             var selection = jobToSelect ?? _loadedJob;
@@ -476,24 +484,53 @@ namespace Sisk.BuildColors.UI {
 
             var copy = _loadedJob.Clone();
             copy.Id = Guid.NewGuid();
-            copy.Name = UniqueJobName(_loadedJob.Name);
+            copy.Name = Service.UniqueJobName(_loadedJob.Name);
 
             Service.SaveJob(copy);
             Refresh(copy);
             HudSoundUtils.PlaySound("HudMouseClick");
         }
 
-        private string UniqueJobName(string name) {
-            var jobs = Service.GetJobs();
-            var candidate = ModText.BC_UI_CopyOfName.GetString(name);
-            var index = 2;
+        /// <summary>
+        /// Puts the number of waiting shares on the inbox button.
+        /// </summary>
+        public override void RefreshShares() {
+            var count = Mod.Static?.Inbox?.Count ?? 0;
 
-            while (jobs.Any(job => string.Equals(job.Name, candidate, StringComparison.InvariantCultureIgnoreCase))) {
-                candidate = string.Format("{0} {1}", ModText.BC_UI_CopyOfName.GetString(name), index);
-                index++;
+            _inboxButton.Text = count > 0
+                ? ModText.BC_Share_InboxWithCount.GetString(count)
+                : ModText.BC_Share_Inbox.GetString();
+        }
+
+        private void OnShareJob(object sender, EventArgs e) {
+            if (ActiveDialog != null || _loadedJob == null) {
+                return;
             }
 
-            return candidate;
+            var job = _loadedJob.Clone();
+            var dialog = new ShareDialog(ModText.BC_Share_ShareTitle.GetString(job.Name));
+
+            dialog.Confirmed += recipient => ShareService.Share(new SharePacket { Kind = ShareKind.PaintJob, PaintJob = job }, recipient);
+
+            OpenDialog(dialog);
+        }
+
+        private void OnOpenInbox(object sender, EventArgs e) {
+            if (ActiveDialog != null) {
+                return;
+            }
+
+            var inbox = Mod.Static?.Inbox;
+
+            if (inbox == null) {
+                return;
+            }
+
+            var dialog = new InboxDialog(inbox);
+
+            dialog.Closed += (sender2, args) => Refresh();
+
+            OpenDialog(dialog);
         }
 
         private void OnRemoveJob(object sender, EventArgs e) {
@@ -838,6 +875,7 @@ namespace Sisk.BuildColors.UI {
 
             _copyJobButton.InputEnabled = hasJob;
             _removeJobButton.InputEnabled = hasJob;
+            _shareJobButton.InputEnabled = hasJob;
             _applyButton.InputEnabled = hasJob;
             _addRuleButton.InputEnabled = hasJob;
 

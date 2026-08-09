@@ -1,4 +1,4 @@
-using RichHudFramework.UI;
+﻿using RichHudFramework.UI;
 using Sisk.BuildColors.Settings.Models.PaintJobs;
 using System.Collections.Generic;
 using VRageMath;
@@ -48,6 +48,10 @@ namespace Sisk.BuildColors.UI {
 
         public void RefreshPaintJobs(PaintJob jobToSelect = null) {
             _panel?.RefreshPaintJobs(jobToSelect);
+        }
+
+        public void RefreshShares() {
+            _panel?.RefreshShares();
         }
 
         /// <summary>

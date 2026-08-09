@@ -1074,12 +1074,6 @@
   <data name="BC_UI_Name" xml:space="preserve">
     <value>Name</value>
   </data>
-  <data name="BC_UI_Import" xml:space="preserve">
-    <value>Importieren</value>
-  </data>
-  <data name="BC_UI_Export" xml:space="preserve">
-    <value>Exportieren</value>
-  </data>
   <data name="BC_UI_Filter" xml:space="preserve">
     <value>Filter</value>
   </data>
@@ -1094,12 +1088,6 @@
   </data>
   <data name="BC_UI_EditSlotHint" xml:space="preserve">
     <value>Klick auf ein Feld bearbeitet diesen Slot.</value>
-  </data>
-  <data name="BC_UI_ExportHint" xml:space="preserve">
-    <value>Code unten kopieren, um dieses Farbset zu teilen.</value>
-  </data>
-  <data name="BC_UI_ImportHint" xml:space="preserve">
-    <value>Farbset-Code einfügen.</value>
   </data>
   <data name="BC_UI_ImportedSetName" xml:space="preserve">
     <value>Importiertes Set</value>
@@ -1185,18 +1173,6 @@
   <data name="BC_ColorSetGenerated" xml:space="preserve">
     <value>Neue Palette erzeugt.</value>
   </data>
-  <data name="BC_ColorSetImported" xml:space="preserve">
-    <value>Farbset '{0}' importiert.</value>
-  </data>
-  <data name="BC_InvalidColorSetCode" xml:space="preserve">
-    <value>Das ist kein gültiger Farbset-Code.</value>
-  </data>
-  <data name="BC_Description_Export" xml:space="preserve">
-    <value>Zeigt den Teilen-Code eines Farbsets.</value>
-  </data>
-  <data name="BC_Description_Import" xml:space="preserve">
-    <value>Fügt ein Farbset aus einem Teilen-Code hinzu.</value>
-  </data>
   <data name="BC_UI_LoadSecondRow" xml:space="preserve">
     <value>Reihe 2 laden</value>
   </data>
@@ -1217,5 +1193,116 @@
   </data>
   <data name="BC_UI_PickBaseHint" xml:space="preserve">
     <value>Farbe anklicken, um das Schema darum zu bauen.</value>
+  </data>
+  <data name="BC_Share_Accept" xml:space="preserve">
+    <value>Annehmen</value>
+  </data>
+  <data name="BC_Share_Accepted" xml:space="preserve">
+    <value>'{0}' gespeichert.</value>
+  </data>
+  <data name="BC_Share_Decline" xml:space="preserve">
+    <value>Ablehnen</value>
+  </data>
+  <data name="BC_Share_DeclineAll" xml:space="preserve">
+    <value>Alle ablehnen</value>
+  </data>
+  <data name="BC_Share_Declined" xml:space="preserve">
+    <value>'{0}' abgelehnt.</value>
+  </data>
+  <data name="BC_Share_DetailColorSet" xml:space="preserve">
+    <value>Farbset von {0}.</value>
+  </data>
+  <data name="BC_Share_DetailPaintJob" xml:space="preserve">
+    <value>Lackierauftrag von {0}, {1} Regeln.</value>
+  </data>
+  <data name="BC_Share_Everyone" xml:space="preserve">
+    <value>Alle online</value>
+  </data>
+  <data name="BC_Share_Inbox" xml:space="preserve">
+    <value>Posteingang</value>
+  </data>
+  <data name="BC_Share_InboxEmpty" xml:space="preserve">
+    <value>Es wurde nichts mit dir geteilt.</value>
+  </data>
+  <data name="BC_Share_InboxEntry" xml:space="preserve">
+    <value>#{0} {1}</value>
+  </data>
+  <data name="BC_Share_InboxTitle" xml:space="preserve">
+    <value>Mit dir geteilt</value>
+  </data>
+  <data name="BC_Share_InboxWithCount" xml:space="preserve">
+    <value>Posteingang ({0})</value>
+  </data>
+  <data name="BC_Share_NeedsMultiplayer" xml:space="preserve">
+    <value>Teilen braucht eine Mehrspielersitzung.</value>
+  </data>
+  <data name="BC_Share_NoPlayersOnline" xml:space="preserve">
+    <value>Es ist niemand sonst online.</value>
+  </data>
+  <data name="BC_Share_NoSuchOffer" xml:space="preserve">
+    <value>Es wartet nichts mit dem Namen '{0}'.</value>
+  </data>
+  <data name="BC_Share_NoSuchPlayer" xml:space="preserve">
+    <value>Kein Spieler namens '{0}' ist online.</value>
+  </data>
+  <data name="BC_Share_OfferColorSet" xml:space="preserve">
+    <value>{0} - Farbset von {1}</value>
+  </data>
+  <data name="BC_Share_OfferPaintJob" xml:space="preserve">
+    <value>{0} - Lackierauftrag von {1}</value>
+  </data>
+  <data name="BC_Share_PickRecipient" xml:space="preserve">
+    <value>Wähle den Empfänger. Er entscheidet, ob er es behält.</value>
+  </data>
+  <data name="BC_Share_ReceivedColorSet" xml:space="preserve">
+    <value>{0} hat das Farbset '{1}' mit dir geteilt.</value>
+  </data>
+  <data name="BC_Share_ReceivedNotification" xml:space="preserve">
+    <value>{0} Öffne die Farbauswahl oder tippe /{1} shares.</value>
+  </data>
+  <data name="BC_Share_ReceivedPaintJob" xml:space="preserve">
+    <value>{0} hat den Lackierauftrag '{1}' mit dir geteilt.</value>
+  </data>
+  <data name="BC_Share_Send" xml:space="preserve">
+    <value>Senden</value>
+  </data>
+  <data name="BC_Share_Sent" xml:space="preserve">
+    <value>'{0}' an {1} gesendet.</value>
+  </data>
+  <data name="BC_Share_Share" xml:space="preserve">
+    <value>Teilen</value>
+  </data>
+  <data name="BC_Share_ShareTitle" xml:space="preserve">
+    <value>'{0}' teilen</value>
+  </data>
+  <data name="BC_Share_UnknownSender" xml:space="preserve">
+    <value>jemand</value>
+  </data>
+  <data name="BC_Description_Share" xml:space="preserve">
+    <value>Sendet ein Farbset an einen Spieler oder an alle online.</value>
+  </data>
+  <data name="BC_Description_ShareJob" xml:space="preserve">
+    <value>Sendet einen Lackierauftrag an einen Spieler oder an alle online.</value>
+  </data>
+  <data name="BC_Description_Shares" xml:space="preserve">
+    <value>Listet auf, was andere Spieler mit dir geteilt haben.</value>
+  </data>
+  <data name="BC_Description_Accept" xml:space="preserve">
+    <value>Übernimmt eine Freigabe und speichert sie unter einem freien Namen.</value>
+  </data>
+  <data name="BC_Description_Decline" xml:space="preserve">
+    <value>Verwirft eine Freigabe.</value>
+  </data>
+  <data name="BC_Cmd_Usage_Share" xml:space="preserve">
+    <value>Verwendung: /{0} Share "&lt;Farbset&gt;" ["&lt;Spieler&gt;"]</value>
+  </data>
+  <data name="BC_Cmd_Usage_ShareJob" xml:space="preserve">
+    <value>Verwendung: /{0} ShareJob "&lt;Auftrag&gt;" ["&lt;Spieler&gt;"]</value>
+  </data>
+  <data name="BC_Cmd_Usage_Accept" xml:space="preserve">
+    <value>Verwendung: /{0} Accept #1 oder /{0} Accept "&lt;Name&gt;"</value>
+  </data>
+  <data name="BC_Share_Failed" xml:space="preserve">
+    <value>'{0}' konnte nicht gesendet werden.</value>
   </data>
 </root>

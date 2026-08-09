@@ -114,6 +114,31 @@ namespace Sisk.BuildColors.Services {
             return InNameOrder(_mod.PaintJobs).ToArray();
         }
 
+        /// <summary>
+        /// The given name when it is free, otherwise the first numbered copy of it that is.
+        /// </summary>
+        public string UniqueJobName(string name) {
+            if (string.IsNullOrEmpty(name)) {
+                name = ModText.BC_UI_NewPaintJobName.GetString();
+            }
+
+            var jobs = GetJobs();
+
+            if (!jobs.Any(job => string.Equals(job.Name, name, StringComparison.InvariantCultureIgnoreCase))) {
+                return name;
+            }
+
+            var candidate = ModText.BC_UI_CopyOfName.GetString(name);
+            var index = 2;
+
+            while (jobs.Any(job => string.Equals(job.Name, candidate, StringComparison.InvariantCultureIgnoreCase))) {
+                candidate = string.Format("{0} {1}", ModText.BC_UI_CopyOfName.GetString(name), index);
+                index++;
+            }
+
+            return candidate;
+        }
+
         public IReadOnlyCollection<PaintJob> GetJobs() {
             if (_mod.PaintJobs == null) {
                 return new PaintJob[0];

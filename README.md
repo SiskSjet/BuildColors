@@ -13,7 +13,7 @@
 
 ## 🛠︰Info
 
-This mod allows you to create customized color sets for building, which can then be easily imported into another world.
+This mod allows you to create customized color sets for building, which can then be easily carried into another world or handed to another player.
 
 ## 🛠︰Installation
 
@@ -41,13 +41,31 @@ Everything this mod does lives on the game's own color picker screen, in the roo
 
 A color set is the fourteen build color slots saved under a name. The **Color Sets** tab lists them and shows the selected set beside the palette you are actually building with, in the same slot order — loading replaces the palette wholesale, so seeing both is how you know what that costs.
 
-From there a set can be loaded, renamed, duplicated, marked a favourite, exported or removed. Double clicking loads it, **Load row 1** and **Load row 2** load only that half of the slots and leave the rest of your palette alone, and clicking a swatch opens that one slot in a colour picker. **Save current palette** goes the other way and stores what you have now; if the name is taken it asks before replacing.
+From there a set can be loaded, renamed, duplicated, marked a favourite, shared or removed. Double clicking loads it, **Load row 1** and **Load row 2** load only that half of the slots and leave the rest of your palette alone, and clicking a swatch opens that one slot in a colour picker. **Save current palette** goes the other way and stores what you have now; if the name is taken it asks before replacing.
 
 Favourites sort to the top and the filter box narrows a long list as you type.
 
 ### Sharing
 
-**Export** turns a set into a short code. **Import** takes one back — paste it into the dialog, or use the chat command, which is the easier direction because the game's chat accepts a paste.
+A colour set or a paint job is sent straight to another player. **Share** on either page asks who it goes to — one player, or everyone online — and hands it over.
+
+Nothing arrives in someone's list uninvited. A share lands in the recipient's **Inbox**, the button carries the number waiting, and only **Accept** writes it to their own file, under a free name so an existing set of the same name is never overwritten. **Decline** or **Decline all** throws it away. Several shares can be waiting at once; the newest is on top, and a second share of the same name from the same player replaces the first instead of stacking up.
+
+The inbox holds what came in this session. Shares are not kept over a restart, and only players who are online can be sent to.
+
+```
+┌ Shared with you ──────────────────────────────┐
+│ Hull - color set from Sisk                    │
+│ Interior - paint job from Vex                 │
+│                                               │
+│ Color set from Sisk.                          │
+│ ▪▪▪▪▪▪▪  ▪▪▪▪▪▪▪                              │
+│              [Decline]            [Accept]    │
+│ [Decline all]                       [Done]    │
+└───────────────────────────────────────────────┘
+```
+
+Everything goes through the server, which stamps the sender from the connection it came in on, so the name on a share is the player who really sent it.
 
 ### Generator
 
@@ -72,10 +90,15 @@ Click any generated swatch to edit that slot; right click to lock it. Locked slo
 * **load** [*name*] *- Loads a Color Set with the given name.*
 * **remove** [*name*] *- Removes a Color Set with given name.*
 * **generate** [*scheme*] [*preset*] *- Rolls a palette into the build colors. Both arguments are optional and may be given in any order.*
-* **export** [*name*] *- Prints the share code of a color set.*
-* **import** [*code*] *- Adds a color set from a share code.*
 * **list** *- Lists all available color sets.*
 * **help** *- Shows a help window with all commands.*
+
+**Sharing**:
+* **share** [*name*] [*player*] *- Sends a color set to a player. Without a player it goes to everyone online.*
+* **sharejob** [*job*] [*player*] *- Sends a paint job to a player. Without a player it goes to everyone online.*
+* **shares** *- Lists what other players have shared with you.*
+* **accept** [*#position\|name*] *- Keeps a share and saves it under a free name.*
+* **decline** [*#position\|name*] *- Throws a share away.*
 
 ### Stored colors
 
@@ -132,6 +155,7 @@ Names hold spaces, so arguments are quoted: `/bc ApplyJob "My Hull"`. Instead of
 * **removejob** [*job*] *- Removes a paint job.*
 * **renamejob** [*job*] [*new name*] *- Renames a paint job.*
 * **copyjob** [*job*] [*new name*] *- Copies a paint job.*
+* **sharejob** [*job*] [*player*] *- Sends a paint job to a player. Without a player it goes to everyone online.*
 * **joboption** [*job*] [*subgrids\|projected\|preview\|ownership*] [*on\|off*] *- Sets an option of a paint job. Without a value the option is flipped.*
 
 **Rules**:

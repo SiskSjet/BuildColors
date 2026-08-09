@@ -1,4 +1,4 @@
-using RichHudFramework.Client;
+﻿using RichHudFramework.Client;
 using RichHudFramework.UI.Client;
 using Sandbox.ModAPI;
 using Sisk.BuildColors.Localization;
@@ -50,6 +50,13 @@ namespace Sisk.BuildColors.UI {
         /// </summary>
         public void RefreshPaintJobs(PaintJob jobToSelect = null) {
             _mainWindow?.RefreshPaintJobs(jobToSelect);
+        }
+
+        /// <summary>
+        /// Updates the waiting share counts.
+        /// </summary>
+        public void RefreshShares() {
+            _mainWindow?.RefreshShares();
         }
 
         /// <summary>

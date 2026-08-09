@@ -33,6 +33,11 @@ namespace Sisk.BuildColors.UI {
         public virtual void Commit() { }
 
         /// <summary>
+        /// Pulls the waiting share count back in line after the inbox changed.
+        /// </summary>
+        public virtual void RefreshShares() { }
+
+        /// <summary>
         /// Puts a dialog on screen and holds it until it closes, so a second one cannot open over it.
         /// </summary>
         protected void OpenDialog(DialogBase dialog) {

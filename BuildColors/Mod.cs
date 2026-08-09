@@ -1,4 +1,4 @@
-using Sandbox.ModAPI;
+﻿using Sandbox.ModAPI;
 using Sisk.BuildColors.Localization;
 using Sisk.BuildColors.Settings;
 using Sisk.BuildColors.Settings.Models;
@@ -44,6 +44,11 @@ namespace Sisk.BuildColors {
         /// Available color sets.
         /// </summary>
         public ColorSets ColorSets { get; private set; }
+
+        /// <summary>
+        /// Shares other players have sent this session.
+        /// </summary>
+        public ShareInbox Inbox { get; private set; }
 
         /// <summary>
         /// Stored paint jobs.
@@ -144,10 +149,14 @@ namespace Sisk.BuildColors {
         /// </summary>
         public override void LoadData() {
             CreateCommands();
+            ShareNetwork.Register();
 
             if (MyAPIGateway.Utilities.IsDedicated) {
                 return;
             }
+
+            Inbox = new ShareInbox();
+            ShareNetwork.Received += OnShareReceived;
 
             LoadColorSets();
             LoadPaintJobs();
@@ -213,28 +222,33 @@ namespace Sisk.BuildColors {
         }
 
         /// <summary>
-        /// Stores a set read from a share code, under a name that is not taken.
+        /// The given name when it is free, otherwise the first numbered copy of it that is.
         /// </summary>
-        public bool ImportColorSet(string code, out string name) {
-            ColorSet imported;
-            name = null;
-
-            if (!ColorSetCode.TryDecode(code, out imported)) {
-                return false;
+        public string UniqueColorSetName(string name) {
+            if (string.IsNullOrEmpty(name)) {
+                name = ModText.BC_UI_ImportedSetName.GetString();
             }
 
-            if (string.IsNullOrEmpty(imported.Name)) {
-                imported = imported.WithName(ModText.BC_UI_ImportedSetName.GetString());
+            if (!HasColorSet(name)) {
+                return name;
             }
 
-            while (HasColorSet(imported.Name)) {
-                imported = imported.WithName(ModText.BC_UI_CopyOfName.GetString(imported.Name));
+            var candidate = ModText.BC_UI_CopyOfName.GetString(name);
+            var index = 2;
+
+            while (HasColorSet(candidate)) {
+                candidate = string.Format("{0} {1}", ModText.BC_UI_CopyOfName.GetString(name), index);
+                index++;
             }
 
-            name = imported.Name;
-            SaveColorSet(imported);
+            return candidate;
+        }
 
-            return true;
+        /// <summary>
+        /// Rebuilds the share counts in the UI after the inbox changed.
+        /// </summary>
+        internal void RefreshShares() {
+            _ui?.RefreshShares();
         }
 
         /// <summary>
@@ -254,6 +268,9 @@ namespace Sisk.BuildColors {
         /// Unregister events and stuff like that.
         /// </summary>
         protected override void UnloadData() {
+            ShareNetwork.Received -= OnShareReceived;
+            ShareNetwork.Unregister();
+
             if (MyAPIGateway.Multiplayer.MultiplayerActive && !MyAPIGateway.Utilities.IsDedicated) {
                 SaveServerMemory();
                 MyAPIGateway.Session.OnSessionReady -= OnSessionReady;
@@ -273,36 +290,52 @@ namespace Sisk.BuildColors {
             _commandHandler.Register(new Command { Name = "Remove", Description = ModText.BC_Description_Remove.GetString(), Execute = RemoveColorSet });
             _commandHandler.Register(new Command { Name = "Generate", Description = ModText.BC_Description_Generate.GetString(), Execute = GenerateColorSet });
             _commandHandler.Register(new Command { Name = "List", Description = ModText.BC_Description_List.GetString(), Execute = ListColorSets });
-            _commandHandler.Register(new Command { Name = "Export", Description = ModText.BC_Description_Export.GetString(), Execute = ExportColorSet });
-            _commandHandler.Register(new Command { Name = "Import", Description = ModText.BC_Description_Import.GetString(), Execute = ImportColorSet });
+            _commandHandler.Register(new Command { Name = "Share", Description = ModText.BC_Description_Share.GetString(), Execute = ShareColorSet });
+            _commandHandler.Register(new Command { Name = "Shares", Description = ModText.BC_Description_Shares.GetString(), Execute = ListShares });
+            _commandHandler.Register(new Command { Name = "Accept", Description = ModText.BC_Description_Accept.GetString(), Execute = AcceptShare });
+            _commandHandler.Register(new Command { Name = "Decline", Description = ModText.BC_Description_Decline.GetString(), Execute = DeclineShare });
             _commandHandler.Register(new Command { Name = "Help", Description = ModText.BC_Description_Help.GetString(), Execute = _commandHandler.ShowHelp });
 
             PaintJobCommands.Register(_commandHandler);
         }
 
-        private void ExportColorSet(string arguments) {
-            var name = (arguments ?? string.Empty).Trim().Trim('"');
-            var set = new ColorSet { Name = name };
+        /// <summary>
+        /// Sends a color set to one player, or to everyone online when no player is named.
+        /// </summary>
+        private void ShareColorSet(string arguments) {
+            var tokens = CommandArguments.Split(arguments);
 
-            if (!ColorSets.Contains(set)) {
-                MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(ModText.BC_NoColorSetFound.GetString(), name));
+            if (tokens.Count < 1 || tokens.Count > 2) {
+                MyAPIGateway.Utilities.ShowMessage(NAME, ModText.BC_Cmd_Usage_Share.GetString(Acronym));
                 return;
             }
 
-            set = ColorSets.First(x => StringComparer.InvariantCultureIgnoreCase.Equals(x.Name, name));
+            var set = new ColorSet { Name = tokens[0] };
 
-            MyAPIGateway.Utilities.ShowMessage(NAME, ColorSetCode.Encode(set));
+            if (ColorSets == null || !ColorSets.Contains(set)) {
+                MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(ModText.BC_NoColorSetFound.GetString(), tokens[0]));
+                return;
+            }
+
+            set = ColorSets.First(x => StringComparer.InvariantCultureIgnoreCase.Equals(x.Name, tokens[0]));
+
+            ShareService.Share(new SharePacket { Kind = ShareKind.ColorSet, ColorSet = set.Upgraded() }, tokens.Count == 2 ? tokens[1] : null);
         }
 
-        private void ImportColorSet(string arguments) {
-            string name;
+        private void ListShares(string arguments) {
+            ShareService.ListInbox();
+        }
 
-            if (ImportColorSet((arguments ?? string.Empty).Trim(), out name)) {
-                MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(ModText.BC_ColorSetImported.GetString(), name));
-                return;
-            }
+        private void AcceptShare(string arguments) {
+            ShareService.AcceptByReference((arguments ?? string.Empty).Trim());
+        }
 
-            MyAPIGateway.Utilities.ShowMessage(NAME, ModText.BC_InvalidColorSetCode.GetString());
+        private void DeclineShare(string arguments) {
+            ShareService.DeclineByReference((arguments ?? string.Empty).Trim());
+        }
+
+        private void OnShareReceived(SharePacket packet) {
+            ShareService.Receive(packet);
         }
 
         /// <summary>

@@ -132,6 +132,15 @@ namespace Sisk.BuildColors.UI {
         }
 
         /// <summary>
+        /// Updates the share counts on every page after the inbox changed.
+        /// </summary>
+        public void RefreshShares() {
+            foreach (var view in _views) {
+                view.RefreshShares();
+            }
+        }
+
+        /// <summary>
         /// Called when the panel leaves the screen.
         /// </summary>
         public void Commit() {

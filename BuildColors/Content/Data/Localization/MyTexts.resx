@@ -1054,12 +1054,6 @@
   <data name="BC_UI_Name" xml:space="preserve">
     <value>Name</value>
   </data>
-  <data name="BC_UI_Import" xml:space="preserve">
-    <value>Import</value>
-  </data>
-  <data name="BC_UI_Export" xml:space="preserve">
-    <value>Export</value>
-  </data>
   <data name="BC_UI_Filter" xml:space="preserve">
     <value>Filter</value>
   </data>
@@ -1074,12 +1068,6 @@
   </data>
   <data name="BC_UI_EditSlotHint" xml:space="preserve">
     <value>Click a swatch to edit that slot.</value>
-  </data>
-  <data name="BC_UI_ExportHint" xml:space="preserve">
-    <value>Copy the code below to share this color set.</value>
-  </data>
-  <data name="BC_UI_ImportHint" xml:space="preserve">
-    <value>Paste a color set code.</value>
   </data>
   <data name="BC_UI_ImportedSetName" xml:space="preserve">
     <value>Imported set</value>
@@ -1165,18 +1153,6 @@
   <data name="BC_ColorSetGenerated" xml:space="preserve">
     <value>Generated a new palette.</value>
   </data>
-  <data name="BC_ColorSetImported" xml:space="preserve">
-    <value>Imported color set '{0}'.</value>
-  </data>
-  <data name="BC_InvalidColorSetCode" xml:space="preserve">
-    <value>That is not a valid color set code.</value>
-  </data>
-  <data name="BC_Description_Export" xml:space="preserve">
-    <value>Prints the share code of a color set.</value>
-  </data>
-  <data name="BC_Description_Import" xml:space="preserve">
-    <value>Adds a color set from a share code.</value>
-  </data>
   <data name="BC_UI_LoadSecondRow" xml:space="preserve">
     <value>Load row 2</value>
   </data>
@@ -1197,5 +1173,116 @@
   </data>
   <data name="BC_UI_PickBaseHint" xml:space="preserve">
     <value>Click a color to build the scheme around it.</value>
+  </data>
+  <data name="BC_Share_Accept" xml:space="preserve">
+    <value>Accept</value>
+  </data>
+  <data name="BC_Share_Accepted" xml:space="preserve">
+    <value>Saved '{0}'.</value>
+  </data>
+  <data name="BC_Share_Decline" xml:space="preserve">
+    <value>Decline</value>
+  </data>
+  <data name="BC_Share_DeclineAll" xml:space="preserve">
+    <value>Decline all</value>
+  </data>
+  <data name="BC_Share_Declined" xml:space="preserve">
+    <value>Turned down '{0}'.</value>
+  </data>
+  <data name="BC_Share_DetailColorSet" xml:space="preserve">
+    <value>Color set from {0}.</value>
+  </data>
+  <data name="BC_Share_DetailPaintJob" xml:space="preserve">
+    <value>Paint job from {0}, {1} rules.</value>
+  </data>
+  <data name="BC_Share_Everyone" xml:space="preserve">
+    <value>Everyone online</value>
+  </data>
+  <data name="BC_Share_Inbox" xml:space="preserve">
+    <value>Inbox</value>
+  </data>
+  <data name="BC_Share_InboxEmpty" xml:space="preserve">
+    <value>Nothing has been shared with you.</value>
+  </data>
+  <data name="BC_Share_InboxEntry" xml:space="preserve">
+    <value>#{0} {1}</value>
+  </data>
+  <data name="BC_Share_InboxTitle" xml:space="preserve">
+    <value>Shared with you</value>
+  </data>
+  <data name="BC_Share_InboxWithCount" xml:space="preserve">
+    <value>Inbox ({0})</value>
+  </data>
+  <data name="BC_Share_NeedsMultiplayer" xml:space="preserve">
+    <value>Sharing needs a multiplayer session.</value>
+  </data>
+  <data name="BC_Share_NoPlayersOnline" xml:space="preserve">
+    <value>No one else is online to share with.</value>
+  </data>
+  <data name="BC_Share_NoSuchOffer" xml:space="preserve">
+    <value>Nothing called '{0}' is waiting.</value>
+  </data>
+  <data name="BC_Share_NoSuchPlayer" xml:space="preserve">
+    <value>No player named '{0}' is online.</value>
+  </data>
+  <data name="BC_Share_OfferColorSet" xml:space="preserve">
+    <value>{0} - color set from {1}</value>
+  </data>
+  <data name="BC_Share_OfferPaintJob" xml:space="preserve">
+    <value>{0} - paint job from {1}</value>
+  </data>
+  <data name="BC_Share_PickRecipient" xml:space="preserve">
+    <value>Pick who to send it to. They decide whether to keep it.</value>
+  </data>
+  <data name="BC_Share_ReceivedColorSet" xml:space="preserve">
+    <value>{0} shared the color set '{1}' with you.</value>
+  </data>
+  <data name="BC_Share_ReceivedNotification" xml:space="preserve">
+    <value>{0} Open the color picker, or type /{1} shares.</value>
+  </data>
+  <data name="BC_Share_ReceivedPaintJob" xml:space="preserve">
+    <value>{0} shared the paint job '{1}' with you.</value>
+  </data>
+  <data name="BC_Share_Send" xml:space="preserve">
+    <value>Send</value>
+  </data>
+  <data name="BC_Share_Sent" xml:space="preserve">
+    <value>Sent '{0}' to {1}.</value>
+  </data>
+  <data name="BC_Share_Share" xml:space="preserve">
+    <value>Share</value>
+  </data>
+  <data name="BC_Share_ShareTitle" xml:space="preserve">
+    <value>Share '{0}'</value>
+  </data>
+  <data name="BC_Share_UnknownSender" xml:space="preserve">
+    <value>someone</value>
+  </data>
+  <data name="BC_Description_Share" xml:space="preserve">
+    <value>Sends a color set to a player, or to everyone online.</value>
+  </data>
+  <data name="BC_Description_ShareJob" xml:space="preserve">
+    <value>Sends a paint job to a player, or to everyone online.</value>
+  </data>
+  <data name="BC_Description_Shares" xml:space="preserve">
+    <value>Lists what other players have shared with you.</value>
+  </data>
+  <data name="BC_Description_Accept" xml:space="preserve">
+    <value>Keeps a share and saves it under a free name.</value>
+  </data>
+  <data name="BC_Description_Decline" xml:space="preserve">
+    <value>Throws a share away.</value>
+  </data>
+  <data name="BC_Cmd_Usage_Share" xml:space="preserve">
+    <value>Usage: /{0} Share "&lt;color set&gt;" ["&lt;player&gt;"]</value>
+  </data>
+  <data name="BC_Cmd_Usage_ShareJob" xml:space="preserve">
+    <value>Usage: /{0} ShareJob "&lt;job&gt;" ["&lt;player&gt;"]</value>
+  </data>
+  <data name="BC_Cmd_Usage_Accept" xml:space="preserve">
+    <value>Usage: /{0} Accept #1 or /{0} Accept "&lt;name&gt;"</value>
+  </data>
+  <data name="BC_Share_Failed" xml:space="preserve">
+    <value>Could not send '{0}'.</value>
   </data>
 </root>

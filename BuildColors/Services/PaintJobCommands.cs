@@ -24,6 +24,7 @@ namespace Sisk.BuildColors.Services {
             handler.Register(new Command { Name = "RemoveJob", Description = ModText.BC_Description_RemoveJob.GetString(), Execute = RemoveJob });
             handler.Register(new Command { Name = "RenameJob", Description = ModText.BC_Description_RenameJob.GetString(), Execute = RenameJob });
             handler.Register(new Command { Name = "CopyJob", Description = ModText.BC_Description_CopyJob.GetString(), Execute = CopyJob });
+            handler.Register(new Command { Name = "ShareJob", Description = ModText.BC_Description_ShareJob.GetString(), Execute = ShareJob });
             handler.Register(new Command { Name = "JobOption", Description = ModText.BC_Description_JobOption.GetString(), Execute = SetJobOption });
             handler.Register(new Command { Name = "AddRule", Description = ModText.BC_Description_AddRule.GetString(), Execute = AddRule });
             handler.Register(new Command { Name = "RemoveRule", Description = ModText.BC_Description_RemoveRule.GetString(), Execute = RemoveRule });
@@ -65,6 +66,25 @@ namespace Sisk.BuildColors.Services {
             }
 
             MyAPIGateway.Utilities.ShowMissionScreen(Mod.NAME, string.Empty, job.Name, PaintJobReport.BuildJobReport(job), okButtonCaption: ModText.BC_UI_Done.GetString());
+        }
+
+        /// <summary>
+        /// Sends a paint job to one player, or to everyone online when no player is named.
+        /// </summary>
+        private static void ShareJob(string arguments) {
+            var tokens = CommandArguments.Split(arguments);
+
+            if (tokens.Count < 1 || tokens.Count > 2) {
+                Show(ModText.BC_Cmd_Usage_ShareJob.GetString(Mod.Acronym));
+                return;
+            }
+
+            var job = ResolveJob(tokens[0]);
+            if (job == null) {
+                return;
+            }
+
+            ShareService.Share(new SharePacket { Kind = ShareKind.PaintJob, PaintJob = job.Clone() }, tokens.Count == 2 ? tokens[1] : null);
         }
 
         private static void ApplyJob(string arguments) {
