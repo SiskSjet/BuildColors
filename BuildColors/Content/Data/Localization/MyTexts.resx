@@ -647,7 +647,7 @@
     <value>Usage: /{0} MoveRule "&lt;job&gt;" "&lt;rule&gt;" &lt;position&gt;</value>
   </data>
   <data name="BC_Cmd_Usage_RuleAction" xml:space="preserve">
-    <value>Usage: /{0} RuleAction "&lt;job&gt;" "&lt;rule&gt;" [color=R,G,B] [applycolor=on|off] [skin=&lt;id&gt;] [applyskin=on|off]</value>
+    <value>Usage: /{0} RuleAction "&lt;job&gt;" "&lt;rule&gt;" [color=R,G,B] [applycolor=on|off] [skin=&lt;id&gt;] [applyskin=on|off] [source=solid|gradient|camo|scatter|pattern] [stops=&lt;color&gt;[@pos][:skin];...] [palette=&lt;color&gt;[*weight][:skin];...] [axis=longest|x|y|z|up|radial] [fit=blocks|grid] [blend=lab|hsv|rgb] [steps=&lt;n&gt;] [scale=&lt;blocks&gt;] [shape=stripes|checker] [period=&lt;blocks&gt;] [seed=&lt;n&gt;] [reverse=on|off]</value>
   </data>
   <data name="BC_Cmd_Usage_AddCondition" xml:space="preserve">
     <value>Usage: /{0} AddCondition "&lt;job&gt;" "&lt;rule&gt;" [&lt;group path&gt;] &lt;field=value ...&gt; - fields: type, is, color, def, deftype, subtype, skin, category, gridsize, integrity, threshold</value>
@@ -801,5 +801,263 @@
   </data>
   <data name="BC_Cmd_GroupText" xml:space="preserve">
     <value>{0}:</value>
+  </data>
+  <data name="BC_Cmd_ActionSourceBoth" xml:space="preserve">
+    <value>color and skin</value>
+  </data>
+  <data name="BC_Cmd_ActionSourceColorOnly" xml:space="preserve">
+    <value>color only</value>
+  </data>
+  <data name="BC_Cmd_ActionSourceSkinOnly" xml:space="preserve">
+    <value>skin only</value>
+  </data>
+  <data name="BC_Desc_SourceBands" xml:space="preserve">
+    <value>{0} bands</value>
+  </data>
+  <data name="BC_Desc_SourceCamo" xml:space="preserve">
+    <value>camo from {0} colors, patches of {1} blocks</value>
+  </data>
+  <data name="BC_Desc_SourceGradient" xml:space="preserve">
+    <value>gradient of {0} stops along {1}, {2}, {3}</value>
+  </data>
+  <data name="BC_Desc_SourcePattern" xml:space="preserve">
+    <value>{0} of {1} colors, {2} blocks wide along {3}</value>
+  </data>
+  <data name="BC_Desc_SourceScatter" xml:space="preserve">
+    <value>scatter over {0} colors</value>
+  </data>
+  <data name="BC_Desc_SourceSmooth" xml:space="preserve">
+    <value>smooth</value>
+  </data>
+  <data name="BC_UI_AddEntry" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="BC_UI_Axis" xml:space="preserve">
+    <value>Axis</value>
+  </data>
+  <data name="BC_UI_Axis_GridX" xml:space="preserve">
+    <value>Grid X</value>
+  </data>
+  <data name="BC_UI_Axis_GridY" xml:space="preserve">
+    <value>Grid Y</value>
+  </data>
+  <data name="BC_UI_Axis_GridZ" xml:space="preserve">
+    <value>Grid Z</value>
+  </data>
+  <data name="BC_UI_Axis_Radial" xml:space="preserve">
+    <value>Out from center</value>
+  </data>
+  <data name="BC_UI_Axis_WorldUp" xml:space="preserve">
+    <value>World up</value>
+  </data>
+  <data name="BC_UI_Blend_Hsv" xml:space="preserve">
+    <value>HSV</value>
+  </data>
+  <data name="BC_UI_Blend_Lab" xml:space="preserve">
+    <value>Lab (perceptual)</value>
+  </data>
+  <data name="BC_UI_Blend_Rgb" xml:space="preserve">
+    <value>RGB</value>
+  </data>
+  <data name="BC_UI_BlendSpace" xml:space="preserve">
+    <value>Blend in</value>
+  </data>
+  <data name="BC_UI_EditSource" xml:space="preserve">
+    <value>Edit Paint Source</value>
+  </data>
+  <data name="BC_UI_EntryColor" xml:space="preserve">
+    <value>Color</value>
+  </data>
+  <data name="BC_UI_EntryWeight" xml:space="preserve">
+    <value>Weight</value>
+  </data>
+  <data name="BC_UI_Palette" xml:space="preserve">
+    <value>Colors</value>
+  </data>
+  <data name="BC_UI_Period" xml:space="preserve">
+    <value>Width (blocks)</value>
+  </data>
+  <data name="BC_UI_RemoveEntry" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="BC_UI_Reverse" xml:space="preserve">
+    <value>Reverse direction</value>
+  </data>
+  <data name="BC_UI_Scale" xml:space="preserve">
+    <value>Patch size (blocks)</value>
+  </data>
+  <data name="BC_UI_Seed" xml:space="preserve">
+    <value>Seed</value>
+  </data>
+  <data name="BC_UI_Shape" xml:space="preserve">
+    <value>Shape</value>
+  </data>
+  <data name="BC_UI_Shape_Checker" xml:space="preserve">
+    <value>Checker</value>
+  </data>
+  <data name="BC_UI_Shape_Stripes" xml:space="preserve">
+    <value>Stripes</value>
+  </data>
+  <data name="BC_UI_SourceEditorTitle" xml:space="preserve">
+    <value>Paint Source</value>
+  </data>
+  <data name="BC_UI_SourceHint_Camo" xml:space="preserve">
+    <value>Patches of colors spread over the build.</value>
+  </data>
+  <data name="BC_UI_SourceHint_Gradient" xml:space="preserve">
+    <value>Blends between the stops along the chosen axis.</value>
+  </data>
+  <data name="BC_UI_SourceHint_Pattern" xml:space="preserve">
+    <value>Repeats the colors as stripes or as a checker.</value>
+  </data>
+  <data name="BC_UI_SourceHint_Scatter" xml:space="preserve">
+    <value>One color per block, picked by weight.</value>
+  </data>
+  <data name="BC_UI_SourceHint_Solid" xml:space="preserve">
+    <value>Every matching block gets the target color and skin.</value>
+  </data>
+  <data name="BC_UI_SourceHint_Steps" xml:space="preserve">
+    <value>Fewer bands means fewer colors and a much faster paint pass.</value>
+  </data>
+  <data name="BC_UI_SourceType" xml:space="preserve">
+    <value>Source</value>
+  </data>
+  <data name="BC_UI_SourceType_Camo" xml:space="preserve">
+    <value>Camo</value>
+  </data>
+  <data name="BC_UI_SourceType_Gradient" xml:space="preserve">
+    <value>Gradient</value>
+  </data>
+  <data name="BC_UI_SourceType_Pattern" xml:space="preserve">
+    <value>Pattern</value>
+  </data>
+  <data name="BC_UI_SourceType_Scatter" xml:space="preserve">
+    <value>Scatter</value>
+  </data>
+  <data name="BC_UI_SourceType_Solid" xml:space="preserve">
+    <value>Single color</value>
+  </data>
+  <data name="BC_UI_Status_EntriesRequired" xml:space="preserve">
+    <value>At least {0} colors are needed.</value>
+  </data>
+  <data name="BC_UI_Status_EntryLimit" xml:space="preserve">
+    <value>No more than {0} colors.</value>
+  </data>
+  <data name="BC_UI_Status_PeriodRange" xml:space="preserve">
+    <value>Width must be at least 1 block.</value>
+  </data>
+  <data name="BC_UI_Status_ScaleRange" xml:space="preserve">
+    <value>Patch size must be between {0} and {1} blocks.</value>
+  </data>
+  <data name="BC_UI_Status_StepsRange" xml:space="preserve">
+    <value>Bands must be between 0 and {0}.</value>
+  </data>
+  <data name="BC_UI_Steps" xml:space="preserve">
+    <value>Bands (0 = smooth)</value>
+  </data>
+  <data name="BC_UI_StopPosition" xml:space="preserve">
+    <value>Position (0-1)</value>
+  </data>
+  <data name="BC_UI_Stops" xml:space="preserve">
+    <value>Gradient stops</value>
+  </data>
+  <data name="BC_UI_Axis_Longest" xml:space="preserve">
+    <value>Longest grid axis</value>
+  </data>
+  <data name="BC_UI_Fit" xml:space="preserve">
+    <value>Spread over</value>
+  </data>
+  <data name="BC_UI_Fit_MatchedBlocks" xml:space="preserve">
+    <value>The blocks this rule paints</value>
+  </data>
+  <data name="BC_UI_Fit_GridBounds" xml:space="preserve">
+    <value>The whole grid</value>
+  </data>
+  <data name="BC_UI_SourceHint_Fit" xml:space="preserve">
+    <value>Spreading over the painted blocks makes sure both end colors show up.</value>
+  </data>
+  <data name="BC_UI_SourceEditorTitleFor" xml:space="preserve">
+    <value>Paint Source: {0}</value>
+  </data>
+  <data name="BC_UI_Undo" xml:space="preserve">
+    <value>Undo</value>
+  </data>
+  <data name="BC_Desc_SourceFitBlocks" xml:space="preserve">
+    <value>over its own blocks</value>
+  </data>
+  <data name="BC_Desc_SourceFitGrid" xml:space="preserve">
+    <value>over the whole grid</value>
+  </data>
+  <data name="BC_PaintJob_NothingToUndo" xml:space="preserve">
+    <value>There is nothing to undo.</value>
+  </data>
+  <data name="BC_PaintJob_Undone" xml:space="preserve">
+    <value>Undid '{0}' and put {1} blocks back.</value>
+  </data>
+  <data name="BC_PaintJob_UndoNothingLeft" xml:space="preserve">
+    <value>Nothing left to put back from '{0}'.</value>
+  </data>
+  <data name="BC_PaintJob_UndoGridsGone" xml:space="preserve">
+    <value> {0} grids are gone.</value>
+  </data>
+  <data name="BC_Cmd_HistoryLine" xml:space="preserve">
+    <value>#{0} {1} ({2} blocks on {3})</value>
+  </data>
+  <data name="BC_Cmd_Usage_UndoJob" xml:space="preserve">
+    <value>Usage: /{0} UndoJob [#position] - without a position the most recent application is undone.</value>
+  </data>
+  <data name="BC_Description_UndoJob" xml:space="preserve">
+    <value>Undoes an application of a paint job.</value>
+  </data>
+  <data name="BC_Description_PaintHistory" xml:space="preserve">
+    <value>Lists the paint jobs that can be undone.</value>
+  </data>
+  <data name="BC_UI_SelectedEntry" xml:space="preserve">
+    <value>Selected color</value>
+  </data>
+  <data name="BC_PaintJob_ActiveJob" xml:space="preserve">
+    <value>Active paint job: {0}</value>
+  </data>
+  <data name="BC_UI_Binds_PaintJobs" xml:space="preserve">
+    <value>Paint Jobs</value>
+  </data>
+  <data name="BC_UI_WorkbenchTitle" xml:space="preserve">
+    <value>Build Colors - Paint Jobs</value>
+  </data>
+  <data name="BC_UI_WorkbenchStatus" xml:space="preserve">
+    <value>{0} rules - applies to the grid you are looking at</value>
+  </data>
+  <data name="BC_UI_Jobs" xml:space="preserve">
+    <value>Jobs</value>
+  </data>
+  <data name="BC_UI_Copy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="BC_UI_CopyOfName" xml:space="preserve">
+    <value>{0} copy</value>
+  </data>
+  <data name="BC_UI_RulesOf" xml:space="preserve">
+    <value>Rules - {0}</value>
+  </data>
+  <data name="BC_UI_RuleDetailsOf" xml:space="preserve">
+    <value>Rule - {0}</value>
+  </data>
+  <data name="BC_UI_MoveUp" xml:space="preserve">
+    <value>Move up</value>
+  </data>
+  <data name="BC_UI_MoveDown" xml:space="preserve">
+    <value>Move down</value>
+  </data>
+  <data name="BC_UI_TabConditions" xml:space="preserve">
+    <value>Conditions</value>
+  </data>
+  <data name="BC_UI_TabPaint" xml:space="preserve">
+    <value>Paint</value>
+  </data>
+  <data name="BC_UI_OpenWorkbench" xml:space="preserve">
+    <value>Open Workbench</value>
+  </data>
+  <data name="BC_UI_CloseSymbol" xml:space="preserve">
+    <value>X</value>
   </data>
 </root>

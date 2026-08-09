@@ -166,6 +166,13 @@ namespace Sisk.BuildColors {
             _ui?.RefreshPaintJobs(jobToSelect);
         }
 
+        /// <summary>
+        ///     Opens the paint job workbench. It stands on its own, so this works with no other screen up.
+        /// </summary>
+        internal void OpenWorkbench() {
+            _ui?.OpenWorkbench();
+        }
+
         internal void SavePaintJobs() {
             if (PaintJobs != null) {
                 FileHandler.Save(PAINT_JOBS_FILE, PaintJobs);

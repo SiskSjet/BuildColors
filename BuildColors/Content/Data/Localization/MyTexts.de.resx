@@ -667,7 +667,7 @@
     <value>Verwendung: /{0} MoveRule "&lt;Auftrag&gt;" "&lt;Regel&gt;" &lt;Position&gt;</value>
   </data>
   <data name="BC_Cmd_Usage_RuleAction" xml:space="preserve">
-    <value>Verwendung: /{0} RuleAction "&lt;Auftrag&gt;" "&lt;Regel&gt;" [color=R,G,B] [applycolor=on|off] [skin=&lt;Id&gt;] [applyskin=on|off]</value>
+    <value>Verwendung: /{0} RuleAction "&lt;Job&gt;" "&lt;Regel&gt;" [color=R,G,B] [applycolor=on|off] [skin=&lt;ID&gt;] [applyskin=on|off] [source=solid|gradient|camo|scatter|pattern] [stops=&lt;Farbe&gt;[@Pos][:Skin];...] [palette=&lt;Farbe&gt;[*Gewicht][:Skin];...] [axis=longest|x|y|z|up|radial] [fit=blocks|grid] [blend=lab|hsv|rgb] [steps=&lt;n&gt;] [scale=&lt;Blöcke&gt;] [shape=stripes|checker] [period=&lt;Blöcke&gt;] [seed=&lt;n&gt;] [reverse=on|off]</value>
   </data>
   <data name="BC_Cmd_Usage_AddCondition" xml:space="preserve">
     <value>Verwendung: /{0} AddCondition "&lt;Auftrag&gt;" "&lt;Regel&gt;" [&lt;Gruppenpfad&gt;] &lt;Feld=Wert ...&gt; - Felder: type, is, color, def, deftype, subtype, skin, category, gridsize, integrity, threshold</value>
@@ -821,5 +821,263 @@
   </data>
   <data name="BC_Cmd_GroupText" xml:space="preserve">
     <value>{0}:</value>
+  </data>
+  <data name="BC_Cmd_ActionSourceBoth" xml:space="preserve">
+    <value>Farbe und Skin</value>
+  </data>
+  <data name="BC_Cmd_ActionSourceColorOnly" xml:space="preserve">
+    <value>nur Farbe</value>
+  </data>
+  <data name="BC_Cmd_ActionSourceSkinOnly" xml:space="preserve">
+    <value>nur Skin</value>
+  </data>
+  <data name="BC_Desc_SourceBands" xml:space="preserve">
+    <value>{0} Stufen</value>
+  </data>
+  <data name="BC_Desc_SourceCamo" xml:space="preserve">
+    <value>Tarnmuster aus {0} Farben, Flecken von {1} Blöcken</value>
+  </data>
+  <data name="BC_Desc_SourceGradient" xml:space="preserve">
+    <value>Verlauf mit {0} Stufenpunkten entlang {1}, {2}, {3}</value>
+  </data>
+  <data name="BC_Desc_SourcePattern" xml:space="preserve">
+    <value>{0} aus {1} Farben, {2} Blöcke breit entlang {3}</value>
+  </data>
+  <data name="BC_Desc_SourceScatter" xml:space="preserve">
+    <value>Streuung über {0} Farben</value>
+  </data>
+  <data name="BC_Desc_SourceSmooth" xml:space="preserve">
+    <value>stufenlos</value>
+  </data>
+  <data name="BC_UI_AddEntry" xml:space="preserve">
+    <value>Hinzufügen</value>
+  </data>
+  <data name="BC_UI_Axis" xml:space="preserve">
+    <value>Achse</value>
+  </data>
+  <data name="BC_UI_Axis_GridX" xml:space="preserve">
+    <value>Gitter X</value>
+  </data>
+  <data name="BC_UI_Axis_GridY" xml:space="preserve">
+    <value>Gitter Y</value>
+  </data>
+  <data name="BC_UI_Axis_GridZ" xml:space="preserve">
+    <value>Gitter Z</value>
+  </data>
+  <data name="BC_UI_Axis_Radial" xml:space="preserve">
+    <value>Von der Mitte nach außen</value>
+  </data>
+  <data name="BC_UI_Axis_WorldUp" xml:space="preserve">
+    <value>Weltoben</value>
+  </data>
+  <data name="BC_UI_Blend_Hsv" xml:space="preserve">
+    <value>HSV</value>
+  </data>
+  <data name="BC_UI_Blend_Lab" xml:space="preserve">
+    <value>Lab (wahrnehmungsnah)</value>
+  </data>
+  <data name="BC_UI_Blend_Rgb" xml:space="preserve">
+    <value>RGB</value>
+  </data>
+  <data name="BC_UI_BlendSpace" xml:space="preserve">
+    <value>Mischen in</value>
+  </data>
+  <data name="BC_UI_EditSource" xml:space="preserve">
+    <value>Farbquelle bearbeiten</value>
+  </data>
+  <data name="BC_UI_EntryColor" xml:space="preserve">
+    <value>Farbe</value>
+  </data>
+  <data name="BC_UI_EntryWeight" xml:space="preserve">
+    <value>Gewicht</value>
+  </data>
+  <data name="BC_UI_Palette" xml:space="preserve">
+    <value>Farben</value>
+  </data>
+  <data name="BC_UI_Period" xml:space="preserve">
+    <value>Breite (Blöcke)</value>
+  </data>
+  <data name="BC_UI_RemoveEntry" xml:space="preserve">
+    <value>Entfernen</value>
+  </data>
+  <data name="BC_UI_Reverse" xml:space="preserve">
+    <value>Richtung umkehren</value>
+  </data>
+  <data name="BC_UI_Scale" xml:space="preserve">
+    <value>Fleckgröße (Blöcke)</value>
+  </data>
+  <data name="BC_UI_Seed" xml:space="preserve">
+    <value>Startwert</value>
+  </data>
+  <data name="BC_UI_Shape" xml:space="preserve">
+    <value>Form</value>
+  </data>
+  <data name="BC_UI_Shape_Checker" xml:space="preserve">
+    <value>Schachbrett</value>
+  </data>
+  <data name="BC_UI_Shape_Stripes" xml:space="preserve">
+    <value>Streifen</value>
+  </data>
+  <data name="BC_UI_SourceEditorTitle" xml:space="preserve">
+    <value>Farbquelle</value>
+  </data>
+  <data name="BC_UI_SourceHint_Camo" xml:space="preserve">
+    <value>Farbflecken über den ganzen Bau verteilt.</value>
+  </data>
+  <data name="BC_UI_SourceHint_Gradient" xml:space="preserve">
+    <value>Blendet entlang der gewählten Achse zwischen den Stufenpunkten.</value>
+  </data>
+  <data name="BC_UI_SourceHint_Pattern" xml:space="preserve">
+    <value>Wiederholt die Farben als Streifen oder Schachbrett.</value>
+  </data>
+  <data name="BC_UI_SourceHint_Scatter" xml:space="preserve">
+    <value>Eine Farbe pro Block, nach Gewicht gewählt.</value>
+  </data>
+  <data name="BC_UI_SourceHint_Solid" xml:space="preserve">
+    <value>Jeder passende Block erhält Zielfarbe und Zielskin.</value>
+  </data>
+  <data name="BC_UI_SourceHint_Steps" xml:space="preserve">
+    <value>Weniger Stufen bedeutet weniger Farben und einen deutlich schnelleren Anstrich.</value>
+  </data>
+  <data name="BC_UI_SourceType" xml:space="preserve">
+    <value>Quelle</value>
+  </data>
+  <data name="BC_UI_SourceType_Camo" xml:space="preserve">
+    <value>Tarnmuster</value>
+  </data>
+  <data name="BC_UI_SourceType_Gradient" xml:space="preserve">
+    <value>Verlauf</value>
+  </data>
+  <data name="BC_UI_SourceType_Pattern" xml:space="preserve">
+    <value>Muster</value>
+  </data>
+  <data name="BC_UI_SourceType_Scatter" xml:space="preserve">
+    <value>Streuung</value>
+  </data>
+  <data name="BC_UI_SourceType_Solid" xml:space="preserve">
+    <value>Einzelfarbe</value>
+  </data>
+  <data name="BC_UI_Status_EntriesRequired" xml:space="preserve">
+    <value>Es werden mindestens {0} Farben benötigt.</value>
+  </data>
+  <data name="BC_UI_Status_EntryLimit" xml:space="preserve">
+    <value>Höchstens {0} Farben.</value>
+  </data>
+  <data name="BC_UI_Status_PeriodRange" xml:space="preserve">
+    <value>Die Breite muss mindestens 1 Block betragen.</value>
+  </data>
+  <data name="BC_UI_Status_ScaleRange" xml:space="preserve">
+    <value>Die Fleckgröße muss zwischen {0} und {1} Blöcken liegen.</value>
+  </data>
+  <data name="BC_UI_Status_StepsRange" xml:space="preserve">
+    <value>Die Stufenzahl muss zwischen 0 und {0} liegen.</value>
+  </data>
+  <data name="BC_UI_Steps" xml:space="preserve">
+    <value>Stufen (0 = stufenlos)</value>
+  </data>
+  <data name="BC_UI_StopPosition" xml:space="preserve">
+    <value>Position (0-1)</value>
+  </data>
+  <data name="BC_UI_Stops" xml:space="preserve">
+    <value>Verlaufspunkte</value>
+  </data>
+  <data name="BC_UI_Axis_Longest" xml:space="preserve">
+    <value>Längste Gitterachse</value>
+  </data>
+  <data name="BC_UI_Fit" xml:space="preserve">
+    <value>Verteilen über</value>
+  </data>
+  <data name="BC_UI_Fit_MatchedBlocks" xml:space="preserve">
+    <value>Die Blöcke dieser Regel</value>
+  </data>
+  <data name="BC_UI_Fit_GridBounds" xml:space="preserve">
+    <value>Das ganze Gitter</value>
+  </data>
+  <data name="BC_UI_SourceHint_Fit" xml:space="preserve">
+    <value>Über die bemalten Blöcke verteilt erscheinen beide Endfarben sicher.</value>
+  </data>
+  <data name="BC_UI_SourceEditorTitleFor" xml:space="preserve">
+    <value>Farbquelle: {0}</value>
+  </data>
+  <data name="BC_UI_Undo" xml:space="preserve">
+    <value>Rückgängig</value>
+  </data>
+  <data name="BC_Desc_SourceFitBlocks" xml:space="preserve">
+    <value>über eigene Blöcke</value>
+  </data>
+  <data name="BC_Desc_SourceFitGrid" xml:space="preserve">
+    <value>über das ganze Gitter</value>
+  </data>
+  <data name="BC_PaintJob_NothingToUndo" xml:space="preserve">
+    <value>Es gibt nichts rückgängig zu machen.</value>
+  </data>
+  <data name="BC_PaintJob_Undone" xml:space="preserve">
+    <value>'{0}' rückgängig gemacht und {1} Blöcke zurückgesetzt.</value>
+  </data>
+  <data name="BC_PaintJob_UndoNothingLeft" xml:space="preserve">
+    <value>Von '{0}' ist nichts mehr zurückzusetzen.</value>
+  </data>
+  <data name="BC_PaintJob_UndoGridsGone" xml:space="preserve">
+    <value> {0} Gitter existieren nicht mehr.</value>
+  </data>
+  <data name="BC_Cmd_HistoryLine" xml:space="preserve">
+    <value>#{0} {1} ({2} Blöcke auf {3})</value>
+  </data>
+  <data name="BC_Cmd_Usage_UndoJob" xml:space="preserve">
+    <value>Verwendung: /{0} UndoJob [#Position] - ohne Position wird die letzte Anwendung rückgängig gemacht.</value>
+  </data>
+  <data name="BC_Description_UndoJob" xml:space="preserve">
+    <value>Macht eine Anwendung eines Farbauftrags rückgängig.</value>
+  </data>
+  <data name="BC_Description_PaintHistory" xml:space="preserve">
+    <value>Listet die Farbaufträge auf, die rückgängig gemacht werden können.</value>
+  </data>
+  <data name="BC_UI_SelectedEntry" xml:space="preserve">
+    <value>Ausgewählte Farbe</value>
+  </data>
+  <data name="BC_PaintJob_ActiveJob" xml:space="preserve">
+    <value>Aktiver Farbauftrag: {0}</value>
+  </data>
+  <data name="BC_UI_Binds_PaintJobs" xml:space="preserve">
+    <value>Farbaufträge</value>
+  </data>
+  <data name="BC_UI_WorkbenchTitle" xml:space="preserve">
+    <value>Build Colors - Farbaufträge</value>
+  </data>
+  <data name="BC_UI_WorkbenchStatus" xml:space="preserve">
+    <value>{0} Regeln - wird auf das angesehene Gitter angewendet</value>
+  </data>
+  <data name="BC_UI_Jobs" xml:space="preserve">
+    <value>Aufträge</value>
+  </data>
+  <data name="BC_UI_Copy" xml:space="preserve">
+    <value>Kopieren</value>
+  </data>
+  <data name="BC_UI_CopyOfName" xml:space="preserve">
+    <value>{0} Kopie</value>
+  </data>
+  <data name="BC_UI_RulesOf" xml:space="preserve">
+    <value>Regeln - {0}</value>
+  </data>
+  <data name="BC_UI_RuleDetailsOf" xml:space="preserve">
+    <value>Regel - {0}</value>
+  </data>
+  <data name="BC_UI_MoveUp" xml:space="preserve">
+    <value>Nach oben</value>
+  </data>
+  <data name="BC_UI_MoveDown" xml:space="preserve">
+    <value>Nach unten</value>
+  </data>
+  <data name="BC_UI_TabConditions" xml:space="preserve">
+    <value>Bedingungen</value>
+  </data>
+  <data name="BC_UI_TabPaint" xml:space="preserve">
+    <value>Anstrich</value>
+  </data>
+  <data name="BC_UI_OpenWorkbench" xml:space="preserve">
+    <value>Werkbank öffnen</value>
+  </data>
+  <data name="BC_UI_CloseSymbol" xml:space="preserve">
+    <value>X</value>
   </data>
 </root>

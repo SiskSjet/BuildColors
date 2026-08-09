@@ -54,34 +54,98 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Returns the action of the first rule matching the block, or null when no rule matches.
+        ///     Index of the first rule matching the block, or -1 when none does - the common case on a grid a
+        ///     job only touches part of. The facts are handed back so the caller does not have to read the
+        ///     block twice.
         /// </summary>
-        public PaintRuleAction FindAction(IMySlimBlock block) {
-            if (_rules.Count == 0) {
-                return null;
-            }
-
-            var facts = BlockFacts.Read(block);
+        public int FindRule(IMySlimBlock block, ref GridPaintContext grid, out BlockFacts facts) {
+            facts = BlockFacts.Read(block, ref grid);
 
             for (var i = 0; i < _rules.Count; i++) {
                 if (_rules[i].Group.Matches(ref facts)) {
-                    return _rules[i].Action;
+                    return i;
                 }
             }
 
-            return null;
+            return -1;
+        }
+
+        /// <summary>
+        ///     Opens the measuring pass over a grid. A gradient pinned to the blocks it paints cannot know
+        ///     where its ends are until every one of them has been seen, so matching and painting are two
+        ///     passes with this in between.
+        /// </summary>
+        public void BeginGrid() {
+            for (var i = 0; i < _rules.Count; i++) {
+                _rules[i].Source.BeginGrid();
+            }
+        }
+
+        public void Observe(int ruleIndex, ref BlockFacts facts) {
+            _rules[ruleIndex].Source.Observe(ref facts);
+        }
+
+        public void EndGrid() {
+            for (var i = 0; i < _rules.Count; i++) {
+                _rules[i].Source.EndGrid();
+            }
+        }
+
+        /// <summary>
+        ///     Works out what a rule paints a block with. Only valid once the measuring pass over the grid has
+        ///     been closed.
+        /// </summary>
+        public void Resolve(int ruleIndex, ref BlockFacts facts, out PaintResolution resolution) {
+            var rule = _rules[ruleIndex];
+
+            PaintEntry entry;
+            rule.Source.Evaluate(ref facts, out entry);
+
+            resolution = new PaintResolution {
+                ApplyColor = rule.ApplyColor,
+                ApplySkin = rule.ApplySkin,
+                Mask = entry.Mask,
+                SkinId = entry.SkinId ?? string.Empty
+            };
         }
 
         private sealed class CompiledRule {
 
             public CompiledRule(CompiledConditionGroup group, PaintRuleAction action) {
                 Group = group;
-                Action = action;
+                ApplyColor = action.ApplyColor;
+                ApplySkin = action.ApplySkin;
+                Source = CompiledPaintSource.Compile(action);
             }
 
-            public PaintRuleAction Action { get; private set; }
+            public bool ApplyColor { get; private set; }
+
+            public bool ApplySkin { get; private set; }
 
             public CompiledConditionGroup Group { get; private set; }
+
+            public CompiledPaintSource Source { get; private set; }
+        }
+    }
+
+    /// <summary>
+    ///     What a matched block should end up as.
+    /// </summary>
+    internal struct PaintResolution {
+        public bool ApplyColor;
+        public bool ApplySkin;
+        public Vector3 Mask;
+        public string SkinId;
+
+        /// <summary>
+        ///     True when two blocks can be painted by the same pair of calls, which is what lets a run of
+        ///     blocks be sent as one message instead of one per block.
+        /// </summary>
+        public bool Matches(ref PaintResolution other) {
+            return ApplyColor == other.ApplyColor
+                && ApplySkin == other.ApplySkin
+                && Mask.Equals(other.Mask)
+                && string.Equals(SkinId, other.SkinId, StringComparison.OrdinalIgnoreCase);
         }
     }
 
@@ -99,9 +163,54 @@ namespace Sisk.BuildColors.Services {
         public float IntegrityRatio;
         public MyStringHash SkinId;
 
-        public static BlockFacts Read(IMySlimBlock block) {
+        /// <summary>
+        ///     Center of the block in grid coordinates. Noise is sampled here rather than at
+        ///     <see cref="Position" /> so a block wider than one cell lands where it looks like it sits, and
+        ///     it is deliberately not measured from the edge of the grid: the edge moves whenever something
+        ///     is welded onto the build, which would slide every camo patch along with it.
+        /// </summary>
+        public Vector3 LocalPosition;
+
+        /// <summary>
+        ///     Where the block sits between the two ends of the grid on each axis, from 0 to 1.
+        /// </summary>
+        public Vector3 NormalizedPosition;
+
+        /// <summary>
+        ///     The component of <see cref="NormalizedPosition" /> belonging to the longest axis of the grid.
+        /// </summary>
+        public float NormalizedLongest;
+
+        /// <summary>
+        ///     Whole block coordinate along the longest axis of the grid, for patterns counting in blocks.
+        /// </summary>
+        public int LongestPosition;
+
+        public float NormalizedRadial;
+        public float NormalizedUp;
+
+        /// <summary>
+        ///     Lowest cell of the block, which is also the coordinate the game addresses it by.
+        /// </summary>
+        public Vector3I Position;
+
+        /// <summary>
+        ///     Distance from the grid center in whole blocks, along the up axis and outwards. Patterns count
+        ///     in these so that a stripe keeps its width no matter how large the grid is.
+        /// </summary>
+        public float RadialCoordinate;
+
+        public float UpCoordinate;
+
+        public static BlockFacts Read(IMySlimBlock block, ref GridPaintContext grid) {
             var definition = block.BlockDefinition;
             var maxIntegrity = block.MaxIntegrity;
+
+            var center = (new Vector3(block.Min) + new Vector3(block.Max)) * .5f;
+            var offset = center - grid.Center;
+            var upCoordinate = Vector3.Dot(offset, grid.UpAxis);
+            var radialCoordinate = offset.Length();
+            var normalized = Vector3.Clamp((center - grid.Min) / grid.Size, Vector3.Zero, Vector3.One);
 
             return new BlockFacts {
                 BuildRatio = block.BuildLevelRatio,
@@ -111,7 +220,16 @@ namespace Sisk.BuildColors.Services {
                 GridSize = block.CubeGrid != null ? block.CubeGrid.GridSizeEnum : MyCubeSize.Large,
                 HasDamage = block.CurrentDamage > 0f,
                 IntegrityRatio = maxIntegrity > 0f ? block.Integrity / maxIntegrity : 1f,
-                SkinId = block.SkinSubtypeId
+                SkinId = block.SkinSubtypeId,
+                Position = block.Min,
+                LocalPosition = center,
+                NormalizedPosition = normalized,
+                NormalizedLongest = grid.LongestAxis == 0 ? normalized.X : grid.LongestAxis == 1 ? normalized.Y : normalized.Z,
+                LongestPosition = grid.LongestAxis == 0 ? block.Min.X : grid.LongestAxis == 1 ? block.Min.Y : block.Min.Z,
+                UpCoordinate = upCoordinate,
+                NormalizedUp = MathHelper.Clamp(.5f + upCoordinate / (grid.UpExtent * 2f), 0f, 1f),
+                RadialCoordinate = radialCoordinate,
+                NormalizedRadial = MathHelper.Clamp(radialCoordinate / grid.Radius, 0f, 1f)
             };
         }
     }

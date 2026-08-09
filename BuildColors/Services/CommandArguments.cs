@@ -177,6 +177,14 @@ namespace Sisk.BuildColors.Services {
         }
 
         public static bool TryParsePercentage(string value, out float result) {
+            return TryParseNumber(value, out result);
+        }
+
+        /// <summary>
+        ///     Reads a decimal number. Always invariant, so a job written on one machine reads the same on
+        ///     the next regardless of which separator the player's language uses.
+        /// </summary>
+        public static bool TryParseNumber(string value, out float result) {
             return float.TryParse(value != null ? value.Trim() : null, NumberStyles.Float, CultureInfo.InvariantCulture, out result);
         }
 

@@ -8,7 +8,6 @@ using System.Linq;
 using VRage.Game;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
-using VRageMath;
 
 namespace Sisk.BuildColors.Services {
 
@@ -19,10 +18,97 @@ namespace Sisk.BuildColors.Services {
 
         private const float RAY_LENGTH = 120f;
 
+        private readonly PaintHistory _history = new PaintHistory();
         private readonly Mod _mod;
 
         public PaintJobService(Mod mod) {
             _mod = mod;
+        }
+
+        internal PaintHistory History {
+            get { return _history; }
+        }
+
+        /// <summary>
+        ///     Number of applications that can still be put back.
+        /// </summary>
+        public int UndoCount {
+            get { return _history.Entries.Count; }
+        }
+
+        /// <summary>
+        ///     The job the hotkeys act on, or null when there are none. A job that has since been deleted
+        ///     resolves to the first one rather than to nothing, so a hotkey never quietly does nothing.
+        /// </summary>
+        public PaintJob ActiveJob {
+            get {
+                var jobs = OrderedJobs();
+                if (jobs.Length == 0) {
+                    return null;
+                }
+
+                var id = _mod.PaintJobs.ActiveJobId;
+                foreach (var job in jobs) {
+                    if (job.Id == id) {
+                        return job;
+                    }
+                }
+
+                return jobs[0];
+            }
+        }
+
+        public void SetActiveJob(PaintJob job) {
+            var id = job != null ? job.Id : Guid.Empty;
+            if (_mod.PaintJobs == null || _mod.PaintJobs.ActiveJobId == id) {
+                return;
+            }
+
+            _mod.PaintJobs.ActiveJobId = id;
+            _mod.SavePaintJobs();
+        }
+
+        /// <summary>
+        ///     Moves the active job on by one, wrapping around, and returns what it landed on. Lets a job be
+        ///     picked without opening anything.
+        /// </summary>
+        public PaintJob CycleActiveJob(int offset) {
+            var jobs = OrderedJobs();
+            if (jobs.Length == 0) {
+                return null;
+            }
+
+            var current = ActiveJob;
+            var index = Array.IndexOf(jobs, current);
+            var next = jobs[((index + offset) % jobs.Length + jobs.Length) % jobs.Length];
+
+            SetActiveJob(next);
+
+            return next;
+        }
+
+        /// <summary>
+        ///     Applies the active job. Used by the hotkey, which has no list to take a job from.
+        /// </summary>
+        public void ApplyActiveJob() {
+            var job = ActiveJob;
+
+            if (job == null) {
+                MyAPIGateway.Utilities.ShowMessage(Mod.NAME, ModText.BC_NoPaintJobsAvailable.GetString());
+                return;
+            }
+
+            ApplyJobToSelection(job);
+        }
+
+        private PaintJob[] OrderedJobs() {
+            if (_mod.PaintJobs == null || _mod.PaintJobs.Count == 0) {
+                return new PaintJob[0];
+            }
+
+            return _mod.PaintJobs
+                .OrderBy(job => job.Name, StringComparer.InvariantCultureIgnoreCase)
+                .ToArray();
         }
 
         public IReadOnlyCollection<PaintJob> GetJobs() {
@@ -68,6 +154,14 @@ namespace Sisk.BuildColors.Services {
             }
 
             return removed;
+        }
+
+        /// <summary>
+        ///     Writes the jobs out as they stand. The workbench edits them in place rather than through a
+        ///     working copy, so there is nothing to commit - only to persist.
+        /// </summary>
+        public void Save() {
+            _mod.SavePaintJobs();
         }
 
         public void SaveJob(PaintJob job) {
@@ -119,6 +213,9 @@ namespace Sisk.BuildColors.Services {
             var changedBlocks = 0;
             var matchedBlocks = 0;
             var blocks = new List<IMySlimBlock>();
+            var matches = new List<MatchedBlock>();
+            var batch = new GridPaintBatch();
+            var snapshot = new PaintSnapshotBuilder();
 
             foreach (var grid in grids) {
                 if (options.RespectOwnership && !IsModifiableBy(player, grid)) {
@@ -129,58 +226,136 @@ namespace Sisk.BuildColors.Services {
                 blocks.Clear();
                 grid.GetBlocks(blocks);
 
+                // Bounds and orientation are the same for every block of a grid, so a source that paints by
+                // position reads them once here instead of per block.
+                var context = GridPaintContext.Build(grid);
+
+                // First pass: find out which rule takes which block and let the rules measure what they are
+                // about to paint. A gradient pinned to its own blocks needs all of them before it can place
+                // its ends, so nothing is painted until the whole grid has been walked.
+                matches.Clear();
+                compiledJob.BeginGrid();
+
                 foreach (var block in blocks) {
                     if (block == null || block.IsDestroyed) {
                         continue;
                     }
 
-                    var action = compiledJob.FindAction(block);
-                    if (action == null) {
+                    BlockFacts facts;
+                    var ruleIndex = compiledJob.FindRule(block, ref context, out facts);
+                    if (ruleIndex < 0) {
                         continue;
                     }
 
-                    matchedBlocks++;
-                    if (ApplyAction(block, action)) {
-                        changedBlocks++;
-                    }
+                    compiledJob.Observe(ruleIndex, ref facts);
+                    matches.Add(new MatchedBlock { Block = block, RuleIndex = ruleIndex });
                 }
+
+                compiledJob.EndGrid();
+
+                // Second pass: paint.
+                matchedBlocks += matches.Count;
+                batch.Begin(grid);
+
+                foreach (var match in matches) {
+                    var facts = BlockFacts.Read(match.Block, ref context);
+
+                    PaintResolution resolution;
+                    compiledJob.Resolve(match.RuleIndex, ref facts, out resolution);
+
+                    BlockPaintState previous;
+                    if (!batch.Add(match.Block, ref resolution, out previous)) {
+                        continue;
+                    }
+
+                    changedBlocks++;
+                    snapshot.Record(grid, ref previous);
+                }
+
+                batch.Flush();
+            }
+
+            if (snapshot.HasChanges) {
+                _history.Push(snapshot.Build(job.Name, options.RespectOwnership));
             }
 
             ReportResult(job, targetedGrid, matchedBlocks, changedBlocks, skippedGrids);
         }
 
         /// <summary>
-        ///     Applies the action of a matching rule to a block. Returns true when the block actually changed.
+        ///     Puts back one application of a paint job, counted from the most recent at 1. Whatever was
+        ///     painted over the blocks since then is overwritten in turn, so undoing an older application
+        ///     while a newer one sits on top of it restores only what the older one had touched.
         /// </summary>
-        private static bool ApplyAction(IMySlimBlock block, PaintRuleAction action) {
-            if (action == null || (!action.ApplyColor && !action.ApplySkin)) {
-                return false;
+        public void UndoPaintJob(int position = 1) {
+            var player = MyAPIGateway.Session?.LocalHumanPlayer;
+            if (player == null) {
+                MyAPIGateway.Utilities.ShowMessage(Mod.NAME, ModText.BC_PaintJob_NoLocalPlayer.GetString());
+                return;
             }
 
-            var grid = block.CubeGrid;
-            if (grid == null) {
-                return false;
+            var entry = _history.Take(position);
+            if (entry == null) {
+                MyAPIGateway.Utilities.ShowMessage(Mod.NAME, ModText.BC_PaintJob_NothingToUndo.GetString());
+                return;
             }
 
-            var changed = false;
+            var batch = new GridPaintBatch();
+            var restoredBlocks = 0;
+            var missingGrids = 0;
+            var skippedGrids = 0;
 
-            if (action.ApplyColor) {
-                Vector3 targetMask = action.TargetColor;
-                if (!PaintColorMath.MaskEquals(block.GetColorMask(), targetMask)) {
-                    grid.ColorBlocks(block.Min, block.Max, targetMask);
-                    changed = true;
+            foreach (var snapshot in entry.Grids) {
+                var grid = MyAPIGateway.Entities.GetEntityById(snapshot.GridId) as IMyCubeGrid;
+                if (grid == null || grid.MarkedForClose) {
+                    missingGrids++;
+                    continue;
                 }
-            }
 
-            if (action.ApplySkin) {
-                var targetSkin = action.TargetSkinId ?? string.Empty;
-                if (!string.Equals(block.SkinSubtypeId.String ?? string.Empty, targetSkin, StringComparison.OrdinalIgnoreCase)) {
-                    grid.SkinBlocks(block.Min, block.Max, null, targetSkin);
-                    changed = true;
+                // Grids change hands. Undoing must not become a way past a check the job itself honoured.
+                if (entry.RespectOwnership && !IsModifiableBy(player, grid)) {
+                    skippedGrids++;
+                    continue;
                 }
+
+                batch.Begin(grid);
+
+                foreach (var state in snapshot.Blocks) {
+                    // Blocks that have been ground down since take their history with them.
+                    var block = grid.GetCubeBlock(state.Position);
+                    if (block == null || block.IsDestroyed) {
+                        continue;
+                    }
+
+                    var resolution = new PaintResolution {
+                        ApplyColor = state.RestoreColor,
+                        ApplySkin = state.RestoreSkin,
+                        Mask = state.Mask,
+                        SkinId = state.SkinId ?? string.Empty
+                    };
+
+                    BlockPaintState overwritten;
+                    if (batch.Add(block, ref resolution, out overwritten)) {
+                        restoredBlocks++;
+                    }
+                }
+
+                batch.Flush();
             }
 
-            return changed;
+            var message = restoredBlocks > 0
+                ? ModText.BC_PaintJob_Undone.GetString(entry.JobName, restoredBlocks)
+                : ModText.BC_PaintJob_UndoNothingLeft.GetString(entry.JobName);
+
+            if (missingGrids > 0) {
+                message += ModText.BC_PaintJob_UndoGridsGone.GetString(missingGrids);
+            }
+
+            if (skippedGrids > 0) {
+                message += ModText.BC_PaintJob_GridsSkipped.GetString(skippedGrids);
+            }
+
+            MyAPIGateway.Utilities.ShowMessage(Mod.NAME, message);
         }
 
         /// <summary>
@@ -266,6 +441,14 @@ namespace Sisk.BuildColors.Services {
             }
 
             MyAPIGateway.Utilities.ShowMessage(Mod.NAME, message);
+        }
+
+        /// <summary>
+        ///     A block and the rule that claimed it, carried from the matching pass to the painting pass.
+        /// </summary>
+        private struct MatchedBlock {
+            public IMySlimBlock Block;
+            public int RuleIndex;
         }
 
         private IMyCubeGrid GetTargetedGrid(IMyPlayer player) {

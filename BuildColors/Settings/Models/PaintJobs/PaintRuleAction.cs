@@ -24,6 +24,22 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
         public bool ApplySkin { get; set; }
 
         /// <summary>
+        ///     How the color and skin are derived per block. A null source, which is what a job saved before
+        ///     sources existed deserializes to, means the plain case: every matched block gets
+        ///     <see cref="TargetColor" /> and <see cref="TargetSkinId" />.
+        /// </summary>
+        [ProtoMember(5)]
+        [XmlElement(Order = 5)]
+        public PaintColorSource Source { get; set; }
+
+        /// <summary>
+        ///     Type of the source, treating a missing one as solid.
+        /// </summary>
+        public PaintSourceType SourceType {
+            get { return Source != null ? Source.Type : PaintSourceType.Solid; }
+        }
+
+        /// <summary>
         ///     Creates an independent copy.
         /// </summary>
         public PaintRuleAction Clone() {
@@ -31,7 +47,8 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
                 TargetColor = TargetColor,
                 ApplyColor = ApplyColor,
                 TargetSkinId = TargetSkinId,
-                ApplySkin = ApplySkin
+                ApplySkin = ApplySkin,
+                Source = Source != null ? Source.Clone() : null
             };
         }
     }

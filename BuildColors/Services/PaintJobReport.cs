@@ -53,6 +53,19 @@ namespace Sisk.BuildColors.Services {
 
             var parts = new List<string>();
 
+            // A source that paints by position has no single color or skin to name, so it is described by
+            // what it does and by which of the two channels it is allowed to write.
+            if (action.SourceType != PaintSourceType.Solid) {
+                parts.Add(PaintSourceText.Describe(action.Source));
+                parts.Add(action.ApplyColor && action.ApplySkin
+                    ? ModText.BC_Cmd_ActionSourceBoth.GetString()
+                    : action.ApplyColor
+                        ? ModText.BC_Cmd_ActionSourceColorOnly.GetString()
+                        : ModText.BC_Cmd_ActionSourceSkinOnly.GetString());
+
+                return string.Join(", ", parts);
+            }
+
             if (action.ApplyColor) {
                 parts.Add(ModText.BC_Cmd_ActionColor.GetString(action.TargetColor.R, action.TargetColor.G, action.TargetColor.B));
             }

@@ -122,7 +122,9 @@ namespace Sisk.BuildColors.Settings.Models.ColorSpace {
             modifiedY = XYZToLabTransform(modifiedY);
             modifiedZ = XYZToLabTransform(modifiedZ);
 
-            return new Lab((byte)Math.Round((116 * modifiedY) - 16), (byte)Math.Round(500 * (modifiedX - modifiedY)), (byte)Math.Round(200 * (modifiedY - modifiedZ)));
+            // L runs 0 to 100 and both opponent axes run either side of zero, so none of the three fit a
+            // byte. Rounding them into one turned every negative a and b into a large positive.
+            return new Lab((float)((116 * modifiedY) - 16), (float)(500 * (modifiedX - modifiedY)), (float)(200 * (modifiedY - modifiedZ)));
         }
 
         public static RGB ToRGB(this HSV hsv) {
@@ -145,7 +147,10 @@ namespace Sisk.BuildColors.Settings.Models.ColorSpace {
                 rgb[x] = (rgb[x] <= 0.0031308) ? 12.92 * rgb[x] : 1.055 * Math.Pow(rgb[x], 0.41666666666) - 0.055;
             }
 
-            return new RGB((byte)Math.Round(rgb[0] * 255), (byte)Math.Round(rgb[1] * 255), (byte)Math.Round(rgb[2] * 255));
+            // XYZ covers more than a monitor can show, so a color mixed in Lab lands outside 0 to 1 often
+            // enough to matter. Without the clamp the cast wraps and a slightly too bright red comes back
+            // near black.
+            return new RGB(ToChannel(rgb[0]), ToChannel(rgb[1]), ToChannel(rgb[2]));
         }
 
         public static RGB ToRGB(this HSL hsl) {
@@ -238,6 +243,12 @@ namespace Sisk.BuildColors.Settings.Models.ColorSpace {
             }
 
             return value;
+        }
+
+        private static byte ToChannel(double value) {
+            var scaled = Math.Round(value * 255);
+
+            return scaled <= 0 ? (byte)0 : scaled >= 255 ? (byte)255 : (byte)scaled;
         }
 
         private static double XYZToLabTransform(double t) {

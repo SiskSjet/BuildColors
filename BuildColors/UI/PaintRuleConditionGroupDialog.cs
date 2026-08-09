@@ -19,7 +19,8 @@ namespace Sisk.BuildColors.UI {
     /// </summary>
     public class PaintRuleConditionGroupDialog : DialogBase {
         private const float BUTTON_ROW_HEIGHT = LayoutMetrics.BUTTON_HEIGHT;
-        private const float DIALOG_HEIGHT = 760f;
+        private const float MIN_DIALOG_HEIGHT = 560f;
+        private const float PREFERRED_DIALOG_HEIGHT = 760f;
         private const float DRAG_THRESHOLD = 6f;
         private const int INDENT_SPACES = 4;
         private const float MIN_DIALOG_WIDTH = 620f;
@@ -70,7 +71,9 @@ namespace Sisk.BuildColors.UI {
 
             var dialogWidth = MathHelper.Clamp(DialogSafeArea.GetAvailableWidth(), MIN_DIALOG_WIDTH, PREFERRED_DIALOG_WIDTH);
 
-            Size = new Vector2(dialogWidth, DIALOG_HEIGHT);
+            var dialogHeight = GetSafeHeight(PREFERRED_DIALOG_HEIGHT, MIN_DIALOG_HEIGHT);
+
+            Size = new Vector2(dialogWidth, dialogHeight);
             HeaderText = ModText.BC_UI_ConditionsDialogTitle.GetString(_rule.Name);
 
             var contentWidth = dialogWidth - Padding.X - LayoutMetrics.CONTENT_PADDING_X;

@@ -16,9 +16,18 @@ namespace Sisk.BuildColors.UI {
     /// Styled like a window but implemented as a panel component.
     /// </summary>
     public class PaintJobPanel : HudElementBase {
+        private const float BUTTON_HEIGHT = 50f;
+        private const float BUTTON_SPACING = 8f;
         private const float HEIGHT = 1080f;
         private const float WIDTH = 500f;
         private const float WINDOW_GAP = 30f;
+
+        /// <summary>
+        /// Width left for content once the horizontal padding of the main layout is taken off.
+        /// </summary>
+        private const float CONTENT_WIDTH = WIDTH - 2f * CONTENT_PADDING_X;
+
+        private const float CONTENT_PADDING_X = 10f;
 
         private readonly BorderedButton _applyJobButton;
         private readonly TexturedBox _border;
@@ -28,6 +37,7 @@ namespace Sisk.BuildColors.UI {
         private readonly BorderedButton _newJobButton;
         private readonly BorderedButton _refreshButton;
         private readonly BorderedButton _removeJobButton;
+        private readonly BorderedButton _undoButton;
         private readonly ListBox<PaintJob> _jobList;
 
         public PaintJobPanel(HudParentBase parent = null) : base(parent) {
@@ -89,7 +99,6 @@ namespace Sisk.BuildColors.UI {
             };
 
             _editJobButton = new BorderedButton() {
-                ParentAlignment = ParentAlignments.Right,
                 Text = ModText.BC_UI_Edit.GetString(),
                 Padding = Vector2.Zero,
                 InputEnabled = false
@@ -99,16 +108,6 @@ namespace Sisk.BuildColors.UI {
                 Text = ModText.BC_UI_Remove.GetString(),
                 Padding = Vector2.Zero,
                 InputEnabled = false
-            };
-
-            var jobListButtonsRow1 = new HudChain(false) {
-                CollectionContainer = { _newJobButton, _removeJobButton },
-                Spacing = 8f,
-            };
-
-            var jobListButtons = new HudChain(true) {
-                CollectionContainer = { jobListButtonsRow1, _editJobButton },
-                Spacing = 10f,
             };
 
             _applyJobButton = new BorderedButton() {
@@ -122,9 +121,22 @@ namespace Sisk.BuildColors.UI {
                 Padding = Vector2.Zero,
             };
 
-            var secondaryButtons = new HudChain(false) {
-                CollectionContainer = { _applyJobButton, _refreshButton },
-                Spacing = 8f,
+            _undoButton = new BorderedButton() {
+                Text = ModText.BC_UI_Undo.GetString(),
+                Padding = Vector2.Zero,
+                InputEnabled = false
+            };
+
+            // Two to a row, each taking half of it. A bordered button carries a fixed default width wider
+            // than half this panel, so a row that does not size its members overflows the panel instead of
+            // wrapping - which is what a third button in a row did.
+            var jobListButtons = new HudChain(true) {
+                CollectionContainer = {
+                    CreateButtonRow(_newJobButton, _removeJobButton),
+                    CreateButtonRow(_editJobButton, _refreshButton),
+                    CreateButtonRow(_applyJobButton, _undoButton)
+                },
+                Spacing = 10f,
             };
 
             var headerLayout = new HudChain(true) {
@@ -133,7 +145,7 @@ namespace Sisk.BuildColors.UI {
             };
 
             var jobListLayout = new HudChain(true) {
-                CollectionContainer = { label, _jobList, jobListSeperator, jobListButtons, secondaryButtons },
+                CollectionContainer = { label, _jobList, jobListSeperator, jobListButtons },
                 Spacing = 10f,
             };
 
@@ -160,14 +172,33 @@ namespace Sisk.BuildColors.UI {
             _applyJobButton.MouseInput.LeftClicked += OnApplyJobClicked;
             _applyJobButton.MouseInput.CursorEntered += OnMouseOver;
 
+            _undoButton.MouseInput.LeftClicked += OnUndoClicked;
+            _undoButton.MouseInput.CursorEntered += OnMouseOver;
+
             _refreshButton.MouseInput.LeftClicked += (s, e) => Refresh();
             _refreshButton.MouseInput.CursorEntered += OnMouseOver;
 
             Refresh();
         }
 
+        /// <summary>
+        /// Builds a row of two buttons, each given half the width. Weighted members rather than their own
+        /// size, so the row stays inside the panel whatever the buttons default to.
+        /// </summary>
+        private static HudChain CreateButtonRow(BorderedButton left, BorderedButton right) {
+            return new HudChain(false) {
+                CollectionContainer = { { left, 1f }, { right, 1f } },
+                Spacing = BUTTON_SPACING,
+                SizingMode = HudChainSizingModes.FitMembersOffAxis,
+                Width = CONTENT_WIDTH,
+                Height = BUTTON_HEIGHT,
+            };
+        }
+
         public void Refresh(PaintJob jobToSelect = null) {
-            var selection = jobToSelect ?? _jobList.Value?.AssocMember;
+            UpdateUndoState();
+
+            var selection = jobToSelect ?? _jobList.Value?.AssocMember ?? Mod.Static?.PaintJobService?.ActiveJob;
 
             _jobList.ClearEntries();
 
@@ -195,7 +226,22 @@ namespace Sisk.BuildColors.UI {
             }
 
             Mod.Static?.PaintJobService?.ApplyJobToSelection(job);
+            UpdateUndoState();
             HudSoundUtils.PlaySound("HudBleep");
+        }
+
+        private void OnUndoClicked(object sender, EventArgs e) {
+            Mod.Static?.PaintJobService?.UndoPaintJob();
+            UpdateUndoState();
+            HudSoundUtils.PlaySound("HudLockingLost");
+        }
+
+        /// <summary>
+        /// The undo button follows the history rather than the selected job: what it puts back is the last
+        /// thing painted, whichever job that was.
+        /// </summary>
+        private void UpdateUndoState() {
+            _undoButton.InputEnabled = (Mod.Static?.PaintJobService?.UndoCount ?? 0) > 0;
         }
 
         private void OnEditJobClicked(object sender, EventArgs e) {
@@ -204,17 +250,10 @@ namespace Sisk.BuildColors.UI {
                 return;
             }
 
-            var editor = new PaintJobEditorDialog(job);
-            editor.Saved += (s, args) => {
-                var paintArgs = args as PaintJobEditorDialog.PaintJobEventArgs;
-                if (paintArgs == null) {
-                    return;
-                }
-
-                Mod.Static?.PaintJobService?.SaveJob(paintArgs.Job);
-                Refresh(paintArgs.Job);
-            };
-            OnDialogRequested(editor);
+            // Editing happens in the workbench, which shows the job, its rules and the selected rule at
+            // once instead of burying each behind the one before it.
+            Mod.Static?.PaintJobService?.SetActiveJob(job);
+            Mod.Static?.OpenWorkbench();
             HudSoundUtils.PlaySound("HudMouseClick");
         }
 
@@ -253,6 +292,11 @@ namespace Sisk.BuildColors.UI {
 
         private void OnJobChanged(object sender, EventArgs e) {
             var job = _jobList.Value?.AssocMember;
+
+            // The panel selection is what the hotkeys act on, so picking here is also how you choose the job
+            // for a keypress made later with nothing on screen.
+            Mod.Static?.PaintJobService?.SetActiveJob(job);
+
             if (job == null) {
                 _applyJobButton.InputEnabled = false;
                 _editJobButton.InputEnabled = false;

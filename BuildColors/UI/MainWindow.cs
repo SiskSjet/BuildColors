@@ -41,6 +41,22 @@ namespace Sisk.BuildColors.UI {
         public PaintJobPanel PaintJobPanel => _paintJobPanel;
 
         /// <summary>
+        /// True while any dialog is open. The workbench stands on its own, so the container has to stay up
+        /// for it even when the colour picker screen that normally hosts the panels is closed.
+        /// </summary>
+        public bool HasOpenDialogs => _dialogStack.Count > 0;
+
+        /// <summary>
+        /// The two side panels belong to the colour picker screen and are hidden when it is not up.
+        /// </summary>
+        public bool PanelsVisible {
+            set {
+                _colorPanel.Visible = value;
+                _paintJobPanel.Visible = value;
+            }
+        }
+
+        /// <summary>
         /// Shows a dialog as a modal overlay. Dialogs stack, so a dialog can open a nested dialog on top of itself.
         /// </summary>
         public void ShowDialog(DialogBase dialog) {

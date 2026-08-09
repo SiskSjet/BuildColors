@@ -17,8 +17,14 @@ namespace Sisk.BuildColors.UI {
         private const float COLUMN_SPACING = 16f;
         private const float DRAG_THRESHOLD = 6f;
         private const int COLUMN_COUNT = 2;
-        private const float DIALOG_HEIGHT = 1000f;
+        private const float MIN_DIALOG_HEIGHT = 620f;
+        private const float PREFERRED_DIALOG_HEIGHT = 1000f;
         private const float MIN_DIALOG_WIDTH = 688f;
+
+        /// <summary>
+        /// Room for roughly eight rules before the list starts scrolling.
+        /// </summary>
+        private const float RULE_LIST_HEIGHT = 260f;
         private const float PREFERRED_DIALOG_WIDTH = 900f;
 
         private readonly PaintJob _job;
@@ -43,10 +49,18 @@ namespace Sisk.BuildColors.UI {
         private readonly BorderedCheckBox _actionApplySkinCheckbox;
         private readonly Dropdown<SkinListEntry, DefinitionCatalog.SkinOption> _actionSkinDropdown;
 
+        private readonly Dropdown<PaintSourceType> _sourceTypeDropdown;
+        private readonly HudChain _solidSection;
+        private readonly HudChain _advancedSection;
+        private readonly Label _sourceSummaryLabel;
+        private readonly BorderedButton _editSourceButton;
+
         private readonly Label _statusLabel;
 
         private PaintRuleConditionGroupDialog _activeConditionsDialog;
+        private PaintSourceDialog _activeSourceDialog;
         private PaintRule _conditionsDialogRule;
+        private PaintRule _sourceDialogRule;
         private PaintRule _loadedRule;
 
         // Grab session state
@@ -66,19 +80,22 @@ namespace Sisk.BuildColors.UI {
 
             var dialogWidth = MathHelper.Clamp(DialogSafeArea.GetAvailableWidth(), MIN_DIALOG_WIDTH, PREFERRED_DIALOG_WIDTH);
 
-            Size = new Vector2(dialogWidth, DIALOG_HEIGHT);
+            var dialogHeight = GetSafeHeight(PREFERRED_DIALOG_HEIGHT, MIN_DIALOG_HEIGHT);
+
+            Size = new Vector2(dialogWidth, dialogHeight);
             HeaderText = ModText.BC_UI_PaintJobEditorTitle.GetString();
 
             var contentWidth = dialogWidth - Padding.X - LayoutMetrics.CONTENT_PADDING_X;
-            var contentHeight = DIALOG_HEIGHT - Padding.Y - HEADER_HEIGHT - LayoutMetrics.CONTENT_PADDING_Y;
+            var contentHeight = dialogHeight - Padding.Y - HEADER_HEIGHT - LayoutMetrics.CONTENT_PADDING_Y;
             var columnWidth = (contentWidth - COLUMN_SPACING * (COLUMN_COUNT - 1)) / COLUMN_COUNT;
+            var columnContentWidth = DialogColumn.ContentWidth(columnWidth);
             var columnHeight = contentHeight
                 - LayoutMetrics.STATUS_HEIGHT
                 - LayoutMetrics.BUTTON_HEIGHT
                 - LayoutMetrics.SECTION_SPACING * 2f;
 
             // Column 1 - job level settings and the rule list
-            _jobNameField = new GameInputBlockingTextField() { DimAlignment = DimAlignments.Width, Height = LayoutMetrics.CONTROL_HEIGHT };
+            _jobNameField = new GameInputBlockingTextField() { DimAlignment = DimAlignments.UnpaddedWidth, Height = LayoutMetrics.CONTROL_HEIGHT };
 
             _includeSubgridsCheckbox = new BorderedCheckBox();
             _includeProjectedCheckbox = new BorderedCheckBox();
@@ -87,18 +104,18 @@ namespace Sisk.BuildColors.UI {
 
             var optionsLayout = new HudChain(true) {
                 CollectionContainer = {
-                    CreateCheckboxRow(_includeSubgridsCheckbox, ModText.BC_UI_Option_IncludeSubgrids.GetString(), columnWidth),
-                    CreateCheckboxRow(_includeProjectedCheckbox, ModText.BC_UI_Option_IncludeProjected.GetString(), columnWidth),
-                    CreateCheckboxRow(_includePreviewCheckbox, ModText.BC_UI_Option_IncludePreview.GetString(), columnWidth),
-                    CreateCheckboxRow(_respectOwnershipCheckbox, ModText.BC_UI_Option_RespectOwnership.GetString(), columnWidth)
+                    CreateCheckboxRow(_includeSubgridsCheckbox, ModText.BC_UI_Option_IncludeSubgrids.GetString(), columnContentWidth),
+                    CreateCheckboxRow(_includeProjectedCheckbox, ModText.BC_UI_Option_IncludeProjected.GetString(), columnContentWidth),
+                    CreateCheckboxRow(_includePreviewCheckbox, ModText.BC_UI_Option_IncludePreview.GetString(), columnContentWidth),
+                    CreateCheckboxRow(_respectOwnershipCheckbox, ModText.BC_UI_Option_RespectOwnership.GetString(), columnContentWidth)
                 },
                 Spacing = 6f,
                 SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                Width = columnWidth,
+                Width = columnContentWidth,
                 Height = LayoutMetrics.CHECKBOX_SIZE * 4f + 6f * 3f,
             };
 
-            _ruleList = new ListBox<PaintRule>() { DimAlignment = DimAlignments.Width };
+            _ruleList = new ListBox<PaintRule>() { DimAlignment = DimAlignments.UnpaddedWidth, Height = RULE_LIST_HEIGHT };
 
             var addRuleButton = CreateButton(ModText.BC_UI_AddRule.GetString());
             _removeRuleButton = CreateButton(ModText.BC_UI_RemoveRule.GetString());
@@ -109,11 +126,11 @@ namespace Sisk.BuildColors.UI {
                 CollectionContainer = { { addRuleButton, 1f }, { _removeRuleButton, 1f }, { _moveRuleButton, 1f } },
                 Spacing = LayoutMetrics.ROW_SPACING,
                 SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                Width = columnWidth,
+                Width = columnContentWidth,
                 Height = LayoutMetrics.BUTTON_HEIGHT,
             };
 
-            var jobColumn = CreateColumn(columnWidth, columnHeight);
+            var jobColumn = DialogColumn.Create(columnWidth, columnHeight);
             jobColumn.Add(CreateLabel(ModText.BC_UI_JobName.GetString()), 0f);
             jobColumn.Add(_jobNameField, 0f);
             jobColumn.Add(CreateSeparator(), 0f);
@@ -122,11 +139,11 @@ namespace Sisk.BuildColors.UI {
             jobColumn.Add(CreateSeparator(), 0f);
             jobColumn.Add(CreateLabel(ModText.BC_UI_Rules.GetString()), 0f);
             jobColumn.Add(CreateLabel(ModText.BC_UI_RulesHint.GetString()), 0f);
-            jobColumn.Add(_ruleList, 1f);
+            jobColumn.Add(_ruleList, 0f);
             jobColumn.Add(ruleButtons, 0f);
 
             // Column 2 - the selected rule
-            _ruleNameField = new GameInputBlockingTextField() { DimAlignment = DimAlignments.Width, Height = LayoutMetrics.CONTROL_HEIGHT };
+            _ruleNameField = new GameInputBlockingTextField() { DimAlignment = DimAlignments.UnpaddedWidth, Height = LayoutMetrics.CONTROL_HEIGHT };
             _conditionSummaryLabel = CreateLabel(string.Empty);
             _editConditionsButton = CreateButton(ModText.BC_UI_EditConditions.GetString());
 
@@ -144,9 +161,48 @@ namespace Sisk.BuildColors.UI {
             _actionApplySkinCheckbox = new BorderedCheckBox();
             _actionSkinDropdown = DefinitionCatalog.CreateSkinDropdown(LayoutMetrics.CONTROL_HEIGHT);
 
+            _sourceSummaryLabel = CreateLabel(string.Empty);
+            _editSourceButton = CreateButton(ModText.BC_UI_EditSource.GetString());
+
+            _sourceTypeDropdown = new Dropdown<PaintSourceType>() { DimAlignment = DimAlignments.UnpaddedWidth, Height = LayoutMetrics.CONTROL_HEIGHT };
+            _sourceTypeDropdown.Add(ModText.BC_UI_SourceType_Solid.GetString(), PaintSourceType.Solid);
+            _sourceTypeDropdown.Add(ModText.BC_UI_SourceType_Gradient.GetString(), PaintSourceType.Gradient);
+            _sourceTypeDropdown.Add(ModText.BC_UI_SourceType_Camo.GetString(), PaintSourceType.Camo);
+            _sourceTypeDropdown.Add(ModText.BC_UI_SourceType_Scatter.GetString(), PaintSourceType.Scatter);
+            _sourceTypeDropdown.Add(ModText.BC_UI_SourceType_Pattern.GetString(), PaintSourceType.Pattern);
+
+            // A single color and a source that works the color out per block are two answers to the same
+            // question, so only the one being used is on screen. The other would just be dead controls
+            // inviting the reader to set a color that is never looked at.
+            _solidSection = new HudChain(true) {
+                CollectionContainer = {
+                    _actionColorPicker,
+                    CreateLabel(ModText.BC_UI_PickFromPalette.GetString()),
+                    _actionPalette,
+                    CreateLabel(ModText.BC_UI_TargetSkin.GetString()),
+                    _actionSkinDropdown
+                },
+                Spacing = LayoutMetrics.ROW_SPACING,
+                SizingMode = HudChainSizingModes.FitMembersOffAxis,
+                Width = columnContentWidth,
+                Height = LayoutMetrics.COLOR_PICKER_HEIGHT
+                    + ColorPaletteSelector.TOTAL_HEIGHT
+                    + LayoutMetrics.LABEL_HEIGHT * 2f
+                    + LayoutMetrics.CONTROL_HEIGHT
+                    + LayoutMetrics.ROW_SPACING * 4f,
+            };
+
+            _advancedSection = new HudChain(true) {
+                CollectionContainer = { _sourceSummaryLabel, _editSourceButton },
+                Spacing = LayoutMetrics.ROW_SPACING,
+                SizingMode = HudChainSizingModes.FitMembersOffAxis,
+                Width = columnContentWidth,
+                Height = LayoutMetrics.LABEL_HEIGHT + LayoutMetrics.BUTTON_HEIGHT + LayoutMetrics.ROW_SPACING,
+            };
+
             // Column 2 holds everything about the selected rule. Members stack from the top, so any
             // leftover height simply stays empty.
-            var ruleColumn = CreateColumn(columnWidth, columnHeight);
+            var ruleColumn = DialogColumn.Create(columnWidth, columnHeight);
             ruleColumn.Add(CreateLabel(ModText.BC_UI_RuleDetails.GetString()), 0f);
             ruleColumn.Add(CreateLabel(ModText.BC_UI_RuleName.GetString()), 0f);
             ruleColumn.Add(_ruleNameField, 0f);
@@ -156,13 +212,11 @@ namespace Sisk.BuildColors.UI {
             ruleColumn.Add(_editConditionsButton, 0f);
             ruleColumn.Add(CreateSeparator(), 0f);
             ruleColumn.Add(CreateLabel(ModText.BC_UI_ThenPaintWith.GetString()), 0f);
-            ruleColumn.Add(CreateCheckboxRow(_actionApplyColorCheckbox, ModText.BC_UI_ApplyColor.GetString(), columnWidth), 0f);
-            ruleColumn.Add(_actionColorPicker, 0f);
-            ruleColumn.Add(CreateLabel(ModText.BC_UI_PickFromPalette.GetString()), 0f);
-            ruleColumn.Add(_actionPalette, 0f);
-            ruleColumn.Add(CreateCheckboxRow(_actionApplySkinCheckbox, ModText.BC_UI_ApplySkin.GetString(), columnWidth), 0f);
-            ruleColumn.Add(CreateLabel(ModText.BC_UI_TargetSkin.GetString()), 0f);
-            ruleColumn.Add(_actionSkinDropdown, 0f);
+            ruleColumn.Add(CreateCheckboxRow(_actionApplyColorCheckbox, ModText.BC_UI_ApplyColor.GetString(), columnContentWidth), 0f);
+            ruleColumn.Add(CreateCheckboxRow(_actionApplySkinCheckbox, ModText.BC_UI_ApplySkin.GetString(), columnContentWidth), 0f);
+            ruleColumn.Add(_sourceTypeDropdown, 0f);
+            ruleColumn.Add(_solidSection, 0f);
+            ruleColumn.Add(_advancedSection, 0f);
 
             var mainColumns = new HudChain(false) {
                 CollectionContainer = { jobColumn, ruleColumn },
@@ -215,6 +269,12 @@ namespace Sisk.BuildColors.UI {
             _editConditionsButton.MouseInput.LeftClicked += OnEditConditions;
             _editConditionsButton.MouseInput.CursorEntered += OnMouseOver;
 
+            _editSourceButton.MouseInput.LeftClicked += OnEditSource;
+            _editSourceButton.MouseInput.CursorEntered += OnMouseOver;
+
+            _sourceTypeDropdown.ValueChanged += OnSourceTypeChanged;
+            _sourceTypeDropdown.MouseInput.CursorEntered += OnMouseOver;
+
             saveButton.MouseInput.LeftClicked += OnSaveClicked;
             saveButton.MouseInput.CursorEntered += OnMouseOver;
             cancelButton.MouseInput.LeftClicked += OnCancelClicked;
@@ -235,19 +295,18 @@ namespace Sisk.BuildColors.UI {
         public event RichHudFramework.EventHandler Saved;
 
         /// <summary>
+        /// True while a nested dialog has the input. Everything this dialog can start is modal, so nothing
+        /// else may be started or grabbed until it is closed.
+        /// </summary>
+        private bool IsDialogOpen {
+            get { return _activeConditionsDialog != null || _activeSourceDialog != null; }
+        }
+
+        /// <summary>
         /// Event args for paint job save events
         /// </summary>
         public class PaintJobEventArgs : EventArgs {
             public PaintJob Job { get; set; }
-        }
-
-        private static HudChain CreateColumn(float width, float height) {
-            return new HudChain(true) {
-                Spacing = LayoutMetrics.SECTION_SPACING,
-                SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                Width = width,
-                Height = height,
-            };
         }
 
         private static Label CreateLabel(string text) {
@@ -255,13 +314,13 @@ namespace Sisk.BuildColors.UI {
                 Text = text,
                 Format = Style.BodyText,
                 AutoResize = false,
-                DimAlignment = DimAlignments.Width,
+                DimAlignment = DimAlignments.UnpaddedWidth,
                 Height = LayoutMetrics.LABEL_HEIGHT,
             };
         }
 
         private static TexturedBox CreateSeparator() {
-            return new TexturedBox() { DimAlignment = DimAlignments.Width, Height = LayoutMetrics.SEPARATOR_HEIGHT, Color = Style.SeparatorColor };
+            return new TexturedBox() { DimAlignment = DimAlignments.UnpaddedWidth, Height = LayoutMetrics.SEPARATOR_HEIGHT, Color = Style.SeparatorColor };
         }
 
         private static BorderedButton CreateButton(string text) {
@@ -403,9 +462,53 @@ namespace Sisk.BuildColors.UI {
             HudSoundUtils.PlaySound("HudLockingLost");
         }
 
+        private void OnEditSource(object sender, EventArgs e) {
+            var rule = GetSelectedRule();
+            if (rule == null || IsDialogOpen) {
+                return;
+            }
+
+            // The dialog edits the source in place, so committing the rule first means the color it seeds new
+            // entries with is the one currently on the picker rather than the one from before this edit.
+            SaveRuleData(rule);
+            SyncRuleLabel(rule);
+
+            // SaveRuleData has just put the chosen kind of source on the action, so anything but a single
+            // color is guaranteed to have a source with entries to edit by now.
+            if (rule.Action.Source == null || rule.Action.Source.Type == PaintSourceType.Solid) {
+                return;
+            }
+
+            _sourceDialogRule = rule;
+            _activeSourceDialog = new PaintSourceDialog(rule.Action.Source, rule.Action.TargetColor);
+            _activeSourceDialog.Saved += OnSourceDialogSaved;
+            _activeSourceDialog.Closed += OnSourceDialogClosed;
+
+            RequestDialog(_activeSourceDialog);
+            HudSoundUtils.PlaySound("HudMouseClick");
+        }
+
+        private void OnSourceDialogSaved(object sender, EventArgs e) {
+            if (_sourceDialogRule != null && _sourceDialogRule == GetSelectedRule()) {
+                UpdateSourceSummary(_sourceDialogRule);
+            }
+        }
+
+        private void OnSourceDialogClosed(object sender, EventArgs e) {
+            if (_activeSourceDialog != null) {
+                _activeSourceDialog.Saved -= OnSourceDialogSaved;
+                _activeSourceDialog.Closed -= OnSourceDialogClosed;
+            }
+
+            _activeSourceDialog = null;
+            _sourceDialogRule = null;
+
+            UpdateSourceSummary(GetSelectedRule());
+        }
+
         private void OnEditConditions(object sender, EventArgs e) {
             var rule = GetSelectedRule();
-            if (rule == null || _activeConditionsDialog != null) {
+            if (rule == null || IsDialogOpen) {
                 return;
             }
 
@@ -458,11 +561,48 @@ namespace Sisk.BuildColors.UI {
 
             var skinIndex = DefinitionCatalog.IndexOfSkin(rule.Action.TargetSkinId);
             _actionSkinDropdown.SetSelectionAt(skinIndex >= 0 ? skinIndex : 0);
+
+            _sourceTypeDropdown.SetSelection(rule.Action.SourceType);
+
+            UpdateSourceSummary(rule);
+            UpdateSourceVisibility();
+        }
+
+        private void UpdateSourceSummary(PaintRule rule) {
+            _sourceSummaryLabel.Text = rule != null && rule.Action != null
+                ? PaintSourceText.Describe(rule.Action.Source)
+                : string.Empty;
+        }
+
+        private PaintSourceType GetSelectedSourceType() {
+            return _sourceTypeDropdown.Value != null ? _sourceTypeDropdown.Value.AssocMember : PaintSourceType.Solid;
+        }
+
+        private void UpdateSourceVisibility() {
+            var isSolid = GetSelectedSourceType() == PaintSourceType.Solid;
+
+            _solidSection.Visible = isSolid;
+            _advancedSection.Visible = !isSolid;
+        }
+
+        private void OnSourceTypeChanged(object sender, EventArgs e) {
+            var rule = GetSelectedRule();
+
+            // Committing here means the color on the picker becomes the color the new source starts from,
+            // rather than whatever the rule was last saved with.
+            SaveRuleData(rule);
+
+            UpdateSourceVisibility();
+            UpdateSourceSummary(rule);
+
+            _statusLabel.Text = string.Empty;
+            HudSoundUtils.PlaySound("HudMouseClick");
         }
 
         private void ClearRuleEditor() {
             _ruleNameField.Text = string.Empty;
             _conditionSummaryLabel.Text = string.Empty;
+            _sourceSummaryLabel.Text = string.Empty;
         }
 
         private void SaveRuleData(PaintRule rule) {
@@ -492,6 +632,31 @@ namespace Sisk.BuildColors.UI {
 
             var skin = _actionSkinDropdown.Value != null ? _actionSkinDropdown.Value.AssocMember : null;
             rule.Action.TargetSkinId = skin != null ? skin.SkinId : string.Empty;
+
+            StoreSourceType(rule.Action);
+        }
+
+        /// <summary>
+        /// Puts the chosen kind of source on the action. A source switched back to a single color keeps the
+        /// stops and colors it had, so flipping between the two to compare them costs nothing.
+        /// </summary>
+        private void StoreSourceType(PaintRuleAction action) {
+            var type = GetSelectedSourceType();
+
+            if (type == PaintSourceType.Solid) {
+                if (action.Source != null) {
+                    action.Source.Type = PaintSourceType.Solid;
+                }
+
+                return;
+            }
+
+            if (action.Source == null) {
+                action.Source = new PaintColorSource();
+            }
+
+            action.Source.Type = type;
+            action.Source.EnsureEntries(action.TargetColor);
         }
 
         /// <summary>
@@ -521,6 +686,7 @@ namespace Sisk.BuildColors.UI {
 
             _removeRuleButton.InputEnabled = !_isGrabbed && _job.Rules.Count > 1 && hasRule;
             _editConditionsButton.InputEnabled = !_isGrabbed && hasRule;
+            _editSourceButton.InputEnabled = !_isGrabbed && hasRule;
             _moveRuleButton.InputEnabled = _isGrabbed || (hasRule && _job.Rules.Count > 1);
             _moveRuleButton.Text = _isGrabbed ? ModText.BC_UI_Drop.GetString() : ModText.BC_UI_Move.GetString();
 
@@ -542,7 +708,7 @@ namespace Sisk.BuildColors.UI {
         }
 
         private void BeginGrabRule(PaintRule rule, bool fromMouse) {
-            if (_isGrabbed || rule == null || _job.Rules.Count < 2 || _activeConditionsDialog != null) {
+            if (_isGrabbed || rule == null || _job.Rules.Count < 2 || IsDialogOpen) {
                 return;
             }
 
@@ -616,7 +782,7 @@ namespace Sisk.BuildColors.UI {
         protected override void HandleInput(Vector2 cursorPos) {
             base.HandleInput(cursorPos);
 
-            if (_activeConditionsDialog != null) {
+            if (IsDialogOpen) {
                 return;
             }
 

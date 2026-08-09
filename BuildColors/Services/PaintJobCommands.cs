@@ -25,6 +25,8 @@ namespace Sisk.BuildColors.Services {
             handler.Register(new Command { Name = "Jobs", Description = ModText.BC_Description_Jobs.GetString(), Execute = ListJobs });
             handler.Register(new Command { Name = "ShowJob", Description = ModText.BC_Description_ShowJob.GetString(), Execute = ShowJob });
             handler.Register(new Command { Name = "ApplyJob", Description = ModText.BC_Description_ApplyJob.GetString(), Execute = ApplyJob });
+            handler.Register(new Command { Name = "UndoJob", Description = ModText.BC_Description_UndoJob.GetString(), Execute = UndoJob });
+            handler.Register(new Command { Name = "PaintHistory", Description = ModText.BC_Description_PaintHistory.GetString(), Execute = ListHistory });
             handler.Register(new Command { Name = "NewJob", Description = ModText.BC_Description_NewJob.GetString(), Execute = NewJob });
             handler.Register(new Command { Name = "RemoveJob", Description = ModText.BC_Description_RemoveJob.GetString(), Execute = RemoveJob });
             handler.Register(new Command { Name = "RenameJob", Description = ModText.BC_Description_RenameJob.GetString(), Execute = RenameJob });
@@ -88,6 +90,48 @@ namespace Sisk.BuildColors.Services {
             }
 
             Mod.Static?.PaintJobService?.ApplyJobToSelection(job);
+        }
+
+        /// <summary>
+        ///     Puts back an application of a paint job. Without an argument that is the most recent one.
+        /// </summary>
+        private static void UndoJob(string arguments) {
+            var tokens = CommandArguments.Split(arguments);
+            var position = 1;
+
+            if (tokens.Count > 1 || (tokens.Count == 1 && !TryParsePosition(tokens[0], out position)) || position < 1) {
+                Show(ModText.BC_Cmd_Usage_UndoJob.GetString(Mod.Acronym));
+                return;
+            }
+
+            Mod.Static?.PaintJobService?.UndoPaintJob(position);
+        }
+
+        private static void ListHistory(string arguments) {
+            var service = Mod.Static?.PaintJobService;
+            var entries = service?.History.Entries;
+
+            if (entries == null || entries.Count == 0) {
+                Show(ModText.BC_PaintJob_NothingToUndo.GetString());
+                return;
+            }
+
+            var lines = new List<string>();
+
+            // Newest first, because that is the one an unqualified undo takes.
+            for (var i = entries.Count - 1; i >= 0; i--) {
+                var entry = entries[i];
+                lines.Add(ModText.BC_Cmd_HistoryLine.GetString(entries.Count - i, entry.JobName, entry.BlockCount, entry.GridName));
+            }
+
+            Show(string.Join(", ", lines));
+        }
+
+        /// <summary>
+        ///     Reads a position written either as <c>#2</c> or as a bare number.
+        /// </summary>
+        private static bool TryParsePosition(string token, out int position) {
+            return CommandArguments.TryParseSelector(token, out position) || CommandArguments.TryParseInteger(token, out position);
         }
 
         private static void NewJob(string arguments) {

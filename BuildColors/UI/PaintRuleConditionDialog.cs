@@ -17,7 +17,8 @@ namespace Sisk.BuildColors.UI {
     public class PaintRuleConditionDialog : DialogBase {
         private const float BUTTON_ROW_HEIGHT = LayoutMetrics.CONTROL_HEIGHT;
         private const float CONTROL_HEIGHT = LayoutMetrics.CONTROL_HEIGHT;
-        private const float DIALOG_HEIGHT = 700f;
+        private const float MIN_DIALOG_HEIGHT = 660f;
+        private const float PREFERRED_DIALOG_HEIGHT = 700f;
 
         /// <summary>
         /// Preferred width. The dialog shrinks to whatever the free screen region allows.
@@ -71,7 +72,9 @@ namespace Sisk.BuildColors.UI {
 
             var dialogWidth = MathHelper.Clamp(DialogSafeArea.GetAvailableWidth(), MIN_DIALOG_WIDTH, PREFERRED_DIALOG_WIDTH);
 
-            Size = new Vector2(dialogWidth, DIALOG_HEIGHT);
+            var dialogHeight = GetSafeHeight(PREFERRED_DIALOG_HEIGHT, MIN_DIALOG_HEIGHT);
+
+            Size = new Vector2(dialogWidth, dialogHeight);
             HeaderText = ModText.BC_UI_ConditionEditorTitle.GetString();
 
             var contentWidth = dialogWidth - Padding.X - LayoutMetrics.CONTENT_PADDING_X;
