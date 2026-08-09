@@ -13,10 +13,7 @@ using ColorModel = Sisk.BuildColors.Settings.Models.Color;
 namespace Sisk.BuildColors.Services {
 
     /// <summary>
-    ///     A paint job turned into the form it is actually run in. Compiling once per application keeps the
-    ///     per block work down to comparisons: patterns, colors and skin ids are resolved up front, groups
-    ///     that cannot match anything are dropped, and definition lookups are memoized per block definition
-    ///     instead of being rebuilt for every one of the thousands of blocks on a grid.
+    /// A paint job turned into the form it is actually run in.
     /// </summary>
     internal sealed class CompiledPaintJob {
         private readonly List<CompiledRule> _rules = new List<CompiledRule>();
@@ -24,7 +21,7 @@ namespace Sisk.BuildColors.Services {
         private CompiledPaintJob() { }
 
         /// <summary>
-        ///     True when no rule of the job can ever match, which lets the caller skip the grid walk entirely.
+        /// True when no rule of the job can ever match, which lets the caller skip the grid walk entirely.
         /// </summary>
         public bool IsEmpty {
             get { return _rules.Count == 0; }
@@ -54,9 +51,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Index of the first rule matching the block, or -1 when none does - the common case on a grid a
-        ///     job only touches part of. The facts are handed back so the caller does not have to read the
-        ///     block twice.
+        /// Index of the first rule matching the block, or -1 when none does.
         /// </summary>
         public int FindRule(IMySlimBlock block, ref GridPaintContext grid, out BlockFacts facts) {
             facts = BlockFacts.Read(block, ref grid);
@@ -71,9 +66,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Opens the measuring pass over a grid. A gradient pinned to the blocks it paints cannot know
-        ///     where its ends are until every one of them has been seen, so matching and painting are two
-        ///     passes with this in between.
+        /// Opens the measuring pass over a grid.
         /// </summary>
         public void BeginGrid() {
             for (var i = 0; i < _rules.Count; i++) {
@@ -92,8 +85,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Works out what a rule paints a block with. Only valid once the measuring pass over the grid has
-        ///     been closed.
+        /// Works out what a rule paints a block with.
         /// </summary>
         public void Resolve(int ruleIndex, ref BlockFacts facts, out PaintResolution resolution) {
             var rule = _rules[ruleIndex];
@@ -110,7 +102,6 @@ namespace Sisk.BuildColors.Services {
         }
 
         private sealed class CompiledRule {
-
             public CompiledRule(CompiledConditionGroup group, PaintRuleAction action) {
                 Group = group;
                 ApplyColor = action.ApplyColor;
@@ -129,7 +120,7 @@ namespace Sisk.BuildColors.Services {
     }
 
     /// <summary>
-    ///     What a matched block should end up as.
+    /// What a matched block should end up as.
     /// </summary>
     internal struct PaintResolution {
         public bool ApplyColor;
@@ -138,8 +129,7 @@ namespace Sisk.BuildColors.Services {
         public string SkinId;
 
         /// <summary>
-        ///     True when two blocks can be painted by the same pair of calls, which is what lets a run of
-        ///     blocks be sent as one message instead of one per block.
+        /// True when two blocks can be painted by the same pair of calls.
         /// </summary>
         public bool Matches(ref PaintResolution other) {
             return ApplyColor == other.ApplyColor
@@ -150,8 +140,7 @@ namespace Sisk.BuildColors.Services {
     }
 
     /// <summary>
-    ///     Everything a condition may look at, read once per block and passed along by reference so no
-    ///     condition has to go back to the block.
+    /// Everything a condition may look at, read once per block.
     /// </summary>
     internal struct BlockFacts {
         public float BuildRatio;
@@ -164,25 +153,22 @@ namespace Sisk.BuildColors.Services {
         public MyStringHash SkinId;
 
         /// <summary>
-        ///     Center of the block in grid coordinates. Noise is sampled here rather than at
-        ///     <see cref="Position" /> so a block wider than one cell lands where it looks like it sits, and
-        ///     it is deliberately not measured from the edge of the grid: the edge moves whenever something
-        ///     is welded onto the build, which would slide every camo patch along with it.
+        /// Center of the block in grid coordinates.
         /// </summary>
         public Vector3 LocalPosition;
 
         /// <summary>
-        ///     Where the block sits between the two ends of the grid on each axis, from 0 to 1.
+        /// Where the block sits between the two ends of the grid on each axis, from 0 to 1.
         /// </summary>
         public Vector3 NormalizedPosition;
 
         /// <summary>
-        ///     The component of <see cref="NormalizedPosition" /> belonging to the longest axis of the grid.
+        /// The component of NormalizedPosition belonging to the longest axis of the grid.
         /// </summary>
         public float NormalizedLongest;
 
         /// <summary>
-        ///     Whole block coordinate along the longest axis of the grid, for patterns counting in blocks.
+        /// Whole block coordinate along the longest axis of the grid, for patterns counting in blocks.
         /// </summary>
         public int LongestPosition;
 
@@ -190,13 +176,12 @@ namespace Sisk.BuildColors.Services {
         public float NormalizedUp;
 
         /// <summary>
-        ///     Lowest cell of the block, which is also the coordinate the game addresses it by.
+        /// Lowest cell of the block, which is also the coordinate the game addresses it by.
         /// </summary>
         public Vector3I Position;
 
         /// <summary>
-        ///     Distance from the grid center in whole blocks, along the up axis and outwards. Patterns count
-        ///     in these so that a stripe keeps its width no matter how large the grid is.
+        /// Distance from the grid center in whole blocks, along the up axis and outwards.
         /// </summary>
         public float RadialCoordinate;
 
@@ -235,13 +220,11 @@ namespace Sisk.BuildColors.Services {
     }
 
     internal interface IBlockCondition {
-
         bool Matches(ref BlockFacts facts);
     }
 
     /// <summary>
-    ///     A condition tree node. Members that cannot match anything are left out at compile time, so an
-    ///     evaluation never has to decide whether a member counts.
+    /// A condition tree node.
     /// </summary>
     internal sealed class CompiledConditionGroup {
         private readonly CompiledConditionGroup[] _children;
@@ -257,9 +240,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Compiles a group, returning null when it holds nothing that could match. A group without usable
-        ///     members carries no meaning, so dropping it stops it from making an AND group unsatisfiable and
-        ///     stops an untouched rule from repainting a whole grid.
+        /// Compiles a group, returning null when it holds nothing that could match.
         /// </summary>
         public static CompiledConditionGroup Compile(PaintRuleConditionGroup group) {
             if (group == null) {
@@ -305,10 +286,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Builds the test for a single condition, or null when the condition cannot match anything. A
-        ///     block definition condition with both fields empty matches every block, which also makes its
-        ///     negation match none, so it is treated as unusable rather than as a catch all - that is what
-        ///     <see cref="PaintRuleConditionType.AnyBlock" /> is for.
+        /// Builds the test for a single condition, or null when the condition cannot match anything.
         /// </summary>
         private static IBlockCondition CompileCondition(PaintRuleCondition condition) {
             if (condition == null) {
@@ -374,7 +352,6 @@ namespace Sisk.BuildColors.Services {
                 }
             }
 
-            // AND falls through here with everything matched, OR with nothing matched.
             return _requireAll;
         }
     }
@@ -414,9 +391,6 @@ namespace Sisk.BuildColors.Services {
     }
 
     internal sealed class DefinitionCondition : IBlockCondition {
-
-        // MyObjectBuilderType has no string form that can be compared without allocating, so the result is
-        // kept per definition. A grid holds thousands of blocks but only a handful of definitions.
         private readonly Dictionary<MyDefinitionId, bool> _resultsByDefinition = new Dictionary<MyDefinitionId, bool>(MyDefinitionId.Comparer);
 
         private readonly string _subtypePattern;
@@ -456,15 +430,11 @@ namespace Sisk.BuildColors.Services {
                 return true;
             }
 
-            // Both sides carry their interned string, so the fallback for a hand written id that differs in
-            // case costs a comparison and nothing else.
             return string.Equals(facts.SkinId.String ?? string.Empty, _skinText, StringComparison.OrdinalIgnoreCase);
         }
     }
 
     internal sealed class CategoryCondition : IBlockCondition {
-
-        // Armor blocks are the ones without their own object builder type.
         private static readonly MyObjectBuilderType ArmorTypeId = typeof(MyObjectBuilder_CubeBlock);
 
         private readonly PaintRuleBlockCategory _category;
@@ -495,8 +465,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Armor weight is carried by the edge type, the same field the game uses to pick the armor edge
-        ///     model, so it stays correct for modded armor that follows the vanilla definitions.
+        /// Armor weight, taken from the edge type the game picks the edge model by.
         /// </summary>
         private static bool IsHeavy(MyCubeBlockDefinition definition) {
             return definition != null && string.Equals(definition.EdgeType, "Heavy", StringComparison.OrdinalIgnoreCase);
@@ -504,8 +473,7 @@ namespace Sisk.BuildColors.Services {
     }
 
     /// <summary>
-    ///     Tests how far a block is from being whole. Construction state and damage are separate questions,
-    ///     so a block that is both unfinished and shot up answers yes to either of them.
+    /// Tests how far a block is from being whole.
     /// </summary>
     internal sealed class IntegrityCondition : IBlockCondition {
         private readonly PaintRuleIntegrityState _state;

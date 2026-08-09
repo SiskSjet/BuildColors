@@ -1,7 +1,6 @@
-﻿namespace Sisk.BuildColors.Settings.Models.ColorSpace {
+namespace Sisk.BuildColors.Settings.Models.ColorSpace {
 
     public struct HSV {
-
         public HSV(float h, float s, float v) {
             H = h;
             S = s;

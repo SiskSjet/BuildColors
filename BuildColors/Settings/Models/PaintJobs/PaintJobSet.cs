@@ -17,8 +17,7 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
         public int Version { get; set; } = VERSION;
 
         /// <summary>
-        ///     The job the hotkeys act on. Kept with the jobs rather than in a separate setting so that it
-        ///     survives a reload alongside them, and so a job that has been deleted simply stops resolving.
+        /// The job the hotkeys act on.
         /// </summary>
         [ProtoMember(2)]
         [XmlAttribute("active")]

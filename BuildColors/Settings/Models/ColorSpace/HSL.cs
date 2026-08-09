@@ -1,7 +1,6 @@
-﻿namespace Sisk.BuildColors.Settings.Models.ColorSpace {
+namespace Sisk.BuildColors.Settings.Models.ColorSpace {
 
     public struct HSL {
-
         public HSL(float h, float s, float l) {
             H = h;
             S = s;

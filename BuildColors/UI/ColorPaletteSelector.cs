@@ -1,5 +1,6 @@
-using RichHudFramework.UI;
+﻿using RichHudFramework.UI;
 using Sandbox.ModAPI;
+using Sisk.BuildColors.Settings.Models;
 using System;
 using System.Collections.Generic;
 using VRageMath;
@@ -7,8 +8,7 @@ using VRageMath;
 namespace Sisk.BuildColors.UI {
 
     /// <summary>
-    /// Row of swatches showing the player's current build color palette. Clicking a swatch reports the
-    /// color, so a rule can reuse a palette color instead of having it dialed in on the sliders.
+    /// Row of swatches showing the player's current build color palette.
     /// </summary>
     public class ColorPaletteSelector : HudElementBase {
         public const float ROW_HEIGHT = 26f;
@@ -26,7 +26,6 @@ namespace Sisk.BuildColors.UI {
             var bottomRow = CreateRow();
 
             for (var i = 0; i < SLOTS_PER_ROW * 2; i++) {
-                // Highlighting would replace the swatch color on hover and hide the very thing it shows.
                 var swatch = new Button() {
                     Color = VRageMath.Color.DimGray,
                     HighlightEnabled = false,
@@ -77,7 +76,7 @@ namespace Sisk.BuildColors.UI {
         }
 
         /// <summary>
-        /// Reads the current build color slots. Slots the player has not defined stay neutral and inert.
+        /// Reads the current build color slots.
         /// </summary>
         public void Refresh() {
             var slots = MyAPIGateway.Session?.LocalHumanPlayer?.BuildColorSlots;
@@ -85,7 +84,7 @@ namespace Sisk.BuildColors.UI {
             for (var i = 0; i < _swatches.Count; i++) {
                 var hasColor = slots != null && i < slots.Count;
 
-                _swatches[i].Color = hasColor ? ToDisplayColor(slots[i]) : VRageMath.Color.DimGray;
+                _swatches[i].Color = hasColor ? ((ColorMask)slots[i]).ToDisplayColor() : VRageMath.Color.DimGray;
                 _swatches[i].InputEnabled = hasColor;
             }
         }
@@ -97,15 +96,7 @@ namespace Sisk.BuildColors.UI {
             }
 
             HudSoundUtils.PlaySound("HudMouseClick");
-            ColorPicked?.Invoke(ToDisplayColor(slots[slotIndex]));
-        }
-
-        /// <summary>
-        /// Build color slots are stored as SE color masks, not RGB.
-        /// </summary>
-        private static VRageMath.Color ToDisplayColor(Vector3 colorMask) {
-            Settings.Models.Color color = colorMask;
-            return color;
+            ColorPicked?.Invoke(((ColorMask)slots[slotIndex]).ToDisplayColor());
         }
     }
 }

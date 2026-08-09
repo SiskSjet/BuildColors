@@ -5,8 +5,7 @@ using VRageMath;
 namespace Sisk.BuildColors.Services {
 
     /// <summary>
-    ///     What one block looked like before a job touched it. Only the channels the job actually wrote are
-    ///     marked for restoring, so undoing a job that only changed skins leaves later color work alone.
+    /// What one block looked like before a job touched it.
     /// </summary>
     internal struct BlockPaintState {
         public Vector3 Mask;
@@ -17,11 +16,9 @@ namespace Sisk.BuildColors.Services {
     }
 
     /// <summary>
-    ///     The blocks of one grid a job changed. Grids are held by id rather than by reference so that a
-    ///     history entry cannot keep a deleted grid alive.
+    /// The blocks of one grid a job changed.
     /// </summary>
     internal sealed class GridPaintSnapshot {
-
         public GridPaintSnapshot(long gridId, string gridName) {
             GridId = gridId;
             GridName = gridName;
@@ -35,10 +32,9 @@ namespace Sisk.BuildColors.Services {
     }
 
     /// <summary>
-    ///     One application of a paint job, in the form it takes to put it back.
+    /// One application of a paint job, in the form it takes to put it back.
     /// </summary>
     internal sealed class PaintHistoryEntry {
-
         public PaintHistoryEntry(string jobName, bool respectOwnership, List<GridPaintSnapshot> grids, int blockCount) {
             JobName = jobName;
             RespectOwnership = respectOwnership;
@@ -53,8 +49,7 @@ namespace Sisk.BuildColors.Services {
         public string JobName { get; private set; }
 
         /// <summary>
-        ///     Whether the job was applied with ownership respected. Undoing must not become a way around a
-        ///     check the job itself honoured.
+        /// Whether the job was applied with ownership respected.
         /// </summary>
         public bool RespectOwnership { get; private set; }
 
@@ -64,7 +59,7 @@ namespace Sisk.BuildColors.Services {
     }
 
     /// <summary>
-    ///     Gathers the previous state of every block a run changes.
+    /// Gathers the previous state of every block a run changes.
     /// </summary>
     internal sealed class PaintSnapshotBuilder {
         private readonly List<GridPaintSnapshot> _grids = new List<GridPaintSnapshot>();
@@ -77,7 +72,6 @@ namespace Sisk.BuildColors.Services {
         }
 
         public void Record(IMyCubeGrid grid, ref BlockPaintState state) {
-            // Grids are painted one after another, so the snapshot being filled is always the last one.
             if (_current == null || _current.GridId != grid.EntityId) {
                 _current = new GridPaintSnapshot(grid.EntityId, grid.DisplayName);
                 _grids.Add(_current);
@@ -93,15 +87,11 @@ namespace Sisk.BuildColors.Services {
     }
 
     /// <summary>
-    ///     The paint jobs applied this session, newest last, so any of them can be put back. Held in memory
-    ///     only: a snapshot is worth a few hundred kilobytes for a large build, and it stops being valid as
-    ///     soon as the world is reloaded and blocks have moved on without it.
+    /// The paint jobs applied this session, newest last, so any of them can be put back.
     /// </summary>
     internal sealed class PaintHistory {
-
         /// <summary>
-        ///     Ceiling on the blocks all entries hold together. Old entries are dropped to stay under it, so a
-        ///     couple of jobs over a capital ship cannot quietly grow into tens of megabytes.
+        /// Ceiling on the blocks all entries hold together.
         /// </summary>
         private const int MAX_BLOCKS = 250000;
 
@@ -126,8 +116,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Removes and returns an entry, counted from the newest at 1. An entry that has been put back is
-        ///     no longer something that can be put back, so it leaves the history either way.
+        /// Removes and returns an entry, counted from the newest at 1.
         /// </summary>
         public PaintHistoryEntry Take(int position) {
             var index = _entries.Count - position;

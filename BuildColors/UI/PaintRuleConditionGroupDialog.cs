@@ -6,16 +6,12 @@ using System;
 using System.Collections.Generic;
 using VRageMath;
 
+using static Sisk.BuildColors.UI.ControlFactory;
+
 namespace Sisk.BuildColors.UI {
 
     /// <summary>
-    /// Editor for the condition tree of a single paint rule. Conditions live in groups, groups can be nested
-    /// inside other groups, and every group combines its members with either AND or OR. That makes
-    /// expressions such as (A AND B) OR (C AND D) expressible.
-    /// <para>
-    /// Rows are rearranged by picking one up and putting it down again. The mouse drives that by dragging,
-    /// keyboard and controller by the reorder binds, but all three run the same grab session.
-    /// </para>
+    /// Editor for the condition tree of a single paint rule.
     /// </summary>
     public class PaintRuleConditionGroupDialog : DialogBase {
         private const float BUTTON_ROW_HEIGHT = LayoutMetrics.BUTTON_HEIGHT;
@@ -43,7 +39,6 @@ namespace Sisk.BuildColors.UI {
         private PaintRuleCondition _pendingCondition;
         private bool _pendingConditionIsNew;
 
-        // Grab session state
         private readonly List<DropSlot> _slots = new List<DropSlot>();
         private readonly List<int> _slotAtRow = new List<int>();
         private PaintRuleCondition _carriedCondition;
@@ -54,7 +49,6 @@ namespace Sisk.BuildColors.UI {
         private bool _isGrabbed;
         private bool _isMouseDrag;
 
-        // Mouse drag tracking
         private ConditionNode _pressedNode;
         private Vector2 _pressPosition;
         private bool _isPressed;
@@ -66,7 +60,6 @@ namespace Sisk.BuildColors.UI {
                 _rule.ConditionGroup = PaintRuleConditionGroup.CreateDefault();
             }
 
-            // The tree is edited on a working copy. The rule only receives it when Done commits.
             _workingGroup = _rule.ConditionGroup.Clone();
 
             var dialogWidth = MathHelper.Clamp(DialogSafeArea.GetAvailableWidth(), MIN_DIALOG_WIDTH, PREFERRED_DIALOG_WIDTH);
@@ -78,14 +71,15 @@ namespace Sisk.BuildColors.UI {
 
             var contentWidth = dialogWidth - Padding.X - LayoutMetrics.CONTENT_PADDING_X;
 
-            var helpLabel = CreateLabel(ModText.BC_UI_ConditionsHint.GetString());
+            var helpLabel = CreateCaption(ModText.BC_UI_ConditionsHint.GetString(), contentWidth);
 
             _treeList = new ListBox<ConditionNode>() { DimAlignment = DimAlignments.Width };
+            StyleList(_treeList);
 
             _addConditionButton = CreateButton(ModText.BC_UI_AddCondition.GetString());
             _addGroupButton = CreateButton(ModText.BC_UI_AddGroup.GetString());
             _editButton = CreateButton(ModText.BC_UI_Edit.GetString());
-            _removeButton = CreateButton(ModText.BC_UI_Remove.GetString());
+            _removeButton = CreateButton(ModText.BC_UI_Remove.GetString(), role: ButtonRole.Danger);
             _moveButton = CreateButton(ModText.BC_UI_Move.GetString());
 
             var treeButtons = new HudChain(false) {
@@ -99,22 +93,13 @@ namespace Sisk.BuildColors.UI {
                 Height = BUTTON_ROW_HEIGHT,
             };
 
-            _statusLabel = new Label() {
-                Text = string.Empty,
-                Format = Style.BodyText,
-                AutoResize = false,
-                DimAlignment = DimAlignments.Width,
-                Height = LayoutMetrics.STATUS_HEIGHT,
-            };
+            _statusLabel = CreateCaption(string.Empty, contentWidth, LayoutMetrics.STATUS_HEIGHT);
 
-            var doneButton = CreateButton(ModText.BC_UI_Done.GetString());
-            doneButton.Width = 150f;
-
-            var cancelButton = CreateButton(ModText.BC_UI_Cancel.GetString());
-            cancelButton.Width = 150f;
+            var cancelButton = CreateButton(ModText.BC_UI_Cancel.GetString(), 150f);
+            var doneButton = CreateButton(ModText.BC_UI_Done.GetString(), 150f, ButtonRole.Primary);
 
             var buttonRow = new HudChain(false) {
-                CollectionContainer = { doneButton, cancelButton },
+                CollectionContainer = { cancelButton, doneButton },
                 Spacing = LayoutMetrics.ROW_SPACING,
                 SizingMode = HudChainSizingModes.AlignMembersEnd,
                 Width = contentWidth,
@@ -127,7 +112,7 @@ namespace Sisk.BuildColors.UI {
                 SizingMode = HudChainSizingModes.FitMembersOffAxis,
                 CollectionContainer = {
                     helpLabel,
-                    CreateSeparator(),
+                    CreateSeparator(contentWidth),
                     { _treeList, 1f },
                     treeButtons,
                     _statusLabel,
@@ -140,48 +125,21 @@ namespace Sisk.BuildColors.UI {
             _treeList.ValueChanged += OnSelectionChanged;
 
             _addConditionButton.MouseInput.LeftClicked += OnAddCondition;
-            _addConditionButton.MouseInput.CursorEntered += OnMouseOver;
             _addGroupButton.MouseInput.LeftClicked += OnAddGroup;
-            _addGroupButton.MouseInput.CursorEntered += OnMouseOver;
             _editButton.MouseInput.LeftClicked += OnEdit;
-            _editButton.MouseInput.CursorEntered += OnMouseOver;
             _removeButton.MouseInput.LeftClicked += OnRemove;
-            _removeButton.MouseInput.CursorEntered += OnMouseOver;
             _moveButton.MouseInput.LeftClicked += OnMoveClicked;
-            _moveButton.MouseInput.CursorEntered += OnMouseOver;
 
             doneButton.MouseInput.LeftClicked += OnDoneClicked;
-            doneButton.MouseInput.CursorEntered += OnMouseOver;
             cancelButton.MouseInput.LeftClicked += OnCancelClicked;
-            cancelButton.MouseInput.CursorEntered += OnMouseOver;
 
             RefreshTree();
         }
 
         public event RichHudFramework.EventHandler Saved;
 
-        private static Label CreateLabel(string text) {
-            return new Label() {
-                Text = text,
-                Format = Style.BodyText,
-                AutoResize = false,
-                DimAlignment = DimAlignments.Width,
-                Height = LayoutMetrics.LABEL_HEIGHT,
-            };
-        }
-
-        private static TexturedBox CreateSeparator() {
-            return new TexturedBox() { DimAlignment = DimAlignments.Width, Height = LayoutMetrics.SEPARATOR_HEIGHT, Color = Style.SeparatorColor };
-        }
-
-        private static BorderedButton CreateButton(string text) {
-            return new BorderedButton() { Text = text, Padding = Vector2.Zero, Height = LayoutMetrics.BUTTON_HEIGHT };
-        }
-
         /// <summary>
-        /// Walks the tree once, producing the rows to display and, while a node is carried, every position it
-        /// could be dropped into. Slots are only emitted for the list that can actually accept the carried
-        /// node, and the carried node itself is never part of the walk because grabbing detaches it.
+        /// Walks the tree once, producing the rows to display and any drop slots.
         /// </summary>
         private void BuildTree(List<TreeItem> items) {
             items.Clear();
@@ -228,8 +186,7 @@ namespace Sisk.BuildColors.UI {
         }
 
         /// <summary>
-        /// Rebuilds the list. While a node is carried the current drop position is shown as an insertion row,
-        /// which keeps the indicator working the same for mouse, keyboard and controller.
+        /// Rebuilds the list.
         /// </summary>
         private void RefreshTree(object nodeToSelect = null) {
             var items = new List<TreeItem>();
@@ -274,7 +231,6 @@ namespace Sisk.BuildColors.UI {
             }
 
             if (_isGrabbed) {
-                // Keep the insertion row in view as it moves.
                 _treeList.SetSelectionAt(indicatorRow >= 0 ? indicatorRow : 0);
             } else {
                 var index = nodeToSelect != null ? FindRow(items, nodeToSelect) : 0;
@@ -359,8 +315,6 @@ namespace Sisk.BuildColors.UI {
             }
         }
 
-        // ---- grab session ----
-
         private void OnMoveClicked(object sender, EventArgs e) {
             if (_isGrabbed) {
                 Drop();
@@ -400,10 +354,8 @@ namespace Sisk.BuildColors.UI {
             _isGrabbed = true;
             _isMouseDrag = fromMouse;
 
-            // The list must not consume the arrow keys while they drive the grab.
             _treeList.InputEnabled = false;
 
-            // The first pass builds the slot list; the second only runs if the origin is not slot zero.
             _slotIndex = 0;
             RefreshTree();
             SetSlot(FindSlot(_originGroup, _originIndex));
@@ -471,8 +423,7 @@ namespace Sisk.BuildColors.UI {
         }
 
         /// <summary>
-        /// Moves to the nearest slot shallower or deeper than the current one, which is how a node is moved
-        /// into or out of a nested group without a dedicated button.
+        /// Moves to the nearest slot shallower or deeper than the current one.
         /// </summary>
         private void StepDepth(int direction) {
             if (_slots.Count == 0) {
@@ -512,8 +463,6 @@ namespace Sisk.BuildColors.UI {
             RefreshTree();
         }
 
-        // ---- input ----
-
         protected override void HandleInput(Vector2 cursorPos) {
             base.HandleInput(cursorPos);
 
@@ -537,7 +486,6 @@ namespace Sisk.BuildColors.UI {
                 return;
             }
 
-            // Press and drag on a row starts the same grab session the keyboard uses.
             if (SharedBinds.LeftButton.IsNewPressed && _treeList.IsMousedOver) {
                 _isPressed = true;
                 _pressPosition = cursorPos;
@@ -552,7 +500,6 @@ namespace Sisk.BuildColors.UI {
             }
 
             if (_isPressed && Math.Abs(cursorPos.Y - _pressPosition.Y) > DRAG_THRESHOLD) {
-                // The selection follows the press, so re-read it before grabbing.
                 BeginGrab(_pressedNode ?? GetSelectedNode(), true);
             }
         }
@@ -595,8 +542,7 @@ namespace Sisk.BuildColors.UI {
         }
 
         /// <summary>
-        /// Maps the cursor onto the nearest list row and from there onto a drop slot. Rows are uniform height,
-        /// so the closest row centre is a stable target even as the insertion row moves around.
+        /// Maps the cursor onto the nearest list row and from there onto a drop slot.
         /// </summary>
         private void UpdateSlotFromCursor(Vector2 cursorPos) {
             var entries = _treeList.EntryList;
@@ -622,7 +568,6 @@ namespace Sisk.BuildColors.UI {
 
             var slot = _slotAtRow[nearest];
 
-            // Dragging past the ends walks the list so long trees can still be traversed.
             if (cursorPos.Y > entries[0].Element.Position.Y) {
                 slot = _slotIndex - 1;
             } else if (cursorPos.Y < entries[entries.Count - 1].Element.Position.Y) {
@@ -631,8 +576,6 @@ namespace Sisk.BuildColors.UI {
 
             SetSlot(slot);
         }
-
-        // ---- editing ----
 
         private void OnSelectionChanged(object sender, EventArgs e) {
             UpdateControlState();
@@ -657,7 +600,6 @@ namespace Sisk.BuildColors.UI {
                 target.Children = new List<PaintRuleConditionGroup>();
             }
 
-            // A nested group with the same operator as its parent would be a no-op, so default to the other.
             var group = PaintRuleConditionGroup.CreateDefault();
             group.Operator = target.Operator == PaintRuleLogicalOperator.And
                 ? PaintRuleLogicalOperator.Or
@@ -799,10 +741,6 @@ namespace Sisk.BuildColors.UI {
             Close();
         }
 
-        private void OnMouseOver(object sender, EventArgs e) {
-            HudSoundUtils.PlaySound("HudMouseOver");
-        }
-
         /// <summary>
         /// A position the carried node can be dropped into.
         /// </summary>
@@ -822,7 +760,7 @@ namespace Sisk.BuildColors.UI {
         }
 
         /// <summary>
-        /// One row of the flattened condition tree. Exactly one of Group or Condition is set.
+        /// One row of the flattened condition tree.
         /// </summary>
         private class ConditionNode {
             public PaintRuleConditionGroup Group { get; set; }
@@ -830,7 +768,7 @@ namespace Sisk.BuildColors.UI {
             public PaintRuleConditionGroup Parent { get; set; }
 
             /// <summary>
-            /// Group owning <see cref="Parent"/>, kept so a node knows the level above its own.
+            /// Group owning Parent, kept so a node knows the level above its own.
             /// </summary>
             public PaintRuleConditionGroup GrandParent { get; set; }
 

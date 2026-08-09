@@ -1,4 +1,4 @@
-﻿namespace Sisk.BuildColors.Settings.Models.ColorSpace {
+namespace Sisk.BuildColors.Settings.Models.ColorSpace {
 
     public struct XYZ {
         public static readonly XYZ D65 = new XYZ(0.9505, 1.0, 1.0890);

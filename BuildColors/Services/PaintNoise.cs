@@ -4,15 +4,11 @@ using VRageMath;
 namespace Sisk.BuildColors.Services {
 
     /// <summary>
-    ///     Deterministic noise over block coordinates. Nothing here may draw on a random generator or on
-    ///     string hashing: a paint job has to give the same block the same color every time it is applied,
-    ///     otherwise re-applying it repaints the whole grid and two clients disagree about how it looks.
+    /// Deterministic noise over block coordinates.
     /// </summary>
     internal static class PaintNoise {
-
         /// <summary>
-        ///     Mixes a block coordinate and a seed into a well spread integer. The constants are the usual
-        ///     large odd primes; what matters is only that neighbouring coordinates end up far apart.
+        /// Mixes a block coordinate and a seed into a well spread integer.
         /// </summary>
         public static uint Hash(int x, int y, int z, int seed) {
             unchecked {
@@ -32,7 +28,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Folds a hash into the 0 to 1 range.
+        /// Folds a hash into the 0 to 1 range.
         /// </summary>
         public static float UnitValue(uint hash) {
             return (hash & 0xFFFFFF) / 16777216f;
@@ -43,10 +39,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Value noise sampled at a block position, returning 0 to 1. Values are drawn on a lattice
-        ///     <paramref name="scale" /> blocks wide and smoothed between its corners, so the result comes out
-        ///     as patches of roughly that width rather than as per block static - which is what separates camo
-        ///     from speckle.
+        /// Value noise sampled at a block position, returning 0 to 1.
         /// </summary>
         public static float ValueNoise(Vector3 position, float scale, int seed) {
             var cellSize = Math.Max(scale, .01f);

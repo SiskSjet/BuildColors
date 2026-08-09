@@ -1,7 +1,6 @@
-using Sisk.BuildColors.Localization;
+﻿using Sisk.BuildColors.Localization;
 using Sisk.BuildColors.Settings.Models.PaintJobs;
 using Sisk.Utils.Localization.Extensions;
-using System.Linq;
 
 using ColorModel = Sisk.BuildColors.Settings.Models.Color;
 
@@ -11,7 +10,6 @@ namespace Sisk.BuildColors.UI {
     /// Human readable descriptions of paint rule conditions, shared by the dialogs that list them.
     /// </summary>
     internal static class PaintRuleConditionText {
-
         public static string Describe(PaintRuleCondition condition) {
             if (condition == null) {
                 return ModText.BC_UI_Desc_Unconfigured.GetString();
@@ -52,30 +50,6 @@ namespace Sisk.BuildColors.UI {
         }
 
         /// <summary>
-        /// Short summary of a whole group, used where the tree itself is not shown.
-        /// </summary>
-        public static string DescribeGroup(PaintRuleConditionGroup group) {
-            if (group == null) {
-                return ModText.BC_UI_Desc_NoConditions.GetString();
-            }
-
-            var conditionCount = CountConditions(group);
-            var groupCount = CountGroups(group);
-
-            if (conditionCount == 0) {
-                return ModText.BC_UI_Desc_NoConditionsNeverMatches.GetString();
-            }
-
-            var summary = ModText.BC_UI_Desc_GroupSummary.GetString(conditionCount, DescribeOperator(group));
-
-            if (groupCount > 0) {
-                summary += ModText.BC_UI_Desc_GroupSummaryNested.GetString(groupCount);
-            }
-
-            return summary;
-        }
-
-        /// <summary>
         /// How a group combines its members, including the inversion if it is set.
         /// </summary>
         public static string DescribeOperator(PaintRuleConditionGroup group) {
@@ -110,28 +84,6 @@ namespace Sisk.BuildColors.UI {
                 default:
                     return ModText.BC_UI_Desc_Intact.GetString();
             }
-        }
-
-        private static int CountConditions(PaintRuleConditionGroup group) {
-            if (group == null) {
-                return 0;
-            }
-
-            var count = group.Conditions?.Count ?? 0;
-
-            if (group.Children != null) {
-                count += group.Children.Sum(CountConditions);
-            }
-
-            return count;
-        }
-
-        private static int CountGroups(PaintRuleConditionGroup group) {
-            if (group?.Children == null) {
-                return 0;
-            }
-
-            return group.Children.Count + group.Children.Sum(CountGroups);
         }
 
         private static string DescribeColor(ColorModel color) {

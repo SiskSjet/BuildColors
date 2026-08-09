@@ -1,4 +1,4 @@
-﻿using ProtoBuf;
+using ProtoBuf;
 using Sisk.BuildColors.Settings.Models;
 using System.Collections.Generic;
 using System.Xml.Serialization;
@@ -8,7 +8,7 @@ namespace Sisk.BuildColors.Settings {
     [ProtoContract]
     [XmlRoot(nameof(ServerMemory))]
     public class ServerMemory {
-        public const int VERSION = 1;
+        public const int VERSION = 2;
 
         [ProtoMember(2)]
         [XmlArray(Order = 2)]

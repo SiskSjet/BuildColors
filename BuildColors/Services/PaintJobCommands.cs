@@ -1,4 +1,4 @@
-using Sandbox.ModAPI;
+﻿using Sandbox.ModAPI;
 using Sisk.BuildColors.Localization;
 using Sisk.BuildColors.Settings.Models.PaintJobs;
 using Sisk.BuildColors.UI;
@@ -11,16 +11,9 @@ using System.Linq;
 namespace Sisk.BuildColors.Services {
 
     /// <summary>
-    ///     Chat commands covering the paint job feature. Everything the paint job dialogs can do is reachable
-    ///     from here: jobs, their options, their rules and the condition tree of every rule.
-    ///     <para>
-    ///         Names hold spaces, so arguments are quoted. A job or rule is named or selected by its position
-    ///         in the matching listing with <c>#2</c>. Conditions and groups are addressed by the paths
-    ///         <see cref="PaintRulePath" /> defines and <c>ShowJob</c> prints.
-    ///     </para>
+    /// Chat commands covering the paint job feature.
     /// </summary>
     internal static class PaintJobCommands {
-
         public static void Register(CommandHandler handler) {
             handler.Register(new Command { Name = "Jobs", Description = ModText.BC_Description_Jobs.GetString(), Execute = ListJobs });
             handler.Register(new Command { Name = "ShowJob", Description = ModText.BC_Description_ShowJob.GetString(), Execute = ShowJob });
@@ -46,8 +39,6 @@ namespace Sisk.BuildColors.Services {
             handler.Register(new Command { Name = "Skins", Description = ModText.BC_Description_Skins.GetString(), Execute = ListSkins });
         }
 
-        // ---- jobs ----
-
         private static void ListJobs(string arguments) {
             var jobs = Mod.Static?.PaintJobs;
 
@@ -56,7 +47,7 @@ namespace Sisk.BuildColors.Services {
                 return;
             }
 
-            var names = OrderedJobs(jobs).Select((job, index) => string.Format("#{0} {1}", index + 1, job.Name));
+            var names = PaintJobService.InNameOrder(jobs).Select((job, index) => string.Format("#{0} {1}", index + 1, job.Name));
             Show(string.Join(", ", names));
         }
 
@@ -93,7 +84,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Puts back an application of a paint job. Without an argument that is the most recent one.
+        /// Puts back an application of a paint job.
         /// </summary>
         private static void UndoJob(string arguments) {
             var tokens = CommandArguments.Split(arguments);
@@ -118,7 +109,6 @@ namespace Sisk.BuildColors.Services {
 
             var lines = new List<string>();
 
-            // Newest first, because that is the one an unqualified undo takes.
             for (var i = entries.Count - 1; i >= 0; i--) {
                 var entry = entries[i];
                 lines.Add(ModText.BC_Cmd_HistoryLine.GetString(entries.Count - i, entry.JobName, entry.BlockCount, entry.GridName));
@@ -128,7 +118,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Reads a position written either as <c>#2</c> or as a bare number.
+        /// Reads a position written either as #2 or as a bare number.
         /// </summary>
         private static bool TryParsePosition(string token, out int position) {
             return CommandArguments.TryParseSelector(token, out position) || CommandArguments.TryParseInteger(token, out position);
@@ -218,7 +208,6 @@ namespace Sisk.BuildColors.Services {
                 return;
             }
 
-            // Clone keeps the identity of the original, so the copy needs one of its own to stand next to it.
             var copy = job.Clone();
             copy.Id = Guid.NewGuid();
             copy.Name = tokens[1].Trim();
@@ -252,7 +241,6 @@ namespace Sisk.BuildColors.Services {
                 return;
             }
 
-            // Without a value the option is flipped, which is what a checkbox does.
             var requested = tokens.Count == 3 ? tokens[2] : "toggle";
 
             bool value;
@@ -266,8 +254,6 @@ namespace Sisk.BuildColors.Services {
             Persist(job);
             Show(ModText.BC_Cmd_OptionSet.GetString(option, job.Name, PaintJobReport.DescribeFlag(value)));
         }
-
-        // ---- rules ----
 
         private static void AddRule(string arguments) {
             var tokens = CommandArguments.Split(arguments);
@@ -311,7 +297,6 @@ namespace Sisk.BuildColors.Services {
                 return;
             }
 
-            // A job without a rule paints nothing and is regrown by EnsureRules anyway.
             if (job.Rules.Count <= 1) {
                 Show(ModText.BC_Cmd_RuleRequired.GetString());
                 return;
@@ -399,8 +384,6 @@ namespace Sisk.BuildColors.Services {
             Show(ModText.BC_Cmd_ActionUpdated.GetString(rule.Name, PaintJobReport.DescribeAction(rule.Action)));
         }
 
-        // ---- conditions and groups ----
-
         private static void AddCondition(string arguments) {
             var tokens = CommandArguments.Split(arguments);
 
@@ -415,8 +398,6 @@ namespace Sisk.BuildColors.Services {
                 return;
             }
 
-            // The target group is optional and only ever written as a path, so the first token without an
-            // assignment in it is the path and everything after it describes the condition.
             var index = 2;
             var path = PaintRulePath.ROOT;
 
@@ -552,7 +533,6 @@ namespace Sisk.BuildColors.Services {
                 return;
             }
 
-            // Dropping a group inside itself would cut it out of the tree along with everything under it.
             if (node.IsGroup && PaintRulePath.Contains(node.Group, target)) {
                 Show(ModText.BC_Cmd_MoveIntoSelf.GetString());
                 return;
@@ -567,7 +547,6 @@ namespace Sisk.BuildColors.Services {
 
                 int position;
                 if (!TryReadPosition(tokens, target.Children.Count, out position)) {
-                    // Put the group back where it came from before reporting the mistake.
                     node.Parent.Children.Insert(node.Index, node.Group);
                     return;
                 }
@@ -716,14 +695,8 @@ namespace Sisk.BuildColors.Services {
             Show(ModText.BC_Cmd_SkinList.GetString(string.Join(", ", matches)));
         }
 
-        // ---- shared helpers ----
-
         private static void Show(string message) {
             MyAPIGateway.Utilities.ShowMessage(Mod.NAME, message);
-        }
-
-        private static IEnumerable<PaintJob> OrderedJobs(IEnumerable<PaintJob> jobs) {
-            return jobs.OrderBy(job => job.Name, StringComparer.InvariantCultureIgnoreCase);
         }
 
         private static PaintJob FindJob(string reference) {
@@ -735,7 +708,7 @@ namespace Sisk.BuildColors.Services {
 
             int position;
             if (CommandArguments.TryParseSelector(reference, out position)) {
-                var ordered = OrderedJobs(jobs).ToArray();
+                var ordered = PaintJobService.InNameOrder(jobs).ToArray();
 
                 return position >= 1 && position <= ordered.Length ? ordered[position - 1] : null;
             }
@@ -744,7 +717,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Looks a job up and reports it when there is none, so callers only have to check for null.
+        /// Looks a job up and reports it when there is none, so callers only have to check for null.
         /// </summary>
         private static PaintJob ResolveJob(string reference) {
             var job = FindJob(reference);
@@ -814,8 +787,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Reads the optional target position of a move. Positions are 1 based and one past the end means
-        ///     appending, which is also what leaving the position out does.
+        /// Reads the optional target position of a move.
         /// </summary>
         private static bool TryReadPosition(List<string> tokens, int count, out int position) {
             position = count;

@@ -6,8 +6,7 @@ using ColorModel = Sisk.BuildColors.Settings.Models.Color;
 namespace Sisk.BuildColors.Settings.Models.PaintJobs {
 
     /// <summary>
-    ///     A single test a block is put through. <see cref="Type" /> selects which of the value members is
-    ///     used; the others are ignored, so a condition is always fully described by its type.
+    /// A single test a block is put through.
     /// </summary>
     [ProtoContract]
     public class PaintRuleCondition {
@@ -44,15 +43,14 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
         public PaintRuleIntegrityState Integrity { get; set; } = PaintRuleIntegrityState.Damaged;
 
         /// <summary>
-        ///     Percentage the block integrity is held against, used by
-        ///     <see cref="PaintRuleIntegrityState.BelowThreshold" /> and ignored by the other states.
+        /// Percentage the block integrity is held against, used by BelowThreshold and ignored by the other states.
         /// </summary>
         [ProtoMember(9)]
         [XmlAttribute("integrityThreshold")]
         public float IntegrityThreshold { get; set; } = 50f;
 
         /// <summary>
-        ///     Creates an independent copy. All value holders are structs, so a member wise copy is enough.
+        /// Creates an independent copy.
         /// </summary>
         public PaintRuleCondition Clone() {
             return new PaintRuleCondition {

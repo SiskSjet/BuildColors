@@ -4,9 +4,7 @@ using System.Xml.Serialization;
 namespace Sisk.BuildColors.Settings.Models.PaintJobs {
 
     /// <summary>
-    ///     Block definition to match. Both fields accept the wildcards <c>*</c> (any number of characters)
-    ///     and <c>?</c> (exactly one), so a single condition can cover a whole family of blocks. An empty
-    ///     field matches any value.
+    /// Block definition to match.
     /// </summary>
     [ProtoContract]
     public struct PaintRuleDefinitionValue {

@@ -1,10 +1,8 @@
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Sisk.BuildColors.Settings.Models.PaintJobs {
 
     public class PaintJobComparer : IEqualityComparer<PaintJob> {
-
         public bool Equals(PaintJob x, PaintJob y) {
             if (ReferenceEquals(x, y)) {
                 return true;

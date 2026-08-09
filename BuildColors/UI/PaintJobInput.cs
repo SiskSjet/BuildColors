@@ -1,28 +1,34 @@
+﻿using RichHudFramework;
 using RichHudFramework.UI;
 using RichHudFramework.UI.Client;
 using Sandbox.ModAPI;
 using Sisk.BuildColors.Localization;
 using Sisk.Utils.Localization.Extensions;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Sisk.BuildColors.UI {
 
     /// <summary>
-    /// Hotkeys that act on the world rather than on a dialog: apply the active paint job to whatever the
-    /// player is looking at, put the last one back, and pick which job is active - all without the color
-    /// picker being open.
-    /// <para>
-    /// These are driven by the bind's own events rather than polled from a dialog, because the whole point
-    /// is that they work while no part of this mod's UI is on screen. Rich HUD raises them from its own
-    /// update, so the mod does not need an update order of its own.
-    /// </para>
+    /// Hotkeys that act on the world with none of the mod's UI on screen.
     /// </summary>
     internal static class PaintJobInput {
+        public const string APPLY_BIND = "paintApply";
+        public const string NEXT_JOB_BIND = "paintNextJob";
+        public const string PREVIOUS_JOB_BIND = "paintPreviousJob";
+        public const string UNDO_BIND = "paintUndo";
 
         /// <summary>
-        /// Kept apart from the editing binds so that the rebind page can list "what the keys do in the
-        /// world" separately from "what the keys do in a list".
+        /// Kept apart from the editing binds so the rebind page lists the two separately.
         /// </summary>
         private const string GROUP_NAME = "BuildColorsPaintJobs";
+
+        /// <summary>
+        /// Frames between rebuilds of the modifier cache, which picks up a rebind.
+        /// </summary>
+        private const int MODIFIER_REFRESH_INTERVAL = 120;
+
+        private static readonly List<List<IControl>> _comboModifiers = new List<List<IControl>>();
 
         private static IBindGroup _binds;
         private static BindDefinition[] _defaultBinds;
@@ -30,14 +36,109 @@ namespace Sisk.BuildColors.UI {
         private static IBind _undo;
         private static IBind _nextJob;
         private static IBind _previousJob;
-        private static IBind _openWorkbench;
+        private static int _modifierRefreshCountdown;
 
         /// <summary>
-        /// Registers the binds and starts listening. Called once Rich HUD is up, because until then there is
-        /// no bind manager to register with.
+        /// Registers the binds and starts listening.
         /// </summary>
         public static void Register() {
             EnsureBinds();
+        }
+
+        /// <summary>
+        /// Keeps the game's own controls off the keys these binds are built from.
+        /// </summary>
+        public static void Update() {
+            if (_binds == null) {
+                return;
+            }
+
+            if (--_modifierRefreshCountdown <= 0) {
+                RefreshModifiers();
+            }
+
+            if (CanAct() && IsComboInProgress()) {
+                BindManager.RequestTempBlacklist(SeBlacklistModes.AllKeys);
+            }
+        }
+
+        /// <summary>
+        /// True while every modifier of at least one bind is held, meaning a combo is part way through.
+        /// </summary>
+        private static bool IsComboInProgress() {
+            for (var i = 0; i < _comboModifiers.Count; i++) {
+                var modifiers = _comboModifiers[i];
+                var allHeld = true;
+
+                for (var j = 0; j < modifiers.Count; j++) {
+                    if (!modifiers[j].IsPressed) {
+                        allHeld = false;
+                        break;
+                    }
+                }
+
+                if (allHeld) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Caches the controls each combo needs held before its last key.
+        /// </summary>
+        private static void RefreshModifiers() {
+            _modifierRefreshCountdown = MODIFIER_REFRESH_INTERVAL;
+            _comboModifiers.Clear();
+
+            for (var i = 0; i < _binds.Count; i++) {
+                var bind = _binds[i];
+
+                for (var alias = 0; alias < bind.AliasCount; alias++) {
+                    var combo = bind.GetConIDs(alias);
+
+                    if (combo == null || combo.Count < 2) {
+                        continue;
+                    }
+
+                    var modifiers = new List<IControl>(combo.Count - 1);
+
+                    for (var control = 0; control < combo.Count - 1; control++) {
+                        modifiers.Add(BindManager.GetControl(new ControlHandle(combo[control])));
+                    }
+
+                    _comboModifiers.Add(modifiers);
+                }
+            }
+        }
+
+        /// <summary>
+        /// The keys a bind is currently set to, as the rebind page spells them.
+        /// </summary>
+        public static string DescribeBind(string bindName) {
+            EnsureBinds();
+
+            var bind = _binds?[bindName];
+            var combo = bind?.GetCombo();
+
+            if (combo == null || combo.Count == 0) {
+                return ModText.BC_UI_Unbound.GetString();
+            }
+
+            var text = new StringBuilder();
+
+            for (var i = 0; i < combo.Count; i++) {
+                var control = BindManager.GetControl(combo[i]);
+
+                if (i > 0) {
+                    text.Append(" + ");
+                }
+
+                text.Append(control != null ? control.DisplayName : ModText.BC_UI_Unbound.GetString());
+            }
+
+            return text.ToString();
         }
 
         /// <summary>
@@ -61,8 +162,7 @@ namespace Sisk.BuildColors.UI {
         }
 
         /// <summary>
-        /// Rich HUD tears its API down on reset, so the handles and the subscriptions taken from it are
-        /// dropped and rebuilt on the next init.
+        /// Drops every handle taken from Rich HUD so the next init rebuilds them.
         /// </summary>
         public static void Reset() {
             Unsubscribe();
@@ -73,7 +173,8 @@ namespace Sisk.BuildColors.UI {
             _undo = null;
             _nextJob = null;
             _previousJob = null;
-            _openWorkbench = null;
+            _comboModifiers.Clear();
+            _modifierRefreshCountdown = 0;
         }
 
         private static void EnsureBinds() {
@@ -86,24 +187,19 @@ namespace Sisk.BuildColors.UI {
                 return;
             }
 
-            // Two key combos throughout: a paint job repaints a whole grid, which is not something a single
-            // stray keypress should be able to start.
             _binds.RegisterBinds(new BindGroupInitializer {
-                { "paintApply", RichHudControls.Alt, RichHudControls.P },
-                { "paintUndo", RichHudControls.Alt, RichHudControls.Z },
-                { "paintNextJob", RichHudControls.Alt, RichHudControls.OemPeriod },
-                { "paintPreviousJob", RichHudControls.Alt, RichHudControls.OemComma },
-                { "paintWorkbench", RichHudControls.Alt, RichHudControls.B },
+                { APPLY_BIND, RichHudControls.Alt, RichHudControls.P },
+                { UNDO_BIND, RichHudControls.Alt, RichHudControls.Z },
+                { NEXT_JOB_BIND, RichHudControls.Alt, RichHudControls.OemPeriod },
+                { PREVIOUS_JOB_BIND, RichHudControls.Alt, RichHudControls.OemComma },
             });
 
-            // Captured before any saved configuration can change them, so this really is the default set.
             _defaultBinds = _binds.GetBindDefinitions();
 
-            _apply = _binds["paintApply"];
-            _undo = _binds["paintUndo"];
-            _nextJob = _binds["paintNextJob"];
-            _previousJob = _binds["paintPreviousJob"];
-            _openWorkbench = _binds["paintWorkbench"];
+            _apply = _binds[APPLY_BIND];
+            _undo = _binds[UNDO_BIND];
+            _nextJob = _binds[NEXT_JOB_BIND];
+            _previousJob = _binds[PREVIOUS_JOB_BIND];
 
             Subscribe();
         }
@@ -117,7 +213,6 @@ namespace Sisk.BuildColors.UI {
             _undo.NewPressed += OnUndo;
             _nextJob.NewPressed += OnNextJob;
             _previousJob.NewPressed += OnPreviousJob;
-            _openWorkbench.NewPressed += OnOpenWorkbench;
         }
 
         private static void Unsubscribe() {
@@ -129,7 +224,6 @@ namespace Sisk.BuildColors.UI {
             _undo.NewPressed -= OnUndo;
             _nextJob.NewPressed -= OnNextJob;
             _previousJob.NewPressed -= OnPreviousJob;
-            _openWorkbench.NewPressed -= OnOpenWorkbench;
         }
 
         private static void OnApply(object sender, System.EventArgs args) {
@@ -158,14 +252,6 @@ namespace Sisk.BuildColors.UI {
             CycleJob(-1);
         }
 
-        private static void OnOpenWorkbench(object sender, System.EventArgs args) {
-            if (!CanAct()) {
-                return;
-            }
-
-            Mod.Static?.OpenWorkbench();
-        }
-
         private static void CycleJob(int offset) {
             if (!CanAct()) {
                 return;
@@ -188,8 +274,7 @@ namespace Sisk.BuildColors.UI {
         }
 
         /// <summary>
-        /// Whether a world action should run at all. A key that is being typed into a field, or pressed while
-        /// the chat is open, means the letter and not the paint job.
+        /// Whether a world action should run at all.
         /// </summary>
         private static bool CanAct() {
             if (MyAPIGateway.Gui == null || MyAPIGateway.Gui.ChatEntryVisible) {

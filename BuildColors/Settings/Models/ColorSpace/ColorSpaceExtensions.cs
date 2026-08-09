@@ -1,11 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Sisk.BuildColors.Settings.Models.ColorSpace {
 
     public static class ColorSpaceExtensions {
-
         public static double GetDistance(this RGB rgb, RGB other) {
             return Math.Sqrt(Math.Pow(rgb.R - other.R, 2) + Math.Pow(rgb.G - other.G, 2) + Math.Pow(rgb.B - other.B, 2));
         }
@@ -122,8 +121,6 @@ namespace Sisk.BuildColors.Settings.Models.ColorSpace {
             modifiedY = XYZToLabTransform(modifiedY);
             modifiedZ = XYZToLabTransform(modifiedZ);
 
-            // L runs 0 to 100 and both opponent axes run either side of zero, so none of the three fit a
-            // byte. Rounding them into one turned every negative a and b into a large positive.
             return new Lab((float)((116 * modifiedY) - 16), (float)(500 * (modifiedX - modifiedY)), (float)(200 * (modifiedY - modifiedZ)));
         }
 
@@ -147,9 +144,6 @@ namespace Sisk.BuildColors.Settings.Models.ColorSpace {
                 rgb[x] = (rgb[x] <= 0.0031308) ? 12.92 * rgb[x] : 1.055 * Math.Pow(rgb[x], 0.41666666666) - 0.055;
             }
 
-            // XYZ covers more than a monitor can show, so a color mixed in Lab lands outside 0 to 1 often
-            // enough to matter. Without the clamp the cast wraps and a slightly too bright red comes back
-            // near black.
             return new RGB(ToChannel(rgb[0]), ToChannel(rgb[1]), ToChannel(rgb[2]));
         }
 
@@ -164,7 +158,6 @@ namespace Sisk.BuildColors.Settings.Models.ColorSpace {
             p = 2 * modifiedL - q;
 
             if (modifiedL == 0) {
-                // if the lightness value is 0 it will always be black
                 r = 0;
                 g = 0;
                 b = 0;
@@ -173,7 +166,6 @@ namespace Sisk.BuildColors.Settings.Models.ColorSpace {
                 g = GetHue(p, q, modifiedH);
                 b = GetHue(p, q, modifiedH - 1.0 / 3);
             } else {
-                // ensure greys are not converted to white
                 r = modifiedL;
                 g = modifiedL;
                 b = modifiedL;

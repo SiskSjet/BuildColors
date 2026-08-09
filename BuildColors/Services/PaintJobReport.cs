@@ -8,8 +8,7 @@ using System.Text;
 namespace Sisk.BuildColors.Services {
 
     /// <summary>
-    ///     Renders a paint job as text for the console. Every condition and group is printed with the path it
-    ///     is addressed by, so the listing doubles as the reference for the editing commands.
+    /// Renders a paint job as text for the console.
     /// </summary>
     internal static class PaintJobReport {
         private const int INDENT_SPACES = 2;
@@ -53,8 +52,6 @@ namespace Sisk.BuildColors.Services {
 
             var parts = new List<string>();
 
-            // A source that paints by position has no single color or skin to name, so it is described by
-            // what it does and by which of the two channels it is allowed to write.
             if (action.SourceType != PaintSourceType.Solid) {
                 parts.Add(PaintSourceText.Describe(action.Source));
                 parts.Add(action.ApplyColor && action.ApplySkin

@@ -192,8 +192,8 @@
   <data name="BC_UI_AddRule" xml:space="preserve">
     <value>Regel hinzufügen</value>
   </data>
-  <data name="BC_UI_Apply" xml:space="preserve">
-    <value>Anwenden</value>
+  <data name="BC_UI_ApplyToTargetGrid" xml:space="preserve">
+    <value>Auf Zielgitter anwenden</value>
   </data>
   <data name="BC_UI_Cancel" xml:space="preserve">
     <value>Abbrechen</value>
@@ -222,9 +222,6 @@
   <data name="BC_UI_New" xml:space="preserve">
     <value>Neu</value>
   </data>
-  <data name="BC_UI_Refresh" xml:space="preserve">
-    <value>Aktualisieren</value>
-  </data>
   <data name="BC_UI_Remove" xml:space="preserve">
     <value>Entfernen</value>
   </data>
@@ -251,15 +248,6 @@
   </data>
   <data name="BC_UI_GeneratedColorSetName" xml:space="preserve">
     <value>Generiert</value>
-  </data>
-  <data name="BC_UI_RandomBaseColor" xml:space="preserve">
-    <value>Zufällige Basisfarbe</value>
-  </data>
-  <data name="BC_UI_SaveColorPicker" xml:space="preserve">
-    <value>Speichern (Farbwähler)</value>
-  </data>
-  <data name="BC_UI_SaveDialogTitle" xml:space="preserve">
-    <value>Farbset benennen</value>
   </data>
   <data name="BC_UI_ApplyColor" xml:space="preserve">
     <value>Farbe anwenden</value>
@@ -297,12 +285,6 @@
   <data name="BC_UI_Option_RespectOwnership" xml:space="preserve">
     <value>Besitzverhältnisse beachten</value>
   </data>
-  <data name="BC_UI_Options" xml:space="preserve">
-    <value>Optionen</value>
-  </data>
-  <data name="BC_UI_PaintJobEditorTitle" xml:space="preserve">
-    <value>Lackierauftrag-Editor</value>
-  </data>
   <data name="BC_UI_PaintJobs" xml:space="preserve">
     <value>Lackieraufträge</value>
   </data>
@@ -318,20 +300,11 @@
   <data name="BC_UI_Rules" xml:space="preserve">
     <value>Regeln</value>
   </data>
-  <data name="BC_UI_RulesHint" xml:space="preserve">
-    <value>Werden der Reihe nach angewendet; die erste passende Regel gewinnt.</value>
-  </data>
   <data name="BC_UI_TargetColor" xml:space="preserve">
     <value>Zielfarbe</value>
   </data>
   <data name="BC_UI_TargetSkin" xml:space="preserve">
     <value>Ziel-Skin</value>
-  </data>
-  <data name="BC_UI_ThenPaintWith" xml:space="preserve">
-    <value>Dann lackieren mit</value>
-  </data>
-  <data name="BC_UI_When" xml:space="preserve">
-    <value>Wenn</value>
   </data>
   <data name="BC_UI_Category_Armor" xml:space="preserve">
     <value>Panzerung (leicht oder schwer)</value>
@@ -471,17 +444,8 @@
   <data name="BC_UI_Status_GroupAdded" xml:space="preserve">
     <value>Gruppe hinzugefügt. Wähle sie aus und füge ihr Bedingungen hinzu.</value>
   </data>
-  <data name="BC_UI_Status_JobNameEmpty" xml:space="preserve">
-    <value>Der Auftragsname darf nicht leer sein.</value>
-  </data>
   <data name="BC_UI_Status_MovingCondition" xml:space="preserve">
     <value>Verschiebe {0}  -  Hoch/Runter bewegen, Links/Rechts Gruppe wechseln, Enter/A ablegen, Esc/B abbrechen.</value>
-  </data>
-  <data name="BC_UI_Status_MovingRule" xml:space="preserve">
-    <value>Verschiebe {0}  -  Hoch/Runter bewegen, Enter/A ablegen, Esc/B abbrechen.</value>
-  </data>
-  <data name="BC_UI_Status_NeedsRule" xml:space="preserve">
-    <value>Ein Lackierauftrag braucht mindestens eine Regel.</value>
   </data>
   <data name="BC_UI_Status_ThresholdRange" xml:space="preserve">
     <value>Gib einen Schwellwert zwischen 0 und 100 ein.</value>
@@ -531,12 +495,6 @@
   <data name="BC_UI_Desc_GridSmall" xml:space="preserve">
     <value>klein</value>
   </data>
-  <data name="BC_UI_Desc_GroupSummary" xml:space="preserve">
-    <value>{0} Bedingung(en), Treffer {1}</value>
-  </data>
-  <data name="BC_UI_Desc_GroupSummaryNested" xml:space="preserve">
-    <value>, {0} verschachtelte Gruppe(n)</value>
-  </data>
   <data name="BC_UI_Desc_HeavyArmor" xml:space="preserve">
     <value>schwere Panzerung</value>
   </data>
@@ -560,12 +518,6 @@
   </data>
   <data name="BC_UI_Desc_MatchRoot" xml:space="preserve">
     <value>Treffer {0}</value>
-  </data>
-  <data name="BC_UI_Desc_NoConditions" xml:space="preserve">
-    <value>Keine Bedingungen</value>
-  </data>
-  <data name="BC_UI_Desc_NoConditionsNeverMatches" xml:space="preserve">
-    <value>Keine Bedingungen - diese Regel trifft nie zu</value>
   </data>
   <data name="BC_UI_Desc_NoSkin" xml:space="preserve">
     <value>Kein Skin</value>
@@ -918,9 +870,6 @@
   <data name="BC_UI_Shape_Stripes" xml:space="preserve">
     <value>Streifen</value>
   </data>
-  <data name="BC_UI_SourceEditorTitle" xml:space="preserve">
-    <value>Farbquelle</value>
-  </data>
   <data name="BC_UI_SourceHint_Camo" xml:space="preserve">
     <value>Farbflecken über den ganzen Bau verteilt.</value>
   </data>
@@ -1002,6 +951,9 @@
   <data name="BC_UI_Undo" xml:space="preserve">
     <value>Rückgängig</value>
   </data>
+  <data name="BC_UI_Unbound" xml:space="preserve">
+    <value>nicht belegt</value>
+  </data>
   <data name="BC_Desc_SourceFitBlocks" xml:space="preserve">
     <value>über eigene Blöcke</value>
   </data>
@@ -1038,15 +990,6 @@
   <data name="BC_PaintJob_ActiveJob" xml:space="preserve">
     <value>Aktiver Farbauftrag: {0}</value>
   </data>
-  <data name="BC_UI_Binds_PaintJobs" xml:space="preserve">
-    <value>Farbaufträge</value>
-  </data>
-  <data name="BC_UI_WorkbenchTitle" xml:space="preserve">
-    <value>Build Colors - Farbaufträge</value>
-  </data>
-  <data name="BC_UI_WorkbenchStatus" xml:space="preserve">
-    <value>{0} Regeln - wird auf das angesehene Gitter angewendet</value>
-  </data>
   <data name="BC_UI_Jobs" xml:space="preserve">
     <value>Aufträge</value>
   </data>
@@ -1074,10 +1017,205 @@
   <data name="BC_UI_TabPaint" xml:space="preserve">
     <value>Anstrich</value>
   </data>
-  <data name="BC_UI_OpenWorkbench" xml:space="preserve">
-    <value>Werkbank öffnen</value>
-  </data>
   <data name="BC_UI_CloseSymbol" xml:space="preserve">
     <value>X</value>
+  </data>
+  <data name="BC_UI_PanelTitle" xml:space="preserve">
+    <value>Build Colors</value>
+  </data>
+  <data name="BC_UI_HotkeyHint" xml:space="preserve">
+    <value>{0} anwenden · {1} rückgängig · {2} / {3} vorheriger / nächster Auftrag</value>
+  </data>
+  <data name="BC_UI_Generator" xml:space="preserve">
+    <value>Generator</value>
+  </data>
+  <data name="BC_UI_JobOptions" xml:space="preserve">
+    <value>Auftragsoptionen</value>
+  </data>
+  <data name="BC_UI_Confirm_RemoveJob" xml:space="preserve">
+    <value>Den Lackierauftrag '{0}' mit allen Regeln entfernen?</value>
+  </data>
+  <data name="BC_UI_Confirm_RemoveColorSet" xml:space="preserve">
+    <value>Das Farbset '{0}' entfernen?</value>
+  </data>
+  <data name="BC_UI_SaveCurrentPalette" xml:space="preserve">
+    <value>Aktuelle Palette speichern</value>
+  </data>
+  <data name="BC_UI_ColorSetsHint" xml:space="preserve">
+    <value>Doppelklick lädt ein Set in die Palette.</value>
+  </data>
+  <data name="BC_UI_NoColorSetSelected" xml:space="preserve">
+    <value>Kein Farbset ausgewählt</value>
+  </data>
+  <data name="BC_UI_SetColors" xml:space="preserve">
+    <value>Farben in diesem Set</value>
+  </data>
+  <data name="BC_UI_CurrentPalette" xml:space="preserve">
+    <value>Aktuelle Palette</value>
+  </data>
+  <data name="BC_UI_Rename" xml:space="preserve">
+    <value>Umbenennen</value>
+  </data>
+  <data name="BC_UI_Duplicate" xml:space="preserve">
+    <value>Duplizieren</value>
+  </data>
+  <data name="BC_UI_Preview" xml:space="preserve">
+    <value>Vorschau</value>
+  </data>
+  <data name="BC_UI_ApplyToPalette" xml:space="preserve">
+    <value>Auf Palette anwenden</value>
+  </data>
+  <data name="BC_UI_SaveAs" xml:space="preserve">
+    <value>Speichern unter</value>
+  </data>
+  <data name="BC_UI_GeneratedColors" xml:space="preserve">
+    <value>Generierte Farben</value>
+  </data>
+  <data name="BC_UI_Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="BC_UI_Import" xml:space="preserve">
+    <value>Importieren</value>
+  </data>
+  <data name="BC_UI_Export" xml:space="preserve">
+    <value>Exportieren</value>
+  </data>
+  <data name="BC_UI_Filter" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="BC_UI_LoadFirstRow" xml:space="preserve">
+    <value>Reihe 1 laden</value>
+  </data>
+  <data name="BC_UI_Favorite" xml:space="preserve">
+    <value>Favorit</value>
+  </data>
+  <data name="BC_UI_FavoriteMark" xml:space="preserve">
+    <value>* {0}</value>
+  </data>
+  <data name="BC_UI_EditSlotHint" xml:space="preserve">
+    <value>Klick auf ein Feld bearbeitet diesen Slot.</value>
+  </data>
+  <data name="BC_UI_ExportHint" xml:space="preserve">
+    <value>Code unten kopieren, um dieses Farbset zu teilen.</value>
+  </data>
+  <data name="BC_UI_ImportHint" xml:space="preserve">
+    <value>Farbset-Code einfügen.</value>
+  </data>
+  <data name="BC_UI_ImportedSetName" xml:space="preserve">
+    <value>Importiertes Set</value>
+  </data>
+  <data name="BC_UI_Confirm_Overwrite" xml:space="preserve">
+    <value>Ein Farbset namens '{0}' existiert bereits. Ersetzen?</value>
+  </data>
+  <data name="BC_UI_Greys" xml:space="preserve">
+    <value>Grautöne</value>
+  </data>
+  <data name="BC_UI_SlotHint" xml:space="preserve">
+    <value>Klick bearbeitet ein Feld, Rechtsklick sperrt es gegen den nächsten Wurf.</value>
+  </data>
+  <data name="BC_UI_Slot" xml:space="preserve">
+    <value>Slot {0}</value>
+  </data>
+  <data name="BC_UI_EditSlot" xml:space="preserve">
+    <value>Slot {0} bearbeiten</value>
+  </data>
+  <data name="BC_UI_Scheme_Default" xml:space="preserve">
+    <value>Standard</value>
+  </data>
+  <data name="BC_UI_Scheme_Analogous" xml:space="preserve">
+    <value>Analog</value>
+  </data>
+  <data name="BC_UI_Scheme_Complementary" xml:space="preserve">
+    <value>Komplementär</value>
+  </data>
+  <data name="BC_UI_Scheme_SplitComplementary" xml:space="preserve">
+    <value>Geteilt komplementär</value>
+  </data>
+  <data name="BC_UI_Scheme_Triadic" xml:space="preserve">
+    <value>Triadisch</value>
+  </data>
+  <data name="BC_UI_Scheme_Tetradic" xml:space="preserve">
+    <value>Tetradisch</value>
+  </data>
+  <data name="BC_UI_Scheme_Square" xml:space="preserve">
+    <value>Quadratisch</value>
+  </data>
+  <data name="BC_UI_Scheme_Monochromatic" xml:space="preserve">
+    <value>Monochrom</value>
+  </data>
+  <data name="BC_UI_Scheme_HullAndAccent" xml:space="preserve">
+    <value>Rumpf und Akzent</value>
+  </data>
+  <data name="BC_UI_Preset_None" xml:space="preserve">
+    <value>Keine</value>
+  </data>
+  <data name="BC_UI_Preset_Pastel" xml:space="preserve">
+    <value>Pastell</value>
+  </data>
+  <data name="BC_UI_Preset_Soft" xml:space="preserve">
+    <value>Weich</value>
+  </data>
+  <data name="BC_UI_Preset_Light" xml:space="preserve">
+    <value>Hell</value>
+  </data>
+  <data name="BC_UI_Preset_Hard" xml:space="preserve">
+    <value>Hart</value>
+  </data>
+  <data name="BC_UI_Preset_Pale" xml:space="preserve">
+    <value>Blass</value>
+  </data>
+  <data name="BC_UI_Preset_Vibrant" xml:space="preserve">
+    <value>Kräftig</value>
+  </data>
+  <data name="BC_UI_Preset_Muted" xml:space="preserve">
+    <value>Gedämpft</value>
+  </data>
+  <data name="BC_UI_Preset_Warm" xml:space="preserve">
+    <value>Warm</value>
+  </data>
+  <data name="BC_UI_Preset_Cool" xml:space="preserve">
+    <value>Kühl</value>
+  </data>
+  <data name="BC_UI_Preset_Dark" xml:space="preserve">
+    <value>Dunkel</value>
+  </data>
+  <data name="BC_UI_Preset_Lighter" xml:space="preserve">
+    <value>Aufgehellt</value>
+  </data>
+  <data name="BC_ColorSetGenerated" xml:space="preserve">
+    <value>Neue Palette erzeugt.</value>
+  </data>
+  <data name="BC_ColorSetImported" xml:space="preserve">
+    <value>Farbset '{0}' importiert.</value>
+  </data>
+  <data name="BC_InvalidColorSetCode" xml:space="preserve">
+    <value>Das ist kein gültiger Farbset-Code.</value>
+  </data>
+  <data name="BC_Description_Export" xml:space="preserve">
+    <value>Zeigt den Teilen-Code eines Farbsets.</value>
+  </data>
+  <data name="BC_Description_Import" xml:space="preserve">
+    <value>Fügt ein Farbset aus einem Teilen-Code hinzu.</value>
+  </data>
+  <data name="BC_UI_LoadSecondRow" xml:space="preserve">
+    <value>Reihe 2 laden</value>
+  </data>
+  <data name="BC_UI_BaseSource" xml:space="preserve">
+    <value>Basisfarbe</value>
+  </data>
+  <data name="BC_UI_BaseSource_Random" xml:space="preserve">
+    <value>Zufällig</value>
+  </data>
+  <data name="BC_UI_BaseSource_Palette" xml:space="preserve">
+    <value>Aus Palette</value>
+  </data>
+  <data name="BC_UI_BaseSource_Target" xml:space="preserve">
+    <value>Aus Zielgrid</value>
+  </data>
+  <data name="BC_UI_BaseSource_Custom" xml:space="preserve">
+    <value>Eigene</value>
+  </data>
+  <data name="BC_UI_PickBaseHint" xml:space="preserve">
+    <value>Farbe anklicken, um das Schema darum zu bauen.</value>
   </data>
 </root>

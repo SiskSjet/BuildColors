@@ -7,17 +7,12 @@ using ColorModel = Sisk.BuildColors.Settings.Models.Color;
 namespace Sisk.BuildColors.Settings.Models.PaintJobs {
 
     /// <summary>
-    ///     Where the color and skin of a matched block come from. <see cref="PaintSourceType.Solid" /> is the
-    ///     plain case and reads the target color and skin off the action itself, so a job saved before there
-    ///     were sources loads unchanged. Every other type derives its value from where the block sits on the
-    ///     grid, which is what makes gradients and camo possible at all.
+    /// Where the color and skin of a matched block come from.
     /// </summary>
     [ProtoContract]
     public class PaintColorSource {
-
         /// <summary>
-        ///     Widest patch a camo source is allowed, in blocks. Beyond this a patch covers a whole build and
-        ///     the source stops being camo.
+        /// Widest patch a camo source is allowed, in blocks.
         /// </summary>
         public const float MAX_SCALE = 200f;
 
@@ -25,9 +20,6 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
         public const float MIN_SCALE = .5f;
 
         public PaintColorSource() {
-            // Lists are deliberately left null. XmlSerializer appends to the list a getter returns instead of
-            // replacing it, so anything seeded here would be kept and the saved entries appended after it,
-            // growing the source on every load. Callers that need entries call the Ensure methods.
         }
 
         [ProtoMember(1)]
@@ -35,9 +27,7 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
         public PaintSourceType Type { get; set; } = PaintSourceType.Solid;
 
         /// <summary>
-        ///     Defaults to the longest axis of the build, because "a gradient along the ship" is what the
-        ///     word means to most people, and which of the three grid axes that is depends on nothing more
-        ///     than which way the first block happened to face.
+        /// Axis the source runs along.
         /// </summary>
         [ProtoMember(2)]
         [XmlAttribute("axis")]
@@ -48,22 +38,21 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
         public PaintBlendSpace Blend { get; set; } = PaintBlendSpace.Lab;
 
         /// <summary>
-        ///     Number of bands a gradient is snapped to. Zero blends without steps, which looks smoother but
-        ///     gives nearly every block its own color and so costs one network message per block.
+        /// Number of bands a gradient is snapped to.
         /// </summary>
         [ProtoMember(4)]
         [XmlAttribute("steps")]
         public int Steps { get; set; } = 8;
 
         /// <summary>
-        ///     Rough width of a camo patch in blocks.
+        /// Rough width of a camo patch in blocks.
         /// </summary>
         [ProtoMember(5)]
         [XmlAttribute("scale")]
         public float Scale { get; set; } = 4f;
 
         /// <summary>
-        ///     Width of a band or a checker cell in blocks.
+        /// Width of a band or a checker cell in blocks.
         /// </summary>
         [ProtoMember(6)]
         [XmlAttribute("period")]
@@ -74,9 +63,7 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
         public PaintPatternShape Shape { get; set; } = PaintPatternShape.Stripes;
 
         /// <summary>
-        ///     Varies the pattern without changing anything else about it. The same seed on the same blocks
-        ///     always gives the same paint, which is what lets a job be re-applied without the build changing
-        ///     underneath it.
+        /// Varies the pattern without changing anything else about it.
         /// </summary>
         [ProtoMember(8)]
         [XmlAttribute("seed")]
@@ -101,7 +88,7 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
         public List<PaintPaletteEntry> Palette { get; set; }
 
         /// <summary>
-        ///     True when the source reads a palette rather than gradient stops.
+        /// True when the source reads a palette rather than gradient stops.
         /// </summary>
         public bool UsesPalette {
             get { return Type == PaintSourceType.Camo || Type == PaintSourceType.Scatter || Type == PaintSourceType.Pattern; }
@@ -143,9 +130,7 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
         }
 
         /// <summary>
-        ///     Fills the list a source of this type reads, so a type freshly switched to always has something
-        ///     to show. The seed color is the color the rule painted before, which keeps a switch from
-        ///     throwing away what was already dialed in.
+        /// Fills the list a source of this type reads, so a type freshly switched to always has something to show.
         /// </summary>
         public void EnsureEntries(ColorModel seedColor) {
             if (UsesStops) {

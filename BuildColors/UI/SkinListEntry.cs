@@ -6,8 +6,7 @@ using VRageMath;
 namespace Sisk.BuildColors.UI {
 
     /// <summary>
-    /// Dropdown row showing an armor skin icon next to its name. Used as the element type of the skin
-    /// dropdowns, which is why it needs a parameterless constructor and exposes a text board.
+    /// Dropdown row showing an armor skin icon next to its name.
     /// </summary>
     public class SkinListEntry : HudElementBase, IMinLabelElement {
         private const float ICON_SIZE = 24f;
@@ -33,8 +32,6 @@ namespace Sisk.BuildColors.UI {
                 Height = ICON_SIZE,
             };
 
-            // No FitMembersOffAxis here: the list box overrides row height, and stretching the icon to it
-            // would distort a square texture.
             var layout = new HudChain(false, this) {
                 CollectionContainer = { { _icon, 0f }, { _label, 1f } },
                 Spacing = ICON_SPACING,
@@ -48,8 +45,7 @@ namespace Sisk.BuildColors.UI {
         }
 
         /// <summary>
-        /// Shows the icon of the given transparent material, or hides it when there is none. Skins from
-        /// other mods have no icon material shipped with this mod and simply show as text.
+        /// Shows the icon of the given transparent material, or hides it when there is none.
         /// </summary>
         public void SetIcon(string materialSubtype) {
             if (string.IsNullOrEmpty(materialSubtype)) {

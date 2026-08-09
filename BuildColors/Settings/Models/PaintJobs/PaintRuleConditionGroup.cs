@@ -6,7 +6,6 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
 
     [ProtoContract]
     public class PaintRuleConditionGroup {
-
         public static PaintRuleConditionGroup CreateDefault() {
             return new PaintRuleConditionGroup();
         }
@@ -16,8 +15,7 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
         public PaintRuleLogicalOperator Operator { get; set; } = PaintRuleLogicalOperator.And;
 
         /// <summary>
-        ///     Inverts the result of the group, which is what makes NOT expressions such as
-        ///     "not (armor and red)" possible. An empty group stays unmatched either way.
+        /// Inverts the result of the group.
         /// </summary>
         [ProtoMember(4)]
         [XmlAttribute("negate")]
@@ -34,7 +32,7 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
         public List<PaintRuleConditionGroup> Children { get; set; } = new List<PaintRuleConditionGroup>();
 
         /// <summary>
-        ///     Creates an independent copy of this group and everything nested inside it.
+        /// Creates an independent copy of this group and everything nested inside it.
         /// </summary>
         public PaintRuleConditionGroup Clone() {
             var clone = new PaintRuleConditionGroup {

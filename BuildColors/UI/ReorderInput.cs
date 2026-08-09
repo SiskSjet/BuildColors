@@ -17,9 +17,7 @@ namespace Sisk.BuildColors.UI {
     }
 
     /// <summary>
-    /// Input for picking a list item up, moving it and putting it down. Every bind carries a keyboard and a
-    /// gamepad control, so the same interaction works with keyboard, controller and, through the dialogs,
-    /// the mouse. Binds live in their own group so they show up in the Rich HUD bind menu and can be rebound.
+    /// Input for picking a list item up, moving it and putting it down.
     /// </summary>
     internal static class ReorderInput {
         private const string GROUP_NAME = "BuildColors";
@@ -78,7 +76,7 @@ namespace Sisk.BuildColors.UI {
         }
 
         /// <summary>
-        /// Polls the movement binds. Held keys repeat so a long move does not need one press per step.
+        /// Polls the movement binds.
         /// </summary>
         public static ReorderIntent Poll() {
             EnsureBinds();
@@ -137,7 +135,6 @@ namespace Sisk.BuildColors.UI {
                 { "reorderDeeper", RichHudControls.Right, new KeyComboInit { RichHudControls.DPadRight } },
             });
 
-            // Captured before any saved configuration can change them, so this really is the default set.
             _defaultBinds = _binds.GetBindDefinitions();
 
             _grab = _binds["reorderGrab"];

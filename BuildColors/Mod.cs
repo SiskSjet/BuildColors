@@ -27,38 +27,36 @@ namespace Sisk.BuildColors {
         private BuildColorUI _ui;
 
         /// <summary>
-        ///     Creates a new instance of this component.
+        /// Creates a new instance of this component.
         /// </summary>
         public Mod() {
             Static = this;
         }
 
         /// <summary>
-        ///     Mod name to acronym.
+        /// Mod name to acronym.
         /// </summary>
         public static string Acronym => string.Concat(NAME.Where(char.IsUpper));
 
-        /// <summary>
-        /// </summary>
         public static Mod Static { get; private set; }
 
         /// <summary>
-        ///     Available color sets.
+        /// Available color sets.
         /// </summary>
         public ColorSets ColorSets { get; private set; }
 
         /// <summary>
-        ///     Stored paint jobs.
+        /// Stored paint jobs.
         /// </summary>
         public PaintJobSet PaintJobs { get; private set; }
 
         /// <summary>
-        ///     Runtime service for manipulating and applying paint jobs.
+        /// Runtime service for manipulating and applying paint jobs.
         /// </summary>
         public PaintJobService PaintJobService { get; private set; }
 
         /// <summary>
-        ///     Server memory.
+        /// Server memory.
         /// </summary>
         public ServerMemory ServerMemory { get; private set; }
 
@@ -69,9 +67,8 @@ namespace Sisk.BuildColors {
         }
 
         /// <summary>
-        ///     The static instance of this component.
+        /// The static instance of this component.
         /// </summary>
-        /// <param name="sessionComponent"></param>
         public override void Init(MyObjectBuilder_SessionComponent sessionComponent) {
             if (!MyAPIGateway.Utilities.IsDedicated) {
                 _ui = new BuildColorUI();
@@ -80,21 +77,70 @@ namespace Sisk.BuildColors {
         }
 
         /// <summary>
-        ///     Load build color set with given name.
+        /// Load build color set with given name.
         /// </summary>
-        /// <param name="name">The name of the build color set.</param>
         public void LoadColorSet(string name) {
-            var set = new ColorSet { Name = name };
-            if (ColorSets.Contains(set)) {
-                set = ColorSets.First(x => StringComparer.InvariantCultureIgnoreCase.Equals(x.Name, name));
-                MyAPIGateway.Session.LocalHumanPlayer.BuildColorSlots = set.Colors.Select(x => (Vector3)x).ToList();
-            } else {
-                MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(ModText.BC_NoColorSetFound.GetString(), name));
-            }
+            LoadColorSet(name, 0, ColorSet.SLOTS);
         }
 
         /// <summary>
-        ///     Load mod settings and create localizations.
+        /// Loads a run of slots from a color set, leaving the rest of the palette as it is.
+        /// </summary>
+        public void LoadColorSet(string name, int startSlot, int slotCount) {
+            var set = new ColorSet { Name = name };
+
+            if (!ColorSets.Contains(set)) {
+                MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(ModText.BC_NoColorSetFound.GetString(), name));
+                return;
+            }
+
+            set = ColorSets.First(x => StringComparer.InvariantCultureIgnoreCase.Equals(x.Name, name));
+            ApplySlots(set.ToBuildColorSlots(), startSlot, slotCount);
+        }
+
+        /// <summary>
+        /// Writes a run of slots into the palette, keeping every slot outside that run.
+        /// </summary>
+        public void ApplySlots(List<Vector3> slots, int startSlot = 0, int slotCount = ColorSet.SLOTS) {
+            var player = MyAPIGateway.Session?.LocalHumanPlayer;
+
+            if (player == null || slots == null || slots.Count == 0) {
+                return;
+            }
+
+            var current = player.BuildColorSlots;
+            var end = Math.Min(startSlot + slotCount, ColorSet.SLOTS);
+            var applied = new List<Vector3>(ColorSet.SLOTS);
+
+            for (var i = 0; i < ColorSet.SLOTS; i++) {
+                if (i >= startSlot && i < end && i < slots.Count) {
+                    applied.Add(slots[i]);
+                } else if (current != null && i < current.Count) {
+                    applied.Add(current[i]);
+                } else {
+                    applied.Add(i < slots.Count ? slots[i] : Vector3.Zero);
+                }
+            }
+
+            player.BuildColorSlots = applied;
+        }
+
+        /// <summary>
+        /// The palette the player is building with right now.
+        /// </summary>
+        public ColorMask[] GetCurrentPalette() {
+            var slots = MyAPIGateway.Session?.LocalHumanPlayer?.BuildColorSlots;
+            var masks = new ColorMask[ColorSet.SLOTS];
+
+            for (var i = 0; i < ColorSet.SLOTS; i++) {
+                masks[i] = slots != null && i < slots.Count ? (ColorMask)slots[i] : default(ColorMask);
+            }
+
+            return masks;
+        }
+
+        /// <summary>
+        /// Load mod settings and create localizations.
         /// </summary>
         public override void LoadData() {
             CreateCommands();
@@ -115,9 +161,8 @@ namespace Sisk.BuildColors {
         }
 
         /// <summary>
-        ///     Removes a Color Set with given name.
+        /// Removes a Color Set with given name.
         /// </summary>
-        /// <param name="name">The name of the color set.</param>
         public void RemoveColorSet(string name) {
             var set = new ColorSet { Name = name };
             if (!ColorSets.Contains(set)) {
@@ -132,45 +177,71 @@ namespace Sisk.BuildColors {
         }
 
         /// <summary>
-        ///     Saves or overrides a build color set with current build colors.
+        /// Saves or overrides a build color set with current build colors.
         /// </summary>
-        /// <param name="name">The name of the build color set.</param>
         public void SaveColorSet(string name) {
-            var set = new ColorSet { Name = name };
-            if (ColorSets.Contains(set)) {
-                ColorSets.Remove(set);
-            }
-
-            set.Colors = MyAPIGateway.Session.LocalHumanPlayer.BuildColorSlots.Select(x => (Color)x).ToArray();
-            ColorSets.Add(set);
-
-            SaveColorSets();
-            MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(ModText.BC_ColorSetSaved.GetString(), name));
+            SaveColorSet(new ColorSet(name, GetCurrentPalette()));
         }
 
         public void SaveColorSet(ColorSet colorSet) {
-            if (ColorSets.Contains(colorSet)) {
-                ColorSets.Remove(colorSet);
+            var set = colorSet.Upgraded();
+
+            if (ColorSets.Contains(set)) {
+                var existing = ColorSets.First(x => StringComparer.InvariantCultureIgnoreCase.Equals(x.Name, set.Name));
+
+                if (set.CreatedTicks == 0L) {
+                    set.CreatedTicks = existing.CreatedTicks;
+                }
+
+                ColorSets.Remove(set);
             }
 
-            ColorSets.Add(colorSet);
+            if (set.CreatedTicks == 0L) {
+                set.CreatedTicks = DateTime.UtcNow.Ticks;
+            }
+
+            ColorSets.Add(set);
             SaveColorSets();
-            MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(ModText.BC_ColorSetSaved.GetString(), colorSet.Name));
+            MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(ModText.BC_ColorSetSaved.GetString(), set.Name));
         }
 
         /// <summary>
-        ///     Pulls the paint job list of the UI back in line after a console command changed it.
+        /// True when a set of this name already exists, so the UI can say what saving will replace.
         /// </summary>
-        /// <param name="jobToSelect">Job the list should end up on, or null to keep the current selection.</param>
+        public bool HasColorSet(string name) {
+            return ColorSets != null && ColorSets.Contains(new ColorSet { Name = name });
+        }
+
+        /// <summary>
+        /// Stores a set read from a share code, under a name that is not taken.
+        /// </summary>
+        public bool ImportColorSet(string code, out string name) {
+            ColorSet imported;
+            name = null;
+
+            if (!ColorSetCode.TryDecode(code, out imported)) {
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(imported.Name)) {
+                imported = imported.WithName(ModText.BC_UI_ImportedSetName.GetString());
+            }
+
+            while (HasColorSet(imported.Name)) {
+                imported = imported.WithName(ModText.BC_UI_CopyOfName.GetString(imported.Name));
+            }
+
+            name = imported.Name;
+            SaveColorSet(imported);
+
+            return true;
+        }
+
+        /// <summary>
+        /// Pulls the paint job list of the UI back in line after a console command changed it.
+        /// </summary>
         internal void RefreshPaintJobs(PaintJob jobToSelect = null) {
             _ui?.RefreshPaintJobs(jobToSelect);
-        }
-
-        /// <summary>
-        ///     Opens the paint job workbench. It stands on its own, so this works with no other screen up.
-        /// </summary>
-        internal void OpenWorkbench() {
-            _ui?.OpenWorkbench();
         }
 
         internal void SavePaintJobs() {
@@ -180,7 +251,7 @@ namespace Sisk.BuildColors {
         }
 
         /// <summary>
-        ///     Unregister events and stuff like that.
+        /// Unregister events and stuff like that.
         /// </summary>
         protected override void UnloadData() {
             if (MyAPIGateway.Multiplayer.MultiplayerActive && !MyAPIGateway.Utilities.IsDedicated) {
@@ -193,7 +264,7 @@ namespace Sisk.BuildColors {
         }
 
         /// <summary>
-        ///     Create commands.
+        /// Create commands.
         /// </summary>
         private void CreateCommands() {
             _commandHandler.Prefix = $"/{Acronym}";
@@ -202,54 +273,82 @@ namespace Sisk.BuildColors {
             _commandHandler.Register(new Command { Name = "Remove", Description = ModText.BC_Description_Remove.GetString(), Execute = RemoveColorSet });
             _commandHandler.Register(new Command { Name = "Generate", Description = ModText.BC_Description_Generate.GetString(), Execute = GenerateColorSet });
             _commandHandler.Register(new Command { Name = "List", Description = ModText.BC_Description_List.GetString(), Execute = ListColorSets });
+            _commandHandler.Register(new Command { Name = "Export", Description = ModText.BC_Description_Export.GetString(), Execute = ExportColorSet });
+            _commandHandler.Register(new Command { Name = "Import", Description = ModText.BC_Description_Import.GetString(), Execute = ImportColorSet });
             _commandHandler.Register(new Command { Name = "Help", Description = ModText.BC_Description_Help.GetString(), Execute = _commandHandler.ShowHelp });
 
             PaintJobCommands.Register(_commandHandler);
         }
 
+        private void ExportColorSet(string arguments) {
+            var name = (arguments ?? string.Empty).Trim().Trim('"');
+            var set = new ColorSet { Name = name };
+
+            if (!ColorSets.Contains(set)) {
+                MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(ModText.BC_NoColorSetFound.GetString(), name));
+                return;
+            }
+
+            set = ColorSets.First(x => StringComparer.InvariantCultureIgnoreCase.Equals(x.Name, name));
+
+            MyAPIGateway.Utilities.ShowMessage(NAME, ColorSetCode.Encode(set));
+        }
+
+        private void ImportColorSet(string arguments) {
+            string name;
+
+            if (ImportColorSet((arguments ?? string.Empty).Trim(), out name)) {
+                MyAPIGateway.Utilities.ShowMessage(NAME, string.Format(ModText.BC_ColorSetImported.GetString(), name));
+                return;
+            }
+
+            MyAPIGateway.Utilities.ShowMessage(NAME, ModText.BC_InvalidColorSetCode.GetString());
+        }
+
+        /// <summary>
+        /// Rolls a palette straight into the build colors.
+        /// </summary>
         private void GenerateColorSet(string arguments) {
             var generator = new ColorSchemeGenerator();
-            var colorSet = generator.Generate();
+            var options = new ColorSchemeGenerator.Options();
 
-            if (colorSet?.Length > 0) {
-                MyAPIGateway.Session.LocalHumanPlayer.BuildColorSlots = colorSet.Select(x => ((VRageMath.Color)(Color)x).ToVector3()).ToList();
+            foreach (var token in (arguments ?? string.Empty).Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)) {
+                ColorSchemeGenerator.Scheme scheme;
+                ColorSchemeGenerator.Preset preset;
+
+                if (Enum.TryParse(token, true, out scheme) && Enum.IsDefined(typeof(ColorSchemeGenerator.Scheme), scheme)) {
+                    options.Scheme = scheme;
+                } else if (Enum.TryParse(token, true, out preset) && Enum.IsDefined(typeof(ColorSchemeGenerator.Preset), preset)) {
+                    options.Preset = preset;
+                }
+            }
+
+            var result = generator.Generate(options);
+
+            if (result.Masks.Length > 0) {
+                ApplySlots(result.ToSlots());
+                MyAPIGateway.Utilities.ShowMessage(NAME, ModText.BC_ColorSetGenerated.GetString());
             }
         }
 
         /// <summary>
-        ///     List available build color sets.
+        /// List available build color sets.
         /// </summary>
-        /// <param name="arguments"></param>
         private void ListColorSets(string arguments) {
             MyAPIGateway.Utilities.ShowMessage(NAME, ColorSets.Any() ? string.Join(", ", ColorSets.Select(x => x.Name)) : ModText.BC_NoColorSetsAvailable.GetString());
         }
 
         private void LoadColorSets() {
-            var colorSets = FileHandler.Load<ColorSets>(COLOR_SETS_FILE);
+            var colorSets = FileHandler.Load<ColorSets>(COLOR_SETS_FILE) ?? new ColorSets();
 
-            if (colorSets != null) {
-                if (colorSets.Version < ColorSets.VERSION) {
-                    // todo: merge old and new color sets in future versions.
-                }
-            } else {
-                colorSets = new ColorSets();
-            }
-
+            colorSets.Upgrade();
             ColorSets = colorSets;
         }
 
         private void LoadPaintJobs() {
             var jobs = FileHandler.Load<PaintJobSet>(PAINT_JOBS_FILE);
 
-            if (jobs != null) {
-                if (jobs.Version < PaintJobSet.VERSION) {
-                    // todo: merge old and new paint job versions.
-                }
-            } else {
-                jobs = new PaintJobSet();
-            }
-
-            PaintJobs = jobs;
+            PaintJobs = jobs ?? new PaintJobSet();
         }
 
         private void LoadServerColor() {
@@ -257,7 +356,6 @@ namespace Sisk.BuildColors {
 
             if (serverMemory != null) {
                 if (serverMemory.Version < ColorSets.VERSION) {
-                    // todo: merge old and new color sets in future versions.
                 }
             } else {
                 serverMemory = new ServerMemory();
@@ -273,11 +371,15 @@ namespace Sisk.BuildColors {
         }
 
         private void OnSessionReady() {
-            if (ServerMemory?.ServerEntries?.Any() == true && MyAPIGateway.Session != null && MyAPIGateway.Session.LocalHumanPlayer != null) {
-                if (ServerMemory.ServerEntries.Any(x => x.Id == MyAPIGateway.Session.Name)) {
-                    var entry = ServerMemory.ServerEntries.FirstOrDefault(x => x.Id == MyAPIGateway.Session.Name);
-                    MyAPIGateway.Session.LocalHumanPlayer.BuildColorSlots = entry.Colors.Select(x => (Vector3)x).ToList();
-                }
+            if (ServerMemory?.ServerEntries == null || MyAPIGateway.Session?.LocalHumanPlayer == null) {
+                return;
+            }
+
+            var name = MyAPIGateway.Session.Name;
+
+            if (ServerMemory.ServerEntries.Any(x => x.Id == name)) {
+                var entry = ServerMemory.ServerEntries.First(x => x.Id == name);
+                ApplySlots(entry.ToBuildColorSlots());
             }
         }
 
@@ -286,19 +388,20 @@ namespace Sisk.BuildColors {
         }
 
         private void SaveServerMemory() {
-            if ((ServerMemory?.ServerEntries) != null && (MyAPIGateway.Session?.LocalHumanPlayer?.BuildColorSlots) != null) {
-                if (ServerMemory.ServerEntries.Any(x => x.Id == MyAPIGateway.Session.Name)) {
-                    var entry = ServerMemory.ServerEntries.FirstOrDefault(x => x.Id == MyAPIGateway.Session.Name);
-                    entry.Colors = MyAPIGateway.Session.LocalHumanPlayer.BuildColorSlots.Select(x => (Color)x).ToArray();
-                } else {
-                    ServerMemory.ServerEntries.Add(new ServerEntry {
-                        Id = MyAPIGateway.Session.Name,
-                        Colors = MyAPIGateway.Session.LocalHumanPlayer.BuildColorSlots.Select(x => (Color)x).ToArray()
-                    });
-                }
+            var slots = MyAPIGateway.Session?.LocalHumanPlayer?.BuildColorSlots;
 
-                FileHandler.Save(SERVER_MEMORY_FILE, ServerMemory);
+            if (ServerMemory?.ServerEntries == null || slots == null) {
+                return;
             }
+
+            var name = MyAPIGateway.Session.Name;
+            var entry = ServerEntry.FromSlots(name, slots);
+
+            ServerMemory.ServerEntries.RemoveWhere(x => x.Id == name);
+            ServerMemory.ServerEntries.Add(entry);
+
+            ServerMemory.Version = ServerMemory.VERSION;
+            FileHandler.Save(SERVER_MEMORY_FILE, ServerMemory);
         }
     }
 }

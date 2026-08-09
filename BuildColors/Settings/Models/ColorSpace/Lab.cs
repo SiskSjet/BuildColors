@@ -1,7 +1,6 @@
-﻿namespace Sisk.BuildColors.Settings.Models.ColorSpace {
+namespace Sisk.BuildColors.Settings.Models.ColorSpace {
 
     public struct Lab {
-
         public Lab(float l, float a, float b) {
             L = l;
             A = a;

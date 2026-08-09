@@ -6,11 +6,7 @@ using VRageMath;
 namespace Sisk.BuildColors.Services {
 
     /// <summary>
-    ///     Collects the blocks a job changes on one grid and paints them in as few calls as it can. Every
-    ///     call into the grid is a multiplayer message, and a gradient or a camo pattern touches nearly every
-    ///     block on the build, so painting block by block would put thousands of messages on the wire for a
-    ///     single job. Blocks that end up with the same paint are gathered and consecutive ones are sent as
-    ///     one box.
+    /// Collects the blocks a job changes on one grid and paints them in as few calls as it can.
     /// </summary>
     internal sealed class GridPaintBatch {
         private readonly List<PaintGroup> _groups = new List<PaintGroup>();
@@ -24,10 +20,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Queues a block. Returns false when the block already looks the way the job wants it, which is
-        ///     what keeps re-applying a job from repainting a grid that is already done. When it returns true,
-        ///     <paramref name="previous" /> holds what the block looked like beforehand, which is everything
-        ///     needed to put it back.
+        /// Queues a block.
         /// </summary>
         public bool Add(IMySlimBlock block, ref PaintResolution resolution, out BlockPaintState previous) {
             var currentMask = block.GetColorMask();
@@ -49,8 +42,6 @@ namespace Sisk.BuildColors.Services {
                 return false;
             }
 
-            // Only the channels that actually differ are sent. A block that is already the right color but
-            // wears the wrong skin has no business being re-colored along with it.
             var applied = new PaintResolution {
                 ApplyColor = needsColor,
                 ApplySkin = needsSkin,
@@ -77,8 +68,6 @@ namespace Sisk.BuildColors.Services {
         }
 
         private PaintGroup GetGroup(ref PaintResolution resolution) {
-            // A job produces a handful of distinct results at most - one per gradient band or palette entry -
-            // so walking the list beats keeping a dictionary keyed by a color.
             for (var i = 0; i < _groups.Count; i++) {
                 if (_groups[i].Resolution.Matches(ref resolution)) {
                     return _groups[i];
@@ -101,9 +90,6 @@ namespace Sisk.BuildColors.Services {
                 return;
             }
 
-            // Sorted so that blocks sharing a row end up next to each other and a row can be walked in one
-            // pass. Runs are only merged along X because a box spanning two rows would also cover the cells
-            // between them, which belong to blocks this group never matched.
             cells.Sort(CompareCells);
 
             _run.Clear();
@@ -129,7 +115,6 @@ namespace Sisk.BuildColors.Services {
         }
 
         private void Paint(Vector3I min, Vector3I max, PaintResolution resolution) {
-            // Skinning takes the color along with it, so a block that needs both only costs one call.
             if (resolution.ApplySkin) {
                 _grid.SkinBlocks(min, max, resolution.ApplyColor ? resolution.Mask : (Vector3?)null, resolution.SkinId ?? string.Empty);
                 return;
@@ -153,12 +138,9 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Blocks that end up with the same paint. Single cell blocks are kept as bare coordinates so they
-        ///     can be merged into runs; anything larger is painted on its own, because merging boxes of mixed
-        ///     sizes would cover cells that are not part of the group.
+        /// Blocks that end up with the same paint.
         /// </summary>
         private sealed class PaintGroup {
-
             public PaintGroup(PaintResolution resolution) {
                 Resolution = resolution;
             }

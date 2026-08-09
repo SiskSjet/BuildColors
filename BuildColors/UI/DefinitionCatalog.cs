@@ -29,8 +29,6 @@ namespace Sisk.BuildColors.UI {
 
         public static IReadOnlyList<SkinOption> Skins {
             get {
-                // DLC ownership can only be resolved once there is a local player. If the list was built
-                // before that, it is unfiltered and gets rebuilt rather than cached for the session.
                 if (_skins == null || !_skinsFilteredByOwnership) {
                     _skins = BuildSkins();
                 }
@@ -48,11 +46,12 @@ namespace Sisk.BuildColors.UI {
                 Height = height,
             };
 
+            ControlFactory.StyleDropdown(dropdown);
+
             foreach (var option in Skins) {
                 dropdown.Add(option.DisplayName, option);
             }
 
-            // The elements only exist once the entries have been added.
             for (var i = 0; i < dropdown.EntryList.Count; i++) {
                 dropdown.EntryList[i].Element.SetIcon(dropdown.EntryList[i].AssocMember.IconMaterial);
             }
@@ -94,8 +93,6 @@ namespace Sisk.BuildColors.UI {
             var steamUserId = MyAPIGateway.Session?.LocalHumanPlayer?.SteamUserId;
             _skinsFilteredByOwnership = steamUserId.HasValue;
 
-            // Character skins and block skins are both AssetModifierDefinitions. Only block skins carry an
-            // icon, because only they appear in the armor skin picker, so that is the discriminator.
             var options = MyDefinitionManager.Static
                 .GetAssetModifierDefinitions()
                 .Where(definition => definition.Public
@@ -117,15 +114,13 @@ namespace Sisk.BuildColors.UI {
         }
 
         /// <summary>
-        /// True when the skin needs no DLC or the player owns the DLC it needs. Skins the player cannot
-        /// apply are left out of the list entirely.
+        /// True when the skin needs no DLC or the player owns the DLC it needs.
         /// </summary>
         private static bool IsOwned(MyAssetModifierDefinition definition, ulong? steamUserId) {
             if (definition.DLCs == null || definition.DLCs.Length == 0) {
                 return true;
             }
 
-            // Without a local player there is nobody to check ownership against, so do not hide anything.
             if (!steamUserId.HasValue) {
                 return true;
             }
@@ -164,8 +159,7 @@ namespace Sisk.BuildColors.UI {
 
         public class SkinOption {
             /// <summary>
-            /// Prefix of the transparent materials declared in Content/Data/TransparentMaterials.sbc, which
-            /// expose the vanilla armor skin icons to the billboard renderer.
+            /// Prefix of the transparent materials holding the vanilla armor skin icons.
             /// </summary>
             public const string ICON_MATERIAL_PREFIX = "BuildColors_Skin_";
 
@@ -174,7 +168,6 @@ namespace Sisk.BuildColors.UI {
 
             /// <summary>
             /// Subtype of the transparent material holding this skin's icon, or null when none is declared.
-            /// Skins added by other mods have no entry and are shown without an icon.
             /// </summary>
             public string IconMaterial { get; set; }
         }

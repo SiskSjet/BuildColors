@@ -8,7 +8,7 @@ using ColorModel = Sisk.BuildColors.Settings.Models.Color;
 namespace Sisk.BuildColors.Services {
 
     /// <summary>
-    ///     The color and skin one block ends up with.
+    /// The color and skin one block ends up with.
     /// </summary>
     internal struct PaintEntry {
         public Vector3 Mask;
@@ -16,28 +16,23 @@ namespace Sisk.BuildColors.Services {
     }
 
     /// <summary>
-    ///     A rule action turned into something that can answer "what does this block get" without looking at
-    ///     the model again. Compiling resolves every color into a mask and, wherever the source is banded,
-    ///     builds the finished list of bands up front, so painting a grid costs a lookup per block instead of
-    ///     a color space conversion.
+    /// A rule action turned into something that can answer what a block gets.
     /// </summary>
     internal abstract class CompiledPaintSource {
-
         public abstract void Evaluate(ref BlockFacts facts, out PaintEntry entry);
 
         /// <summary>
-        ///     Starts a fresh look at one grid. A source that pins itself to the blocks it paints has to
-        ///     measure them first, and every grid is measured on its own.
+        /// Starts a fresh look at one grid.
         /// </summary>
         public virtual void BeginGrid() { }
 
         /// <summary>
-        ///     Called once for every block this source is going to paint, before any of them is evaluated.
+        /// Called once for every block this source is going to paint, before any of them is evaluated.
         /// </summary>
         public virtual void Observe(ref BlockFacts facts) { }
 
         /// <summary>
-        ///     Closes the measuring pass. After this the source is ready to be evaluated.
+        /// Closes the measuring pass.
         /// </summary>
         public virtual void EndGrid() { }
 
@@ -64,8 +59,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Reads the 0 to 1 position of a block along the axis a source runs on, as measured against the
-        ///     whole grid.
+        /// Reads the 0 to 1 position of a block along the axis a source runs on.
         /// </summary>
         protected static float ReadAxis(ref BlockFacts facts, PaintSourceAxis axis) {
             switch (axis) {
@@ -90,9 +84,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Reads the whole block distance of a block along an axis, which is what a banded pattern counts
-        ///     in. Unlike the normalized position this does not stretch with the grid, so a stripe stays the
-        ///     same width whether it is painted on a fighter or on a carrier.
+        /// Reads the whole block distance of a block along an axis, which is what a banded pattern counts in.
         /// </summary>
         protected static int ReadAxisCoordinate(ref BlockFacts facts, PaintSourceAxis axis) {
             switch (axis) {
@@ -141,9 +133,6 @@ namespace Sisk.BuildColors.Services {
             var fit = new AxisFit(source.Fit == PaintGradientFit.MatchedBlocks);
             var gradient = new GradientPaintSource(stops, source.Blend, source.Axis, source.Reverse, fit);
 
-            // A banded gradient only ever produces as many colors as it has bands, so they are all worked out
-            // here. That turns the per block cost into an index and, more importantly, keeps the number of
-            // distinct colors on a grid small enough for the painting pass to merge them into runs.
             var steps = source.Steps;
             if (steps > 0) {
                 steps = Math.Min(steps, PaintColorSource.MAX_STEPS);
@@ -214,8 +203,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Turns the weights into the running total a pick is looked up in. Weights that add up to nothing
-        ///     are read as an even spread rather than as an entry nobody can ever get.
+        /// Turns the weights into the running total a pick is looked up in.
         /// </summary>
         private static float[] BuildWeights(PaintColorSource source, int count) {
             var cumulative = new float[count];
@@ -246,9 +234,7 @@ namespace Sisk.BuildColors.Services {
     }
 
     /// <summary>
-    ///     Stretches the span of axis values a rule's blocks actually cover back out over the full 0 to 1
-    ///     range. Without it a rule covering only part of a build never reaches the far end of its gradient,
-    ///     which reads as a missing color rather than as a short gradient.
+    /// Stretches the span of axis values a rule's blocks actually cover back out over the full 0 to 1 range.
     /// </summary>
     internal sealed class AxisFit {
         private readonly bool _enabled;
@@ -282,8 +268,6 @@ namespace Sisk.BuildColors.Services {
         }
 
         public void End() {
-            // A rule matching a single layer of blocks has nothing to stretch. Leaving the span at zero falls
-            // back to the grid measurement, which at least puts that layer somewhere sensible in the ramp.
             _span = _enabled && _max > _min ? _max - _min : 0f;
         }
 
@@ -305,8 +289,7 @@ namespace Sisk.BuildColors.Services {
     }
 
     /// <summary>
-    ///     Blends between stops for every block. Only used when the gradient was asked for without bands;
-    ///     with bands the colors are worked out at compile time instead.
+    /// Blends between stops for every block.
     /// </summary>
     internal sealed class GradientPaintSource : CompiledPaintSource {
         private readonly PaintSourceAxis _axis;
@@ -342,8 +325,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Color at a point along the gradient. Skins are taken from the nearer stop instead of blended,
-        ///     because there is no halfway between two skins.
+        /// Color at a point along the gradient.
         /// </summary>
         public PaintEntry Sample(float position) {
             var t = MathHelper.Clamp(position, 0f, 1f);
@@ -384,7 +366,7 @@ namespace Sisk.BuildColors.Services {
     }
 
     /// <summary>
-    ///     A gradient whose colors were all worked out at compile time, leaving one band lookup per block.
+    /// A gradient whose colors were all worked out at compile time, leaving one band lookup per block.
     /// </summary>
     internal sealed class BandedPaintSource : CompiledPaintSource {
         private readonly PaintSourceAxis _axis;
@@ -424,8 +406,7 @@ namespace Sisk.BuildColors.Services {
     }
 
     /// <summary>
-    ///     Picks palette entries in patches. The noise is smooth over the grid, so neighbouring blocks nearly
-    ///     always land in the same patch and the palette comes out as blotches rather than as static.
+    /// Picks palette entries in patches.
     /// </summary>
     internal sealed class CamoPaintSource : CompiledPaintSource {
         private readonly PaintEntry[] _entries;
@@ -447,8 +428,7 @@ namespace Sisk.BuildColors.Services {
     }
 
     /// <summary>
-    ///     Picks a palette entry per block, weighted. Meant for wear and speckle, where neighbouring blocks
-    ///     are supposed to differ.
+    /// Picks a palette entry per block, weighted.
     /// </summary>
     internal sealed class ScatterPaintSource : CompiledPaintSource {
         private readonly float[] _cumulativeWeights;
@@ -476,8 +456,7 @@ namespace Sisk.BuildColors.Services {
     }
 
     /// <summary>
-    ///     Repeats the palette in bands or in a checker. Counted in whole blocks, so the pattern keeps its
-    ///     size across grids of different sizes.
+    /// Repeats the palette in bands or in a checker.
     /// </summary>
     internal sealed class PatternPaintSource : CompiledPaintSource {
         private readonly PaintSourceAxis _axis;
@@ -496,7 +475,6 @@ namespace Sisk.BuildColors.Services {
             int index;
 
             if (_shape == PaintPatternShape.Checker) {
-                // A checker has no single direction to run along, so it always counts on the grid axes.
                 index = FloorDiv(facts.Position.X, _period)
                     + FloorDiv(facts.Position.Y, _period)
                     + FloorDiv(facts.Position.Z, _period);
