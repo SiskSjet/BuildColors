@@ -62,7 +62,6 @@ namespace Sisk.BuildColors.UI {
         private readonly BorderedCheckBox _includeSubgridsCheckbox;
         private readonly BorderedCheckBox _includeProjectedCheckbox;
         private readonly BorderedCheckBox _includePreviewCheckbox;
-        private readonly BorderedCheckBox _respectOwnershipCheckbox;
 
         private readonly ActionButton _applyButton;
         private readonly ActionButton _undoButton;
@@ -290,15 +289,13 @@ namespace Sisk.BuildColors.UI {
             _includeSubgridsCheckbox = ControlFactory.CreateCheckbox();
             _includeProjectedCheckbox = ControlFactory.CreateCheckbox();
             _includePreviewCheckbox = ControlFactory.CreateCheckbox();
-            _respectOwnershipCheckbox = ControlFactory.CreateCheckbox();
 
-            var optionWidth = width * .25f;
+            var optionWidth = width / 3f;
             var optionsRow = new HudChain(false) {
                 CollectionContainer = {
                     ControlFactory.CreateCheckboxRow(_includeSubgridsCheckbox, ModText.BC_UI_Option_IncludeSubgrids.GetString(), optionWidth),
                     ControlFactory.CreateCheckboxRow(_includeProjectedCheckbox, ModText.BC_UI_Option_IncludeProjected.GetString(), optionWidth),
-                    ControlFactory.CreateCheckboxRow(_includePreviewCheckbox, ModText.BC_UI_Option_IncludePreview.GetString(), optionWidth),
-                    ControlFactory.CreateCheckboxRow(_respectOwnershipCheckbox, ModText.BC_UI_Option_RespectOwnership.GetString(), optionWidth)
+                    ControlFactory.CreateCheckboxRow(_includePreviewCheckbox, ModText.BC_UI_Option_IncludePreview.GetString(), optionWidth)
                 },
                 Spacing = 0f,
                 SizingMode = HudChainSizingModes.FitMembersOffAxis,
@@ -347,7 +344,6 @@ namespace Sisk.BuildColors.UI {
             _includeSubgridsCheckbox.MouseInput.LeftClicked += (sender, args) => WriteOptions();
             _includeProjectedCheckbox.MouseInput.LeftClicked += (sender, args) => WriteOptions();
             _includePreviewCheckbox.MouseInput.LeftClicked += (sender, args) => WriteOptions();
-            _respectOwnershipCheckbox.MouseInput.LeftClicked += (sender, args) => WriteOptions();
 
             _applyButton.MouseInput.LeftClicked += OnApply;
             _undoButton.MouseInput.LeftClicked += OnUndo;
@@ -456,7 +452,6 @@ namespace Sisk.BuildColors.UI {
                 _includeSubgridsCheckbox.Value = options.IncludeSubgrids;
                 _includeProjectedCheckbox.Value = options.IncludeProjectedGrids;
                 _includePreviewCheckbox.Value = options.IncludePreviewGrids;
-                _respectOwnershipCheckbox.Value = options.RespectOwnership;
             } else {
                 _jobNameField.Text = string.Empty;
             }
@@ -783,7 +778,6 @@ namespace Sisk.BuildColors.UI {
             options.IncludeSubgrids = _includeSubgridsCheckbox.Value;
             options.IncludeProjectedGrids = _includeProjectedCheckbox.Value;
             options.IncludePreviewGrids = _includePreviewCheckbox.Value;
-            options.RespectOwnership = _respectOwnershipCheckbox.Value;
 
             Service?.Save();
         }

@@ -316,7 +316,6 @@ namespace Sisk.BuildColors.Localization {
         public static readonly MyStringId BC_UI_Option_IncludePreview = MyStringId.GetOrCompute(nameof(BC_UI_Option_IncludePreview));
         public static readonly MyStringId BC_UI_Option_IncludeProjected = MyStringId.GetOrCompute(nameof(BC_UI_Option_IncludeProjected));
         public static readonly MyStringId BC_UI_Option_IncludeSubgrids = MyStringId.GetOrCompute(nameof(BC_UI_Option_IncludeSubgrids));
-        public static readonly MyStringId BC_UI_Option_RespectOwnership = MyStringId.GetOrCompute(nameof(BC_UI_Option_RespectOwnership));
         public static readonly MyStringId BC_UI_PaintJobs = MyStringId.GetOrCompute(nameof(BC_UI_PaintJobs));
         public static readonly MyStringId BC_UI_Palette = MyStringId.GetOrCompute(nameof(BC_UI_Palette));
         public static readonly MyStringId BC_UI_PanelTitle = MyStringId.GetOrCompute(nameof(BC_UI_PanelTitle));

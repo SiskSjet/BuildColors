@@ -17,10 +17,6 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
         [XmlAttribute("affectPreview")]
         public bool IncludePreviewGrids { get; set; }
 
-        [ProtoMember(4)]
-        [XmlAttribute("respectOwnership")]
-        public bool RespectOwnership { get; set; } = true;
-
         /// <summary>
         /// Creates an independent copy.
         /// </summary>
@@ -28,8 +24,7 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
             return new PaintJobOptions {
                 IncludeSubgrids = IncludeSubgrids,
                 IncludeProjectedGrids = IncludeProjectedGrids,
-                IncludePreviewGrids = IncludePreviewGrids,
-                RespectOwnership = RespectOwnership
+                IncludePreviewGrids = IncludePreviewGrids
             };
         }
     }

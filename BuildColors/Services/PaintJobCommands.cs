@@ -257,7 +257,7 @@ namespace Sisk.BuildColors.Services {
             var current = ReadOption(job.Options, option);
 
             if (!current.HasValue) {
-                Show(ModText.BC_Cmd_UnknownOption.GetString(tokens[1], "subgrids, projected, preview, ownership"));
+                Show(ModText.BC_Cmd_UnknownOption.GetString(tokens[1], "subgrids, projected, preview"));
                 return;
             }
 
@@ -866,9 +866,6 @@ namespace Sisk.BuildColors.Services {
                 case "preview":
                     return options.IncludePreviewGrids;
 
-                case "ownership":
-                    return options.RespectOwnership;
-
                 default:
                     return null;
             }
@@ -886,10 +883,6 @@ namespace Sisk.BuildColors.Services {
 
                 case "preview":
                     options.IncludePreviewGrids = value;
-                    break;
-
-                case "ownership":
-                    options.RespectOwnership = value;
                     break;
             }
         }

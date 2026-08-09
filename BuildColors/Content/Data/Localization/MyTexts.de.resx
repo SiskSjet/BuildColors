@@ -282,9 +282,6 @@
   <data name="BC_UI_Option_IncludeSubgrids" xml:space="preserve">
     <value>Untergrids einbeziehen</value>
   </data>
-  <data name="BC_UI_Option_RespectOwnership" xml:space="preserve">
-    <value>Besitzverhältnisse beachten</value>
-  </data>
   <data name="BC_UI_PaintJobs" xml:space="preserve">
     <value>Lackieraufträge</value>
   </data>
@@ -604,7 +601,7 @@
     <value>Verwendung: /{0} CopyJob "&lt;Auftrag&gt;" "&lt;neuer Name&gt;"</value>
   </data>
   <data name="BC_Cmd_Usage_JobOption" xml:space="preserve">
-    <value>Verwendung: /{0} JobOption "&lt;Auftrag&gt;" &lt;subgrids|projected|preview|ownership&gt; [on|off]</value>
+    <value>Verwendung: /{0} JobOption "&lt;Auftrag&gt;" &lt;subgrids|projected|preview&gt; [on|off]</value>
   </data>
   <data name="BC_Cmd_Usage_AddRule" xml:space="preserve">
     <value>Verwendung: /{0} AddRule "&lt;Auftrag&gt;" ["&lt;Regelname&gt;"]</value>
@@ -745,7 +742,7 @@
     <value>Lackierauftrag '{0}'</value>
   </data>
   <data name="BC_Cmd_JobOptionsLine" xml:space="preserve">
-    <value>Optionen: Subgrids {0}, Projektionen {1}, Vorschau {2}, Besitzverhältnisse {3}</value>
+    <value>Optionen: Subgrids {0}, Projektionen {1}, Vorschau {2}</value>
   </data>
   <data name="BC_Cmd_ShowJobHint" xml:space="preserve">
     <value>Der Pfad in Klammern adressiert eine Bedingung oder Gruppe: 0 ist die Wurzelgruppe, 2.1 das erste Mitglied ihres zweiten Mitglieds.</value>

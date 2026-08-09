@@ -23,8 +23,7 @@ namespace Sisk.BuildColors.Services {
             builder.AppendLine(ModText.BC_Cmd_JobOptionsLine.GetString(
                 DescribeFlag(options.IncludeSubgrids),
                 DescribeFlag(options.IncludeProjectedGrids),
-                DescribeFlag(options.IncludePreviewGrids),
-                DescribeFlag(options.RespectOwnership)));
+                DescribeFlag(options.IncludePreviewGrids)));
             builder.AppendLine();
             builder.AppendLine(ModText.BC_Cmd_ShowJobHint.GetString());
 

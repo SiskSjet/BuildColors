@@ -262,9 +262,6 @@
   <data name="BC_UI_Option_IncludeSubgrids" xml:space="preserve">
     <value>Include subgrids</value>
   </data>
-  <data name="BC_UI_Option_RespectOwnership" xml:space="preserve">
-    <value>Respect ownership</value>
-  </data>
   <data name="BC_UI_PaintJobs" xml:space="preserve">
     <value>Paint Jobs</value>
   </data>
@@ -584,7 +581,7 @@
     <value>Usage: /{0} CopyJob "&lt;job&gt;" "&lt;new name&gt;"</value>
   </data>
   <data name="BC_Cmd_Usage_JobOption" xml:space="preserve">
-    <value>Usage: /{0} JobOption "&lt;job&gt;" &lt;subgrids|projected|preview|ownership&gt; [on|off]</value>
+    <value>Usage: /{0} JobOption "&lt;job&gt;" &lt;subgrids|projected|preview&gt; [on|off]</value>
   </data>
   <data name="BC_Cmd_Usage_AddRule" xml:space="preserve">
     <value>Usage: /{0} AddRule "&lt;job&gt;" ["&lt;rule name&gt;"]</value>
@@ -725,7 +722,7 @@
     <value>Paint job '{0}'</value>
   </data>
   <data name="BC_Cmd_JobOptionsLine" xml:space="preserve">
-    <value>Options: subgrids {0}, projected {1}, preview {2}, ownership {3}</value>
+    <value>Options: subgrids {0}, projected {1}, preview {2}</value>
   </data>
   <data name="BC_Cmd_ShowJobHint" xml:space="preserve">
     <value>The path in brackets addresses a condition or a group: 0 is the root group, 2.1 the first member of its second member.</value>
