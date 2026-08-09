@@ -46,6 +46,13 @@ namespace Sisk.BuildColors.UI {
         }
 
         /// <summary>
+        /// Hands any control the binds took over back to the game before the mod goes away.
+        /// </summary>
+        public void Close() {
+            ClientReset();
+        }
+
+        /// <summary>
         /// Rebuilds the paint job list.
         /// </summary>
         public void RefreshPaintJobs(PaintJob jobToSelect = null) {

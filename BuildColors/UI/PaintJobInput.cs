@@ -6,6 +6,7 @@ using Sisk.BuildColors.Localization;
 using Sisk.Utils.Localization.Extensions;
 using System.Collections.Generic;
 using System.Text;
+using VRage.ModAPI;
 
 namespace Sisk.BuildColors.UI {
 
@@ -24,11 +25,15 @@ namespace Sisk.BuildColors.UI {
         private const string GROUP_NAME = "BuildColorsPaintJobs";
 
         /// <summary>
-        /// Frames between rebuilds of the modifier cache, which picks up a rebind.
+        /// Frames between rebuilds of the combo cache, which picks up a rebind.
+        /// <para>
+        /// The cache is also dropped whenever a menu takes over the input, so rebinding through the
+        /// Rich HUD terminal takes hold the moment it is closed.
+        /// </para>
         /// </summary>
-        private const int MODIFIER_REFRESH_INTERVAL = 120;
+        private const int COMBO_REFRESH_INTERVAL = 120;
 
-        private static readonly List<List<IControl>> _comboModifiers = new List<List<IControl>>();
+        private static readonly List<ComboWatch> _combos = new List<ComboWatch>();
 
         private static IBindGroup _binds;
         private static BindDefinition[] _defaultBinds;
@@ -36,7 +41,7 @@ namespace Sisk.BuildColors.UI {
         private static IBind _undo;
         private static IBind _nextJob;
         private static IBind _previousJob;
-        private static int _modifierRefreshCountdown;
+        private static int _comboRefreshCountdown;
 
         /// <summary>
         /// Registers the binds and starts listening.
@@ -47,50 +52,58 @@ namespace Sisk.BuildColors.UI {
 
         /// <summary>
         /// Keeps the game's own controls off the keys these binds are built from.
+        /// <para>
+        /// Only the controls that collide with a bind are taken away, and only while its modifiers
+        /// are held, so unrelated shortcuts such as Alt + F10 keep working.
+        /// </para>
         /// </summary>
         public static void Update() {
             if (_binds == null) {
+                GameControlSuppressor.RestoreAll();
                 return;
             }
 
-            if (--_modifierRefreshCountdown <= 0) {
-                RefreshModifiers();
+            if (!CanAct()) {
+                GameControlSuppressor.RestoreAll();
+                _comboRefreshCountdown = 0;
+                return;
             }
 
-            if (CanAct() && IsComboInProgress()) {
-                BindManager.RequestTempBlacklist(SeBlacklistModes.AllKeys);
+            if (--_comboRefreshCountdown <= 0) {
+                RefreshCombos();
             }
-        }
 
-        /// <summary>
-        /// True while every modifier of at least one bind is held, meaning a combo is part way through.
-        /// </summary>
-        private static bool IsComboInProgress() {
-            for (var i = 0; i < _comboModifiers.Count; i++) {
-                var modifiers = _comboModifiers[i];
-                var allHeld = true;
+            for (var i = 0; i < _combos.Count; i++) {
+                var combo = _combos[i];
 
-                for (var j = 0; j < modifiers.Count; j++) {
-                    if (!modifiers[j].IsPressed) {
-                        allHeld = false;
-                        break;
-                    }
-                }
-
-                if (allHeld) {
-                    return true;
+                if (AreModifiersHeld(combo.Modifiers)) {
+                    GameControlSuppressor.Request(combo.Conflicts);
                 }
             }
 
-            return false;
+            GameControlSuppressor.Apply();
         }
 
         /// <summary>
-        /// Caches the controls each combo needs held before its last key.
+        /// True while every modifier of a combo is held, meaning it is part way through.
         /// </summary>
-        private static void RefreshModifiers() {
-            _modifierRefreshCountdown = MODIFIER_REFRESH_INTERVAL;
-            _comboModifiers.Clear();
+        private static bool AreModifiersHeld(List<IControl> modifiers) {
+            for (var i = 0; i < modifiers.Count; i++) {
+                if (modifiers[i] == null || !modifiers[i].IsPressed) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Caches the controls each combo needs held before its last key, and the game controls that
+        /// last key would set off.
+        /// </summary>
+        private static void RefreshCombos() {
+            _comboRefreshCountdown = COMBO_REFRESH_INTERVAL;
+            _combos.Clear();
 
             for (var i = 0; i < _binds.Count; i++) {
                 var bind = _binds[i];
@@ -102,13 +115,17 @@ namespace Sisk.BuildColors.UI {
                         continue;
                     }
 
-                    var modifiers = new List<IControl>(combo.Count - 1);
+                    var watch = new ComboWatch(combo.Count - 1);
+                    var modifiers = MyKeyboardModifiers.None;
 
                     for (var control = 0; control < combo.Count - 1; control++) {
-                        modifiers.Add(BindManager.GetControl(new ControlHandle(combo[control])));
+                        watch.Modifiers.Add(BindManager.GetControl(new ControlHandle(combo[control])));
+                        modifiers |= GameControlSuppressor.GetModifier(combo[control]);
                     }
 
-                    _comboModifiers.Add(modifiers);
+                    GameControlSuppressor.CollectConflicts(combo[combo.Count - 1], modifiers, watch.Conflicts);
+
+                    _combos.Add(watch);
                 }
             }
         }
@@ -166,6 +183,7 @@ namespace Sisk.BuildColors.UI {
         /// </summary>
         public static void Reset() {
             Unsubscribe();
+            GameControlSuppressor.RestoreAll();
 
             _binds = null;
             _defaultBinds = null;
@@ -173,8 +191,8 @@ namespace Sisk.BuildColors.UI {
             _undo = null;
             _nextJob = null;
             _previousJob = null;
-            _comboModifiers.Clear();
-            _modifierRefreshCountdown = 0;
+            _combos.Clear();
+            _comboRefreshCountdown = 0;
         }
 
         private static void EnsureBinds() {
@@ -282,6 +300,20 @@ namespace Sisk.BuildColors.UI {
             }
 
             return HudMain.InputMode != HudInputMode.Full;
+        }
+
+        /// <summary>
+        /// One key combination of a bind, with the game controls its last key collides with.
+        /// </summary>
+        private sealed class ComboWatch {
+            public ComboWatch(int modifierCount) {
+                Modifiers = new List<IControl>(modifierCount);
+                Conflicts = new List<IMyControl>();
+            }
+
+            public List<IMyControl> Conflicts { get; }
+
+            public List<IControl> Modifiers { get; }
         }
     }
 }

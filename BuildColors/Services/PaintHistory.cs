@@ -35,9 +35,8 @@ namespace Sisk.BuildColors.Services {
     /// One application of a paint job, in the form it takes to put it back.
     /// </summary>
     internal sealed class PaintHistoryEntry {
-        public PaintHistoryEntry(string jobName, bool respectOwnership, List<GridPaintSnapshot> grids, int blockCount) {
+        public PaintHistoryEntry(string jobName, List<GridPaintSnapshot> grids, int blockCount) {
             JobName = jobName;
-            RespectOwnership = respectOwnership;
             Grids = grids;
             BlockCount = blockCount;
         }
@@ -47,11 +46,6 @@ namespace Sisk.BuildColors.Services {
         public List<GridPaintSnapshot> Grids { get; private set; }
 
         public string JobName { get; private set; }
-
-        /// <summary>
-        /// Whether the job was applied with ownership respected.
-        /// </summary>
-        public bool RespectOwnership { get; private set; }
 
         public string GridName {
             get { return Grids.Count > 0 ? Grids[0].GridName : string.Empty; }
@@ -81,8 +75,8 @@ namespace Sisk.BuildColors.Services {
             _blockCount++;
         }
 
-        public PaintHistoryEntry Build(string jobName, bool respectOwnership) {
-            return new PaintHistoryEntry(jobName, respectOwnership, _grids, _blockCount);
+        public PaintHistoryEntry Build(string jobName) {
+            return new PaintHistoryEntry(jobName, _grids, _blockCount);
         }
     }
 

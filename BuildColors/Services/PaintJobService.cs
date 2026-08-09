@@ -277,7 +277,7 @@ namespace Sisk.BuildColors.Services {
             var snapshot = new PaintSnapshotBuilder();
 
             foreach (var grid in grids) {
-                if (options.RespectOwnership && !IsModifiableBy(player, grid)) {
+                if (!IsModifiableBy(player, grid)) {
                     skippedGrids++;
                     continue;
                 }
@@ -329,7 +329,7 @@ namespace Sisk.BuildColors.Services {
             }
 
             if (snapshot.HasChanges) {
-                _history.Push(snapshot.Build(job.Name, options.RespectOwnership));
+                _history.Push(snapshot.Build(job.Name));
             }
 
             ReportResult(job, targetedGrid, matchedBlocks, changedBlocks, skippedGrids);
@@ -363,7 +363,7 @@ namespace Sisk.BuildColors.Services {
                     continue;
                 }
 
-                if (entry.RespectOwnership && !IsModifiableBy(player, grid)) {
+                if (!IsModifiableBy(player, grid)) {
                     skippedGrids++;
                     continue;
                 }
@@ -455,9 +455,13 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        /// Returns true when the player owns the grid, shares a faction with its owner, or the grid is unowned.
+        /// Returns true when the player has creative rights, owns the grid, shares a faction with its owner, or the grid is unowned.
         /// </summary>
         private static bool IsModifiableBy(IMyPlayer player, IMyCubeGrid grid) {
+            if (MyAPIGateway.Session != null && MyAPIGateway.Session.HasCreativeRights) {
+                return true;
+            }
+
             var owners = grid.BigOwners;
             if (owners == null || owners.Count == 0) {
                 return true;
