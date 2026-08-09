@@ -277,6 +277,7 @@ namespace Sisk.BuildColors {
             }
             SavePaintJobs();
             MyAPIGateway.Utilities.MessageEntered -= OnMessageEntered;
+            _ui?.Close();
             Static = null;
         }
 
