@@ -1,23 +1,13 @@
-﻿using RichHudFramework.UI.Rendering;
-using RichHudFramework.UI;
+﻿using RichHudFramework.UI;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using VRageMath;
-using VRageRender.Messages;
-using EventHandler = Sisk.BuildColors.EventHandler;
 
 namespace Sisk.BuildColors.UI {
 
     /// <summary>
-    /// Named color picker using sliders designed to mimic the appearance of the color picker in the SE terminal.
-    /// RGB only. Alpha not supported.
+    /// Named HSV slider picker styled after the SE terminal color picker.
     /// </summary>
     public class ColorPickerHSV2 : HudElementBase {
-
-        // Sliders
         public readonly SliderBox[] sliders;
 
         private readonly HudChain colorNameColumn;
@@ -29,24 +19,17 @@ namespace Sisk.BuildColors.UI {
 
         private readonly HudChain mainChain, colorChain;
 
-        // Header
         private readonly Label name;
 
-        // Slider text
         private readonly Label[] sliderText;
 
         private readonly TextField[] sliderTextBox;
 
-        private readonly StringBuilder valueBuilder;
-
         private Vector3 _color;
 
-        private int focusedChannel;
-
         public ColorPickerHSV2(HudParentBase parent) : base(parent) {
-            // Header
             name = new Label() {
-                Format = GlyphFormat.Blueish.WithSize(1.08f),
+                Format = Style.CaptionText,
                 Text = "NewColorPicker",
                 AutoResize = false,
                 Size = new Vector2(88f, 22f)
@@ -57,8 +40,8 @@ namespace Sisk.BuildColors.UI {
                 Color = VRageMath.Color.Black
             };
 
-            var dispBorder = new BorderBox(display) {
-                Color = VRageMath.Color.White,
+            new BorderBox(display) {
+                Color = Style.BorderColor,
                 Thickness = 1f,
                 DimAlignment = DimAlignments.Both,
             };
@@ -70,18 +53,17 @@ namespace Sisk.BuildColors.UI {
                 CollectionContainer = { name, display }
             };
 
-            // Color picker
             sliderText = new Label[]
             {
-                new Label() { AutoResize = false, Format = TerminalFormatting.ControlFormat, Height = 47f, Text = "H: " },
-                new Label() { AutoResize = false, Format = TerminalFormatting.ControlFormat, Height = 47f, Text = "S: " },
-                new Label() { AutoResize = false, Format = TerminalFormatting.ControlFormat, Height = 47f, Text = "V: " }
+                new Label() { AutoResize = false, Format = Style.CaptionText, Height = 47f, Text = "H: " },
+                new Label() { AutoResize = false, Format = Style.CaptionText, Height = 47f, Text = "S: " },
+                new Label() { AutoResize = false, Format = Style.CaptionText, Height = 47f, Text = "V: " }
             };
 
             sliderTextBox = new TextField[] {
-                new GameInputBlockingTextField() { AutoResize = false, Format = TerminalFormatting.ControlFormat, Height = 47f },
-                new GameInputBlockingTextField() { AutoResize = false, Format = TerminalFormatting.ControlFormat, Height = 47f },
-                new GameInputBlockingTextField() { AutoResize = false, Format = TerminalFormatting.ControlFormat, Height = 47f }
+                CreateChannelField(),
+                CreateChannelField(),
+                CreateChannelField()
             };
 
             colorNameColumn = new HudChain(true) {
@@ -134,11 +116,9 @@ namespace Sisk.BuildColors.UI {
             };
 
             Size = new Vector2(318f, 163f);
-            valueBuilder = new StringBuilder();
 
             UseCursor = true;
             ShareCursor = true;
-            focusedChannel = -1;
 
             foreach (var slider in sliders) {
                 slider.MouseInput.LeftReleased += OnSliderLeftReleased;
@@ -151,11 +131,28 @@ namespace Sisk.BuildColors.UI {
 
         public ColorPickerHSV2() : this(null) { }
 
-        public event Sisk.BuildColors.EventHandler ColorChanged;
+        /// <summary>
+        /// One of the three channel entry boxes, styled like every other text field in the mod.
+        /// </summary>
+        private static TextField CreateChannelField() {
+            return new GameInputBlockingTextField() {
+                Text = string.Empty,
+                AutoResize = false,
+                Height = 47f,
+                Format = Style.BodyText,
+                Color = Style.SunkenBackgroundColor,
+                BorderColor = Style.ButtonBorderColor,
+                HighlightColor = Style.HoverBackgroundColor,
+                FocusColor = Style.SunkenBackgroundColor,
+                FocusTextColor = Style.BodyTextColor,
+                UseFocusFormatting = false,
+            };
+        }
+
+        public event RichHudFramework.EventHandler ColorChanged;
 
         /// <summary>
-        /// Color currently specified by the color picker. Formatted as non-normalized, offset HSV.
-        /// Max: [360, 100, 100]
+        /// Color currently specified by the color picker.
         /// </summary>
         public Vector3 Color {
             get { return _color; }
@@ -164,80 +161,15 @@ namespace Sisk.BuildColors.UI {
                 SetColorsToSliders();
                 SetColorToTextBoxes();
                 display.Color = (_color / new Vector3(360f, 100f, 100f)).HSVtoColor();
-                //ColorChanged?.Invoke(this, EventArgs.Empty);
             }
         }
-
-        //public override float Height {
-        //    set {
-        //        if (value > Padding.Y) {
-        //            value -= Padding.Y;
-        //        }
-
-        //        _size.Y = (value);
-        //        value = (value - headerChain.Height - 15f) / 3f;
-        //        colorNameColumn.MemberMaxSize = new Vector2(colorNameColumn.MemberMaxSize.X, value);
-        //        colorValueColumn.MemberMaxSize = new Vector2(colorValueColumn.MemberMaxSize.X, value);
-        //        colorSliderColumn.MemberMaxSize = new Vector2(colorSliderColumn.MemberMaxSize.X, value);
-        //    }
-        //}
 
         /// <summary>
         /// Text rendered by the label
         /// </summary>
         public RichText Name { get { return name.TextBoard.GetText(); } set { name.TextBoard.SetText(value); } }
 
-        /// <summary>
-        /// Text builder backing the label
-        /// </summary>
-        public ITextBuilder NameBuilder => name.TextBoard;
-
-        /// <summary>
-        /// Formatting used by the label
-        /// </summary>
-        public GlyphFormat NameFormat { get { return name.TextBoard.Format; } set { name.TextBoard.SetFormatting(value); } }
-
-        /// <summary>
-        /// Formatting used by the color value labels
-        /// </summary>
-        public GlyphFormat ValueFormat {
-            get { return sliderTextBox[0].Format; }
-            set {
-                foreach (var textBox in sliderTextBox) {
-                    textBox.TextBoard.SetFormatting(value);
-                }
-            }
-        }
-
-        //public override float Width {
-        //    set {
-        //        if (value > Padding.X) {
-        //            value -= Padding.X;
-        //        }
-
-        //        _size.X = (value);
-        //        display.Width = value - name.Width;
-        //        colorSliderColumn.Width = display.Width;
-        //    }
-        //}
-
-        /// <summary>
-        /// Set focus for slider corresponding to the given color channel index [0, 2].
-        /// </summary>
-        public void SetChannelFocused(int channel) {
-            channel = MathHelper.Clamp(channel, 0, 2);
-
-            if (!sliders[channel].FocusHandler.HasFocus) {
-                focusedChannel = channel;
-            }
-        }
-
         protected override void HandleInput(Vector2 cursorPos) {
-            if (focusedChannel != -1) {
-                sliders[focusedChannel].FocusHandler.GetInputFocus();
-                focusedChannel = -1;
-            }
-
             for (var i = 0; i < sliders.Length; i++) {
                 if (sliders[i].FocusHandler.HasFocus) {
                     if (SharedBinds.UpArrow.IsNewPressed) {
@@ -280,7 +212,6 @@ namespace Sisk.BuildColors.UI {
             float y;
             float z;
 
-            // check if the input is a valid float else reset the text
             if (!float.TryParse(sliderTextBox[0].TextBoard.GetText().ToString(), out x)) {
                 sliderTextBox[0].Text = $"{Math.Round(_color.X, 1)}";
             }
@@ -294,19 +225,16 @@ namespace Sisk.BuildColors.UI {
             }
 
             if (sliderTextBox[0].InputOpen) {
-                // clamp the values to the valid range
                 x = MathHelper.Clamp(x, 0f, 360f);
                 sliderTextBox[0].Text = $"{Math.Round(x, 1)}";
             }
 
             if (sliderTextBox[1].InputOpen) {
-                // clamp the values to the valid range
                 y = MathHelper.Clamp(y, 0f, 100f);
                 sliderTextBox[1].Text = $"{Math.Round(y, 1)}";
             }
 
             if (sliderTextBox[2].InputOpen) {
-                // clamp the values to the valid range
                 z = MathHelper.Clamp(z, 0f, 100f);
                 sliderTextBox[2].Text = $"{Math.Round(z, 1)}";
             }
@@ -334,7 +262,6 @@ namespace Sisk.BuildColors.UI {
             if (float.TryParse(sliderTextBox[0].TextBoard.GetText().ToString(), out x)) {
                 if (float.TryParse(sliderTextBox[1].TextBoard.GetText().ToString(), out y)) {
                     if (float.TryParse(sliderTextBox[2].TextBoard.GetText().ToString(), out z)) {
-                        // clamp the values to the valid range
                         x = MathHelper.Clamp(x, 0f, 360f);
                         y = MathHelper.Clamp(y, 0f, 100f);
                         z = MathHelper.Clamp(z, 0f, 100f);

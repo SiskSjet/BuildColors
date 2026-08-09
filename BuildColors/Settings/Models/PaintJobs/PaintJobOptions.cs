@@ -22,7 +22,7 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
         public bool RespectOwnership { get; set; } = true;
 
         /// <summary>
-        ///     Creates an independent copy.
+        /// Creates an independent copy.
         /// </summary>
         public PaintJobOptions Clone() {
             return new PaintJobOptions {

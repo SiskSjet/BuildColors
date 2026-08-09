@@ -6,48 +6,43 @@ using VRageMath;
 namespace Sisk.BuildColors.Services {
 
     /// <summary>
-    ///     What a positional source needs to know about the grid it is painting. Bounds and orientation are
-    ///     the same for every block on a grid, so they are read once before the block walk instead of per
-    ///     block.
+    /// What a positional source needs to know about the grid it is painting.
     /// </summary>
     internal struct GridPaintContext {
-
         /// <summary>
-        ///     Center of the grid in block coordinates.
+        /// Center of the grid in block coordinates.
         /// </summary>
         public Vector3 Center;
 
         /// <summary>
-        ///     Half the extent of the grid per axis, never below half a block so a single block grid still
-        ///     normalizes instead of dividing by zero.
+        /// Half the extent of the grid per axis, never below half a block.
         /// </summary>
         public Vector3 Extent;
 
         /// <summary>
-        ///     Index of the grid axis the build is longest on: 0 for X, 1 for Y, 2 for Z.
+        /// Index of the grid axis the build is longest on: 0 for X, 1 for Y, 2 for Z.
         /// </summary>
         public int LongestAxis;
 
         public Vector3 Min;
 
         /// <summary>
-        ///     Full extent per axis.
+        /// Full extent per axis.
         /// </summary>
         public Vector3 Size;
 
         /// <summary>
-        ///     Distance from the center to the far corner, used to normalize radial sources.
+        /// Distance from the center to the far corner, used to normalize radial sources.
         /// </summary>
         public float Radius;
 
         /// <summary>
-        ///     Direction world up points in, expressed in block coordinates. A gradient along this axis keeps
-        ///     the lighter top a ship was painted with no matter which way its first block was placed.
+        /// Direction world up points in, expressed in block coordinates.
         /// </summary>
         public Vector3 UpAxis;
 
         /// <summary>
-        ///     Half the extent of the grid measured along <see cref="UpAxis" />.
+        /// Half the extent of the grid measured along UpAxis.
         /// </summary>
         public float UpExtent;
 
@@ -73,9 +68,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Turns world up into a direction in block coordinates. Natural gravity is what "up" means to
-        ///     anyone looking at a ship, so it wins wherever there is any; in space there is no shared up and
-        ///     the grid's own up is the only answer that stays put while the grid moves.
+        /// Turns world up into a direction in block coordinates.
         /// </summary>
         private static Vector3 ResolveUpAxis(IMyCubeGrid grid) {
             var worldMatrix = grid.WorldMatrix;

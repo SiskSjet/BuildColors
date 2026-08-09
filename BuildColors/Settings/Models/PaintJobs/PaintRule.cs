@@ -1,15 +1,13 @@
-using ProtoBuf;
+﻿using ProtoBuf;
 using Sisk.BuildColors.Localization;
 using Sisk.Utils.Localization.Extensions;
 using System;
-using System.Collections.Generic;
 using System.Xml.Serialization;
 
 namespace Sisk.BuildColors.Settings.Models.PaintJobs {
 
     [ProtoContract]
     public class PaintRule : IEquatable<PaintRule> {
-
         public PaintRule() {
             Id = Guid.NewGuid();
             Name = ModText.BC_UI_DefaultRuleNameFallback.GetString();
@@ -47,7 +45,7 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
         }
 
         /// <summary>
-        ///     Creates an independent copy, keeping the identity of the original.
+        /// Creates an independent copy, keeping the identity of the original.
         /// </summary>
         public PaintRule Clone() {
             return new PaintRule {

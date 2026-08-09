@@ -1,29 +1,69 @@
-﻿using Sisk.BuildColors.Settings.Models.ColorSpace;
+using Sisk.BuildColors.Settings.Models;
+using Sisk.BuildColors.Settings.Models.ColorSpace;
 using System;
-using System.Linq;
-using VRage.Utils;
+using System.Collections.Generic;
+using VRageMath;
 
 namespace Sisk.BuildColors {
 
+    /// <summary>
+    /// Builds a fourteen slot build palette from a base color and a color scheme.
+    /// </summary>
     public class ColorSchemeGenerator {
+        /// <summary>
+        /// Slots of the first row, which carries the primary ramp.
+        /// </summary>
+        public const int RAMP_SLOTS = 7;
 
+        /// <summary>
+        /// Perceptual distance two slots must clear before they read as different colors.
+        /// </summary>
+        public const float DEFAULT_MIN_DISTANCE = 7f;
+
+        public const int DEFAULT_GREY_COUNT = 3;
+        public const int MAX_GREY_COUNT = 6;
+
+        /// <summary>
+        /// Passes the spreading step is allowed before it gives up on a palette that cannot be separated.
+        /// </summary>
+        private const int SPREAD_PASSES = 8;
+
+        /// <summary>
+        /// Lightness a palette covers when it is grown from a color of its own choosing.
+        /// </summary>
+        private const float LIGHTNESS_SPAN = .74f;
+
+        private const float MIN_LIGHTNESS = .03f;
+        private const float MAX_LIGHTNESS = .97f;
+
+        /// <summary>
+        /// Least lightness and saturation a palette keeps at either extreme.
+        /// </summary>
+        private const float MIN_LIGHTNESS_SPREAD = .18f;
+
+        private const float MIN_SATURATION_SPREAD = .12f;
+        private const float SATURATION_BELOW = .3f;
+        private const float SATURATION_ABOVE = .25f;
+
+        /// <summary>
+        /// Saturation and lightness envelope, plus hue band, of each preset.
+        /// </summary>
         private static readonly float[,] _presetRanges = {
-            { 0.0f, 1.0f, 0.0f, 1.0f, 0f, 360f }, // Default
-            { 0.2f, 0.4f, 0.8f, 0.9f, 0f, 360f }, // Pastel
-            { 0.3f, 0.6f, 0.6f, 0.8f, 0f, 360f }, // Soft
-            { 0.8f, 1.0f, 0.9f, 1.0f, 0f, 360f }, // Light
-            { 0.5f, 1.0f, 0.0f, 0.5f, 0f, 360f }, // Hard
-            { 0.5f, 0.7f, 0.6f, 0.8f, 0f, 360f }, // Pale
-            { 0.5f, 1.0f, 0.5f, 1.0f, 0f, 360f }, // Vibrant
-            { 0.0f, 0.3f, 0.3f, 0.6f, 0f, 60f }, // Muted
-            { 0.5f, 0.8f, 0.4f, 0.6f, 30f, 60f }, // Warm
-            { 0.2f, 0.5f, 0.4f, 0.7f, 180f, 270f }, // Cool
-            { 0.2f, 0.5f, 0.05f, 0.5f, 0f, 360f }, // Dark
-            { 0.5f, 1.0f, 0.8f, 1.0f, 0f, 360f } // Lighter
+            { .25f, .95f, .14f, .88f, 0f, 360f },
+            { .25f, .45f, .70f, .92f, 0f, 360f },
+            { .30f, .55f, .45f, .80f, 0f, 360f },
+            { .40f, .80f, .55f, .92f, 0f, 360f },
+            { .80f, 1.0f, .35f, .70f, 0f, 360f },
+            { .10f, .30f, .60f, .88f, 0f, 360f },
+            { .75f, 1.0f, .40f, .65f, 0f, 360f },
+            { .15f, .40f, .30f, .65f, 0f, 360f },
+            { .40f, .85f, .25f, .80f, 0f, 60f },
+            { .35f, .80f, .25f, .80f, 180f, 270f },
+            { .30f, .70f, .08f, .40f, 0f, 360f },
+            { .30f, .70f, .60f, .95f, 0f, 360f }
         };
 
-        private readonly Random _random = new Random();
-        private HSL _baseColor;
+        private readonly Random _seedSource = new Random();
 
         public enum Preset {
             None,
@@ -44,355 +84,411 @@ namespace Sisk.BuildColors {
             Default,
             Analogous,
             Complementary,
-            Monochromatic,
+            SplitComplementary,
+            Triadic,
             Tetradic,
-            Triadic
+            Square,
+            Monochromatic,
+            HullAndAccent
         }
 
-        public HSL BaseColor {
-            get { return _baseColor; }
-            set { _baseColor = value; }
+        /// <summary>
+        /// What a palette is built from.
+        /// </summary>
+        public class Options {
+            public Scheme Scheme = Scheme.Default;
+            public Preset Preset = Preset.None;
+
+            /// <summary>
+            /// The color the scheme is grown from, or null to roll one from the seed.
+            /// </summary>
+            public HSL? BaseColor;
+
+            /// <summary>
+            /// The seed to roll from, or null for a fresh one.
+            /// </summary>
+            public int? Seed;
+
+            public int GreyCount = DEFAULT_GREY_COUNT;
+            public float MinDistance = DEFAULT_MIN_DISTANCE;
+
+            /// <summary>
+            /// Slots kept exactly as they are, by index.
+            /// </summary>
+            public bool[] Locked;
+
+            /// <summary>
+            /// The palette the locked slots are taken from.
+            /// </summary>
+            public ColorMask[] Current;
+
+            public Options Clone() {
+                return new Options {
+                    Scheme = Scheme,
+                    Preset = Preset,
+                    BaseColor = BaseColor,
+                    Seed = Seed,
+                    GreyCount = GreyCount,
+                    MinDistance = MinDistance,
+                    Locked = Locked,
+                    Current = Current,
+                };
+            }
         }
 
-        public static HSL[] GenerateAnalogousScheme(HSL color) {
-            return GetAnalogousColors(color, 14);
+        /// <summary>
+        /// A generated palette and everything needed to roll it again.
+        /// </summary>
+        public struct Result {
+            public ColorMask[] Masks;
+            public int Seed;
+            public HSL BaseColor;
+
+            public List<Vector3> ToSlots() {
+                var slots = new List<Vector3>(ColorSet.SLOTS);
+
+                for (var i = 0; i < ColorSet.SLOTS; i++) {
+                    slots.Add(Masks != null && i < Masks.Length ? (Vector3)Masks[i] : Vector3.Zero);
+                }
+
+                return slots;
+            }
         }
 
-        public static HSL[] GenerateComplementaryScheme(HSL color) {
-            var colors = new HSL[14];
+        /// <summary>
+        /// The color the last palette was grown from.
+        /// </summary>
+        public HSL BaseColor { get; private set; }
 
-            var baseMono = GetMonochromaticColors(color, 7, .5f);
-            var complementary = GetComplementaryColor(color);
-            var compMono = GetNeutralColors(complementary, 7);
+        /// <summary>
+        /// The slot of a palette worth growing a scheme from, which is its most colorful one.
+        /// </summary>
+        public static int GetDominantIndex(ColorMask[] palette) {
+            var best = 0;
+            var bestScore = -1f;
 
-            var index = 0;
-            Array.Copy(baseMono, colors, baseMono.Length);
-            index += baseMono.Length;
-            Array.Copy(compMono, 0, colors, index, compMono.Length);
-
-            return colors;
-        }
-
-        public static HSL[] GenerateDefaultColorScheme(HSL baseColor) {
-            var colors = new HSL[14];
-
-            var monocromatic = GetMonochromaticColors(baseColor, 4, .5f);
-            var neutralColors = GetNeutralColors(baseColor, 4);
-
-            // Get the complementary color
-            var complementary = GetComplementaryColor(baseColor);
-            // Generate 2 monochromatic colors from complementary
-            var complementaryColors = GetMonochromaticColors(complementary, 2, .3f);
-
-            // Get split complementary colors from base color
-            var split = GetSplitComplementaryColors(baseColor).Skip(1).Take(2).ToArray();
-            var split2 = GetSplitComplementaryColors(complementary).Skip(1).Take(2).ToArray();
-
-            var index = 0;
-            Array.Copy(monocromatic, colors, monocromatic.Length);
-
-            index += monocromatic.Length;
-            Array.Copy(neutralColors, 0, colors, index, neutralColors.Length);
-
-            index += neutralColors.Length;
-            Array.Copy(complementaryColors, 0, colors, index, complementaryColors.Length);
-
-            index += complementaryColors.Length;
-            Array.Copy(split, 0, colors, index, split.Length);
-
-            index += split.Length;
-            Array.Copy(split2, 0, colors, index, split2.Length);
-
-            return colors;
-        }
-
-        public static HSL[] GenerateMonochromaticScheme(HSL color) {
-            return GetMonochromaticColors(color, 14);
-        }
-
-        public static HSL[] GenerateTetradicScheme(HSL color) {
-            var colors = new HSL[14];
-
-            var tetradic = GetTetradicColors(color);
-            var monoBase = GetMonochromaticColors(tetradic[0], 4, .4f);
-            var monoComp = GetMonochromaticColors(tetradic[2], 4, .4f);
-            var mono3 = GetMonochromaticColors(tetradic[1], 3, .5f);
-            var mono4 = GetMonochromaticColors(tetradic[3], 3, .5f);
-
-            var index = 0;
-            Array.Copy(monoBase, colors, monoBase.Length);
-            index += monoBase.Length;
-
-            Array.Copy(monoComp, 0, colors, index, monoComp.Length);
-            index += monoComp.Length;
-
-            Array.Copy(mono3, 0, colors, index, mono3.Length);
-            index += mono3.Length;
-
-            Array.Copy(mono4, 0, colors, index, mono4.Length);
-
-            return colors;
-        }
-
-        public static HSL[] GenerateTriadicScheme(HSL color) {
-            var colors = new HSL[14];
-            var triadic = GetTriadicColors(color);
-            var monoBase = GetMonochromaticColors(triadic[0], 7, .6f);
-            var mono2 = GetMonochromaticColors(triadic[1], 4, .5f);
-            var mono3 = GetMonochromaticColors(triadic[2], 3, .5f);
-
-            var index = 0;
-            Array.Copy(monoBase, colors, monoBase.Length);
-            index += monoBase.Length;
-
-            Array.Copy(mono2, 0, colors, index, mono2.Length);
-            index += mono2.Length;
-
-            Array.Copy(mono3, 0, colors, index, mono3.Length);
-
-            return colors;
-        }
-
-        public static HSL[] GetAnalogousColors(HSL color, int numColors, float angle = 30f, float range = 0.1f) {
-            // Get the base color values in HSL color space
-            var hue = color.H;
-            var saturation = color.S;
-            var lightness = color.L;
-
-            // Calculate the hue values for the other colors in the analogous scheme
-            var hues = new float[numColors];
-            hues[0] = hue;
-
-            for (var i = 1; i < numColors; i++) {
-                var angleIncrement = i * angle;
-                var hue1 = (hue + angleIncrement) % 360f;
-                var hue2 = (hue - angleIncrement + 360f) % 360f;
-                hues[i] = Math.Abs(hue1 - hue) < Math.Abs(hue2 - hue) ? hue1 : hue2;
+            if (palette == null) {
+                return best;
             }
 
-            // Create a new array to hold the generated colors
-            var colors = new HSL[numColors];
+            for (var i = 0; i < palette.Length; i++) {
+                var color = ToHSL(palette[i]);
 
-            // Create the analogous colors
-            for (var i = 0; i < numColors; i++) {
-                var hueValue = hues[i];
-                var saturationValue = Math.Max(0, Math.Min(1, saturation + range * (float)Math.Cos(angle * i * Math.PI / 180)));
-                var lightnessValue = Math.Max(0, Math.Min(1, lightness + range * (float)Math.Sin(angle * i * Math.PI / 180)));
-                colors[i] = new HSL(hueValue, saturationValue, lightnessValue);
+                var score = color.S * (1f - Math.Abs(color.L - .5f) * 1.4f);
+
+                if (score > bestScore) {
+                    bestScore = score;
+                    best = i;
+                }
             }
 
-            return colors;
+            return best;
         }
 
-        public static HSL GetComplementaryColor(HSL color) {
-            // Get the base color values in HSL color space
-            var hue = color.H;
-            var saturation = color.S;
-            var lightness = color.L;
+        public static HSL ToHSL(ColorMask mask) {
+            var hsv = ((Vector3)mask).ColorMaskToHSV();
 
-            // Calculate the hue value for the complementary color
-            var hueComplementary = (hue + 180f) % 360f;
-
-            // Create the complementary color
-            return new HSL(hueComplementary, saturation, lightness);
+            return new HSV(hsv.X * 360f, hsv.Y, hsv.Z).ToHSL();
         }
 
-        public static HSL[] GetMonochromaticColors(HSL color, int numShades, float lightnessRange = 0.8f) {
-            // Get the base color values in HSL color space
-            var hue = color.H;
-            var saturation = color.S;
-            var lightness = color.L;
+        public static ColorMask ToMask(HSL color) {
+            var hsv = color.ToHSV();
+            var vector = new Vector3(Wrap(hsv.H) / 360f, MathHelper.Clamp(hsv.S, 0f, 1f), MathHelper.Clamp(hsv.V, 0f, 1f));
 
-            // Create a new array to hold the generated colors
-            var colors = new HSL[numShades];
+            return vector.HSVToColorMask();
+        }
 
-            // Determine the valid range of lightness values
-            var minLightness = Math.Max(0.1f, lightness - (lightnessRange / 2));
-            var maxLightness = Math.Min(1, lightness + (lightnessRange / 2));
-            var lightnessStep = (maxLightness - minLightness) / (numShades - 1);
+        /// <summary>
+        /// Builds a palette.
+        /// </summary>
+        public Result Generate(Options options = null) {
+            options = options ?? new Options();
 
-            // Generate the shades
-            for (var i = 0; i < numShades; i++) {
-                var l = minLightness + i * lightnessStep;
-                colors[i] = new HSL(hue, saturation, l);
+            var seed = options.Seed ?? NewSeed();
+            var random = new Random(seed);
+            var baseColor = options.BaseColor ?? RollBaseColor(random);
+
+            BaseColor = baseColor;
+
+            var envelope = GetEnvelope(options.Preset, baseColor);
+            var hues = GetSchemeHues(baseColor.H, options.Scheme);
+            var colors = BuildPalette(hues, envelope, options, random);
+
+            ApplyHueBand(colors, envelope);
+            ApplyLocks(colors, options);
+            Spread(colors, envelope, options);
+
+            return new Result {
+                Masks = ToMasks(colors, options),
+                Seed = seed,
+                BaseColor = baseColor,
+            };
+        }
+
+        public int NewSeed() {
+            return _seedSource.Next(1, int.MaxValue);
+        }
+
+        /// <summary>
+        /// Hues of the scheme, in the order the palette should use them.
+        /// </summary>
+        private static float[] GetSchemeHues(float hue, Scheme scheme) {
+            switch (scheme) {
+                case Scheme.Analogous:
+                    return new[] { hue, Wrap(hue + 30f), Wrap(hue - 30f), Wrap(hue + 60f), Wrap(hue - 60f) };
+
+                case Scheme.Complementary:
+                    return new[] { hue, Wrap(hue + 180f) };
+
+                case Scheme.SplitComplementary:
+                    return new[] { hue, Wrap(hue + 150f), Wrap(hue + 210f) };
+
+                case Scheme.Triadic:
+                    return new[] { hue, Wrap(hue + 120f), Wrap(hue + 240f) };
+
+                case Scheme.Tetradic:
+                    return new[] { hue, Wrap(hue + 60f), Wrap(hue + 180f), Wrap(hue + 240f) };
+
+                case Scheme.Square:
+                    return new[] { hue, Wrap(hue + 90f), Wrap(hue + 180f), Wrap(hue + 270f) };
+
+                case Scheme.Monochromatic:
+                    return new[] { hue };
+
+                case Scheme.HullAndAccent:
+                    return new[] { hue, Wrap(hue + 180f) };
+
+                default:
+                    return new[] { hue, Wrap(hue + 180f), Wrap(hue + 150f), Wrap(hue + 210f) };
             }
-
-            return colors;
         }
 
-        public static HSL[] GetNeutralColors(HSL baseColor, int numColors) {
-            var colors = new HSL[numColors];
+        private static float Wrap(float hue) {
+            hue %= 360f;
 
-            // Determine the saturation and lightness steps
-            var saturationStep = baseColor.S / (numColors + 1);
-            var lightnessStep = (1 - baseColor.L) / (numColors + 1);
-
-            for (var i = 0; i < numColors; i++) {
-                // Calculate the saturation and lightness for the current neutral color
-                var saturation = baseColor.S - (i + 1) * saturationStep;
-                var lightness = baseColor.L + (i + 1) * lightnessStep;
-
-                // Create a neutral color with the calculated saturation and lightness
-                colors[i] = new HSL(baseColor.H, saturation, lightness);
-            }
-
-            return colors;
+            return hue < 0f ? hue + 360f : hue;
         }
 
-        public static HSL[] GetSplitComplementaryColors(HSL color, float angle = 150f, float range = 0.1f) {
-            // Get the base color values in HSL color space
-            var hue = color.H;
-            var saturation = color.S;
-            var lightness = color.L;
-
-            // Calculate the hue values for the other colors in the split complementary scheme
-            var hue1 = (hue + angle) % 360f;
-            var hue2 = (hue - angle + 360f) % 360f;
-
-            // Create a new array to hold the generated colors
-            var colors = new HSL[3];
-
-            // Create the split complementary colors
-            colors[0] = new HSL(hue, saturation, lightness);
-            colors[1] = new HSL(hue1, saturation, Math.Max(0, Math.Min(1, lightness + range)));
-            colors[2] = new HSL(hue2, saturation, Math.Max(0, Math.Min(1, lightness + range)));
-
-            return colors;
+        private static float Lerp(float from, float to, float amount) {
+            return from + (to - from) * MathHelper.Clamp(amount, 0f, 1f);
         }
 
-        public static HSL[] GetTetradicColors(HSL color, float angle = 60f) {
-            // Get the base color values in HSL color space
-            var hue = color.H;
-            var saturation = color.S;
-            var lightness = color.L;
-
-            // Calculate the hue values for the other colors in the tetradic scheme
-            var hue1 = hue + angle;
-            var hue2 = hue + 180f;
-            var hue3 = hue1 + 180f;
-
-            // Normalize the hue values to be between 0 and 360
-            hue1 %= 360f;
-            hue2 %= 360f;
-            hue3 %= 360f;
-
-            // Create a new array to hold the generated colors
-            var colors = new HSL[4];
-
-            // Create the tetradic colors
-            colors[0] = new HSL(hue, saturation, lightness);
-            colors[1] = new HSL(hue1, saturation, lightness);
-            colors[2] = new HSL(hue2, saturation, lightness);
-            colors[3] = new HSL(hue3, saturation, lightness);
-
-            return colors;
-        }
-
-        public static HSL[] GetTriadicColors(HSL color, float angle = 60f) {
-            // Get the base color values in HSL color space
-            var hue = color.H;
-            var saturation = color.S;
-            var lightness = color.L;
-
-            // Calculate the hue values for the other colors in the triadic scheme
-
-            var complementary = (hue + 180f) % 360f;
-            var hue1 = complementary + angle;
-            var hue2 = complementary - angle;
-
-            // Normalize the hue values to be between 0 and 360
-            hue1 %= 360f;
-            hue2 %= 360f;
-
-            // Create a new array to hold the generated colors
-            var colors = new HSL[3];
-
-            // Create the triadic colors
-            colors[0] = new HSL(hue, saturation, lightness);
-            colors[1] = new HSL(hue1, saturation, lightness);
-            colors[2] = new HSL(hue2, saturation, lightness);
-
-            return colors;
-        }
-
-        public HSL ConvertColor(HSL color, Preset preset) {
+        /// <summary>
+        /// The saturation and lightness the palette is built inside.
+        /// </summary>
+        private static float[] GetEnvelope(Preset preset, HSL baseColor) {
             if (!Enum.IsDefined(typeof(Preset), preset)) {
                 preset = Preset.None;
             }
 
-            var minSaturation = _presetRanges[(int)preset, 0];
-            var maxSaturation = _presetRanges[(int)preset, 1];
-            var minLightness = _presetRanges[(int)preset, 2];
-            var maxLightness = _presetRanges[(int)preset, 3];
-            var minHue = _presetRanges[(int)preset, 4];
-            var maxHue = _presetRanges[(int)preset, 5];
+            if (preset != Preset.None) {
+                var index = (int)preset;
 
-            var baseHue = color.H;
-            var baseSaturation = color.S;
-            var baseLightness = color.L;
+                return new[] {
+                    _presetRanges[index, 0], _presetRanges[index, 1],
+                    _presetRanges[index, 2], _presetRanges[index, 3],
+                    _presetRanges[index, 4], _presetRanges[index, 5]
+                };
+            }
 
-            var hue = (float)(minHue + (maxHue - minHue) * (baseHue / 360));
-            var saturation = (float)(minSaturation + (maxSaturation - minSaturation) * baseSaturation);
-            var lightness = (float)(minLightness + (maxLightness - minLightness) * baseLightness);
+            var span = LIGHTNESS_SPAN * (.35f + .65f * (1f - Math.Abs(baseColor.L * 2f - 1f)));
+
+            var minLightness = MathHelper.Clamp(baseColor.L - span * .5f, MIN_LIGHTNESS, MAX_LIGHTNESS);
+            var maxLightness = MathHelper.Clamp(baseColor.L + span * .5f, MIN_LIGHTNESS, MAX_LIGHTNESS);
+
+            if (maxLightness - minLightness < MIN_LIGHTNESS_SPREAD) {
+                var center = MathHelper.Clamp(baseColor.L, MIN_LIGHTNESS + MIN_LIGHTNESS_SPREAD * .5f, MAX_LIGHTNESS - MIN_LIGHTNESS_SPREAD * .5f);
+
+                minLightness = center - MIN_LIGHTNESS_SPREAD * .5f;
+                maxLightness = center + MIN_LIGHTNESS_SPREAD * .5f;
+            }
+
+            var minSaturation = MathHelper.Clamp(baseColor.S - SATURATION_BELOW, 0f, 1f);
+            var maxSaturation = MathHelper.Clamp(baseColor.S + SATURATION_ABOVE, 0f, 1f);
+
+            if (maxSaturation - minSaturation < MIN_SATURATION_SPREAD) {
+                var center = MathHelper.Clamp(baseColor.S, MIN_SATURATION_SPREAD * .5f, 1f - MIN_SATURATION_SPREAD * .5f);
+
+                minSaturation = center - MIN_SATURATION_SPREAD * .5f;
+                maxSaturation = center + MIN_SATURATION_SPREAD * .5f;
+            }
+
+            return new[] { minSaturation, maxSaturation, minLightness, maxLightness, 0f, 360f };
+        }
+
+        /// <summary>
+        /// Rolls a base color worth building on: mid lightness and enough saturation to have a hue at all.
+        /// </summary>
+        private static HSL RollBaseColor(Random random) {
+            var hue = (float)random.NextDouble() * 360f;
+            var saturation = .45f + (float)random.NextDouble() * .45f;
+            var lightness = .35f + (float)random.NextDouble() * .3f;
 
             return new HSL(hue, saturation, lightness);
         }
 
-        public HSL[] Generate(HSL? color = null, Scheme scheme = Scheme.Complementary, Preset preset = Preset.None) {
-            // generate a base color if not specified
-            var baseColor = !color.HasValue ? GetRandomColor() : color.Value;
+        /// <summary>
+        /// Lays out the primary ramp, then the accents, then the neutral ramp.
+        /// </summary>
+        private static HSL[] BuildPalette(float[] hues, float[] envelope, Options options, Random random) {
+            var colors = new HSL[ColorSet.SLOTS];
 
-            _baseColor = baseColor;
-            var adjustedColor = ConvertColor(baseColor, preset);
+            var minSaturation = envelope[0];
+            var maxSaturation = envelope[1];
+            var minLightness = envelope[2];
+            var maxLightness = envelope[3];
 
-            if (color.HasValue && preset == Preset.None) {
-                adjustedColor = baseColor;
+            var greyCount = MathHelper.Clamp(options.GreyCount, 0, MAX_GREY_COUNT);
+            var accentCount = ColorSet.SLOTS - RAMP_SLOTS - greyCount;
+
+            var rampSaturation = options.Scheme == Scheme.HullAndAccent
+                ? Lerp(minSaturation, maxSaturation, .15f)
+                : Lerp(minSaturation, maxSaturation, .55f);
+
+            for (var i = 0; i < RAMP_SLOTS; i++) {
+                var t = i / (float)(RAMP_SLOTS - 1);
+
+                var falloff = 1f - .35f * (float)Math.Pow(Math.Abs(t * 2f - 1f), 1.5);
+
+                colors[i] = new HSL(hues[0], MathHelper.Clamp(rampSaturation * falloff, 0f, 1f), Lerp(maxLightness, minLightness, t));
             }
 
-            HSL[] colors;
-            //return colors;
-            switch (scheme) {
-                case Scheme.Default:
-                    colors = GenerateDefaultColorScheme(adjustedColor);
-                    break;
+            for (var i = 0; i < accentCount; i++) {
+                var index = RAMP_SLOTS + i;
+                var t = accentCount > 1 ? i / (float)(accentCount - 1) : .5f;
 
-                case Scheme.Analogous:
-                    colors = GenerateAnalogousScheme(adjustedColor);
-                    break;
+                float hue;
+                float saturation;
+                float lightness;
 
-                case Scheme.Complementary:
-                    colors = GenerateComplementaryScheme(adjustedColor);
-                    break;
+                if (hues.Length > 1) {
+                    hue = hues[1 + i % (hues.Length - 1)];
+                    saturation = Lerp(minSaturation, maxSaturation, .8f);
+                    lightness = Lerp(Lerp(maxLightness, minLightness, .25f), Lerp(maxLightness, minLightness, .75f), t);
+                } else {
+                    hue = hues[0];
+                    saturation = Lerp(minSaturation, maxSaturation, .9f);
+                    lightness = Lerp(Lerp(maxLightness, minLightness, .15f), Lerp(maxLightness, minLightness, .85f), t);
+                }
 
-                case Scheme.Monochromatic:
-                    colors = GenerateMonochromaticScheme(adjustedColor);
-                    break;
+                var jitter = ((float)random.NextDouble() * 2f - 1f) * 4f;
+                colors[index] = new HSL(Wrap(hue + jitter), MathHelper.Clamp(saturation, 0f, 1f), lightness);
+            }
 
-                case Scheme.Tetradic:
-                    colors = GenerateTetradicScheme(adjustedColor);
-                    break;
+            for (var i = 0; i < greyCount; i++) {
+                var index = ColorSet.SLOTS - greyCount + i;
+                var t = greyCount > 1 ? i / (float)(greyCount - 1) : .5f;
 
-                case Scheme.Triadic:
-                    colors = GenerateTriadicScheme(adjustedColor);
-                    break;
-
-                default:
-                    throw new Exception("Invalid scheme!");
+                colors[index] = new HSL(hues[0], Lerp(.03f, .10f, t), Lerp(minLightness, maxLightness, t));
             }
 
             return colors;
         }
 
-        public HSL GetRandomColor() {
-            var random = _random;
+        /// <summary>
+        /// Folds the hues into the band of a preset that has one, such as warm or cool.
+        /// </summary>
+        private static void ApplyHueBand(HSL[] colors, float[] envelope) {
+            var minHue = envelope[4];
+            var maxHue = envelope[5];
 
-            // Generate random hue, saturation, and lightness values
-            var hue = random.Next(0, 360);
-            var saturation = (float)random.NextDouble();
-            var lightness = (float)random.NextDouble();
+            if (minHue <= 0f && maxHue >= 360f) {
+                return;
+            }
 
-            // Create and return the color
-            return new HSL(hue, saturation, lightness);
+            for (var i = 0; i < colors.Length; i++) {
+                colors[i] = new HSL(minHue + (maxHue - minHue) * (Wrap(colors[i].H) / 360f), colors[i].S, colors[i].L);
+            }
+        }
+
+        /// <summary>
+        /// Puts the locked slots back, so generating around them leaves them untouched.
+        /// </summary>
+        private static void ApplyLocks(HSL[] colors, Options options) {
+            if (options.Locked == null || options.Current == null) {
+                return;
+            }
+
+            for (var i = 0; i < colors.Length && i < options.Locked.Length; i++) {
+                if (options.Locked[i] && i < options.Current.Length) {
+                    colors[i] = ToHSL(options.Current[i]);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Pushes slots that read as the same color apart until they clear the distance floor.
+        /// </summary>
+        private static void Spread(HSL[] colors, float[] envelope, Options options) {
+            if (options.MinDistance <= 0f) {
+                return;
+            }
+
+            var minLightness = envelope[2];
+            var maxLightness = envelope[3];
+            var locked = options.Locked;
+
+            var room = MathHelper.Clamp((maxLightness - minLightness) / LIGHTNESS_SPAN, .35f, 1f);
+            var minDistance = options.MinDistance * room;
+
+            for (var pass = 0; pass < SPREAD_PASSES; pass++) {
+                var moved = false;
+
+                for (var i = 0; i < colors.Length; i++) {
+                    if (locked != null && i < locked.Length && locked[i]) {
+                        continue;
+                    }
+
+                    for (var j = 0; j < colors.Length; j++) {
+                        if (i == j) {
+                            continue;
+                        }
+
+                        var distance = (float)colors[i].ToLab().GetDistance(colors[j].ToLab());
+
+                        if (distance >= minDistance) {
+                            continue;
+                        }
+
+                        var deficit = (minDistance - distance) / minDistance;
+                        var direction = colors[i].L >= colors[j].L ? 1f : -1f;
+                        var step = direction * deficit * .06f;
+
+                        var lightness = MathHelper.Clamp(colors[i].L + step, minLightness, maxLightness);
+
+                        if (Math.Abs(lightness - colors[i].L) < .001f) {
+                            colors[i] = new HSL(Wrap(colors[i].H + direction * deficit * 6f), colors[i].S, colors[i].L);
+                        } else {
+                            colors[i] = new HSL(colors[i].H, colors[i].S, lightness);
+                        }
+
+                        moved = true;
+                    }
+                }
+
+                if (!moved) {
+                    return;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Turns the palette into slots, keeping the mask of a locked slot exactly as it was.
+        /// </summary>
+        private static ColorMask[] ToMasks(HSL[] colors, Options options) {
+            var masks = new ColorMask[colors.Length];
+
+            for (var i = 0; i < colors.Length; i++) {
+                var isLocked = options.Locked != null
+                    && i < options.Locked.Length
+                    && options.Locked[i]
+                    && options.Current != null
+                    && i < options.Current.Length;
+
+                masks[i] = isLocked ? options.Current[i] : ToMask(colors[i]);
+            }
+
+            return masks;
         }
     }
 }

@@ -8,12 +8,9 @@ using ColorModel = Sisk.BuildColors.Settings.Models.Color;
 namespace Sisk.BuildColors.Services {
 
     /// <summary>
-    ///     Turns the raw argument string of a chat command into tokens and reads the value forms the paint
-    ///     job commands accept. Names hold spaces far more often than not, so a token is quoted with double
-    ///     quotes and a doubled quote inside a quoted token stands for a literal one.
+    /// Turns the raw argument string of a chat command into tokens and values.
     /// </summary>
     internal static class CommandArguments {
-
         public static List<string> Split(string arguments) {
             var tokens = new List<string>();
 
@@ -37,7 +34,6 @@ namespace Sisk.BuildColors.Services {
 
                     inQuotes = !inQuotes;
 
-                    // An empty pair of quotes is a token, which is how an empty name or skin is passed.
                     hasToken = true;
                     continue;
                 }
@@ -64,8 +60,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Splits a <c>field=value</c> token at its first equals sign. Values may hold further equals
-        ///     signs, which keeps skin ids and definition names intact.
+        /// Splits a field=value token at its first equals sign.
         /// </summary>
         public static bool TrySplitAssignment(string token, out string field, out string value) {
             field = null;
@@ -87,8 +82,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Reads an on/off value. <c>toggle</c> flips <paramref name="current" />, which lets a command
-        ///     switch an option without the caller having to know its state.
+        /// Reads an on/off value.
         /// </summary>
         public static bool TryParseFlag(string value, bool current, out bool result) {
             result = current;
@@ -124,7 +118,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Reads a color as <c>R,G,B</c> or as a hex triplet with or without a leading hash.
+        /// Reads a color as R,G,B or as a hex triplet with or without a leading hash.
         /// </summary>
         public static bool TryParseColor(string value, out ColorModel color) {
             color = new ColorModel();
@@ -181,16 +175,14 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Reads a decimal number. Always invariant, so a job written on one machine reads the same on
-        ///     the next regardless of which separator the player's language uses.
+        /// Reads a decimal number.
         /// </summary>
         public static bool TryParseNumber(string value, out float result) {
             return float.TryParse(value != null ? value.Trim() : null, NumberStyles.Float, CultureInfo.InvariantCulture, out result);
         }
 
         /// <summary>
-        ///     Reads a <c>#3</c> style selector. Positions are 1 based because that is how the listings number
-        ///     their entries.
+        /// Reads a #3 style selector.
         /// </summary>
         public static bool TryParseSelector(string value, out int position) {
             position = 0;

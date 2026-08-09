@@ -5,12 +5,11 @@ using System.Collections.Generic;
 namespace Sisk.BuildColors.Services {
 
     /// <summary>
-    ///     One addressable node of a condition tree, either a group or a condition.
+    /// One addressable node of a condition tree, either a group or a condition.
     /// </summary>
     internal class PaintRuleNode {
-
         /// <summary>
-        ///     Group holding this node, null for the root group.
+        /// Group holding this node, null for the root group.
         /// </summary>
         public PaintRuleConditionGroup Parent { get; set; }
 
@@ -19,7 +18,7 @@ namespace Sisk.BuildColors.Services {
         public PaintRuleCondition Condition { get; set; }
 
         /// <summary>
-        ///     Index inside the list of the parent this node lives in, either its conditions or its children.
+        /// Index inside the list of the parent this node lives in, either its conditions or its children.
         /// </summary>
         public int Index { get; set; }
 
@@ -33,16 +32,13 @@ namespace Sisk.BuildColors.Services {
     }
 
     /// <summary>
-    ///     Addresses nodes of a condition tree by path so the console can reach every part of a tree the UI
-    ///     lets the player click on. Members of a group are numbered from 1, conditions first and nested
-    ///     groups after them, which is the order the tree is shown in. The root group is <c>0</c>, so
-    ///     <c>3.1</c> is the first member of the third member of the root.
+    /// Addresses nodes of a condition tree by path.
     /// </summary>
     internal static class PaintRulePath {
         public const string ROOT = "0";
 
         /// <summary>
-        ///     Flattens the tree into the order it is listed in, root first.
+        /// Flattens the tree into the order it is listed in, root first.
         /// </summary>
         public static List<PaintRuleNode> Flatten(PaintRuleConditionGroup root) {
             var nodes = new List<PaintRuleNode>();
@@ -58,7 +54,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Resolves a path against a tree, returning null when it addresses nothing.
+        /// Resolves a path against a tree, returning null when it addresses nothing.
         /// </summary>
         public static PaintRuleNode Resolve(PaintRuleConditionGroup root, string path) {
             if (root == null) {
@@ -69,8 +65,6 @@ namespace Sisk.BuildColors.Services {
                 return new PaintRuleNode { Group = root, Parent = null, Index = 0, Path = ROOT, Depth = 0 };
             }
 
-            // The root is printed as 0 and its members without a prefix, but writing them as 0.1 is the
-            // obvious reading of that listing, so both forms are accepted.
             var text = path.Trim();
             if (text.StartsWith("0.", StringComparison.Ordinal)) {
                 text = text.Substring(2);
@@ -82,7 +76,6 @@ namespace Sisk.BuildColors.Services {
             var prefix = string.Empty;
 
             for (var i = 0; i < segments.Length; i++) {
-                // A condition is a leaf, so anything addressed below one cannot exist.
                 if (node != null && !node.IsGroup) {
                     return null;
                 }
@@ -141,8 +134,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     True when <paramref name="candidate" /> is <paramref name="group" /> itself or sits below it.
-        ///     Moving a group into its own subtree would detach it from the rule, so it has to be refused.
+        /// True when candidate is group itself or sits below it.
         /// </summary>
         public static bool Contains(PaintRuleConditionGroup group, PaintRuleConditionGroup candidate) {
             if (group == null || candidate == null) {

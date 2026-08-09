@@ -6,11 +6,9 @@ using System.Globalization;
 namespace Sisk.BuildColors.UI {
 
     /// <summary>
-    /// Puts a paint source into words. The same wording is used by the editor and by the console listing so
-    /// that a job reads the same whichever way it is looked at.
+    /// Puts a paint source into words.
     /// </summary>
     internal static class PaintSourceText {
-
         public static string Describe(PaintColorSource source) {
             if (source == null) {
                 return DescribeType(PaintSourceType.Solid);

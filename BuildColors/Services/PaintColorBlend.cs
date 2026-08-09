@@ -7,15 +7,11 @@ using ColorModel = Sisk.BuildColors.Settings.Models.Color;
 namespace Sisk.BuildColors.Services {
 
     /// <summary>
-    ///     Mixes two paint colors. Which space the mix happens in decides what the middle of a gradient looks
-    ///     like far more than the ends do: RGB darkens through the middle, HSV keeps the colors saturated by
-    ///     travelling around the hue circle, and Lab spaces the steps out the way an eye reads them.
+    /// Mixes two paint colors.
     /// </summary>
     internal static class PaintColorBlend {
-
         /// <summary>
-        ///     Below this saturation a color carries no hue worth blending, so the other end's hue is used
-        ///     instead of travelling towards an arbitrary one.
+        /// Saturation below which a color carries no hue worth blending.
         /// </summary>
         private const float ACHROMATIC_SATURATION = .01f;
 
@@ -56,8 +52,6 @@ namespace Sisk.BuildColors.Services {
             var startHue = start.H;
             var endHue = end.H;
 
-            // A grey end has no hue of its own, so it borrows the other one instead of dragging the blend
-            // across the hue circle towards zero.
             if (start.S < ACHROMATIC_SATURATION) {
                 startHue = endHue;
             } else if (end.S < ACHROMATIC_SATURATION) {
@@ -89,8 +83,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Signed distance from one hue to another the short way round, so red and violet meet across zero
-        ///     instead of sweeping through the whole circle.
+        /// Signed distance from one hue to another the short way round.
         /// </summary>
         private static float ShortestHueDelta(float from, float to) {
             var delta = to - from;

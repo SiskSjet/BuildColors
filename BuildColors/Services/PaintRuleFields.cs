@@ -10,12 +10,9 @@ using ColorModel = Sisk.BuildColors.Settings.Models.Color;
 namespace Sisk.BuildColors.Services {
 
     /// <summary>
-    ///     Reads the <c>field=value</c> pairs the paint job commands take and writes them onto a condition or
-    ///     a rule action. A condition is fully described by its type, so a new condition takes its type from
-    ///     the first value field it is given unless the type is stated outright.
+    /// Reads the field=value pairs the paint job commands take.
     /// </summary>
     internal static class PaintRuleFields {
-
         public static bool TryApplyToCondition(PaintRuleCondition condition, IList<string> assignments, bool isNew, out string error) {
             error = null;
 
@@ -154,7 +151,6 @@ namespace Sisk.BuildColors.Services {
                 }
             }
 
-            // A threshold on its own only means something together with the state it belongs to.
             if (thresholdGiven && !integrityGiven && condition.Type == PaintRuleConditionType.BlockIntegrity && isNew) {
                 condition.Integrity = PaintRuleIntegrityState.BelowThreshold;
             }
@@ -340,7 +336,6 @@ namespace Sisk.BuildColors.Services {
                         entriesGiven = true;
                         entrySkinGiven |= HasSkin(stops);
 
-                        // Listing stops without saying what to do with them only ever means a gradient.
                         if (stopSource.Type == PaintSourceType.Solid) {
                             stopSource.Type = PaintSourceType.Gradient;
                         }
@@ -371,7 +366,6 @@ namespace Sisk.BuildColors.Services {
                 }
             }
 
-            // Naming a color or a skin without saying whether it is applied is only ever meant one way.
             if ((colorGiven || entriesGiven) && !applyColorGiven) {
                 action.ApplyColor = true;
             }
@@ -384,8 +378,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Reads a skin id, accepting both the id itself and the display name shown in the skin list. An
-        ///     empty value is the default armor look, which is a valid target.
+        /// Reads a skin id, accepting both the id itself and the display name shown in the skin list.
         /// </summary>
         public static bool TryResolveSkin(string value, out string skinId) {
             skinId = string.Empty;
@@ -408,8 +401,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Returns the source of an action, creating a plain one the first time a source field is set so
-        ///     that a job written before there were sources gains one only when it is actually asked for.
+        /// Returns the source of an action, creating a plain one on first use.
         /// </summary>
         private static PaintColorSource EnsureSource(PaintRuleAction action) {
             if (action.Source == null) {
@@ -420,9 +412,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Reads a list of gradient stops written as <c>color[@position][:skin]</c> and separated by
-        ///     semicolons. Semicolons rather than commas, because a color may itself be written as
-        ///     <c>R,G,B</c>. Stops written without a position are spread evenly over the gradient.
+        /// Reads a list of gradient stops written as color[@position][:skin] and separated by semicolons.
         /// </summary>
         private static bool TryParseStops(string value, out List<PaintColorStop> stops) {
             stops = new List<PaintColorStop>();
@@ -472,7 +462,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Reads a palette written as <c>color[*weight][:skin]</c> and separated by semicolons.
+        /// Reads a palette written as color[*weight][:skin] and separated by semicolons.
         /// </summary>
         private static bool TryParsePalette(string value, out List<PaintPaletteEntry> palette) {
             palette = new List<PaintPaletteEntry>();
@@ -508,8 +498,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Peels the optional skin and the optional number off a list entry, leaving the color. Returns
-        ///     whether the number was there at all, since its absence means something different than a zero.
+        /// Peels the optional skin and the optional number off a list entry, leaving the color.
         /// </summary>
         private static bool TrySplitEntry(string token, char modifier, out string colorText, out float number, out string skinId) {
             var text = token.Trim();
@@ -896,8 +885,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Reads <c>TypeId/SubtypeId</c>. Without a slash the value is a subtype pattern, which is the
-        ///     side that tells blocks apart in practice.
+        /// Reads TypeId/SubtypeId.
         /// </summary>
         private static PaintRuleDefinitionValue ParseDefinition(string value) {
             var definition = new PaintRuleDefinitionValue();
@@ -921,8 +909,7 @@ namespace Sisk.BuildColors.Services {
         }
 
         /// <summary>
-        ///     Sets the type a value field belongs to while a condition is being created. Later value fields
-        ///     leave the type alone, so <c>color=… skin=…</c> does not silently end up as a skin condition.
+        /// Sets the type a value field belongs to while a condition is being created.
         /// </summary>
         private static bool ApplyInferredType(PaintRuleCondition condition, PaintRuleConditionType type, bool isNew, bool typeGiven, bool valueFieldGiven) {
             if (isNew && !typeGiven && !valueFieldGiven) {

@@ -1,71 +1,96 @@
-using RichHudFramework.UI;
-using RichHudFramework.UI.Client;
+﻿using RichHudFramework.UI;
+using Sisk.BuildColors.Settings.Models.PaintJobs;
 using System.Collections.Generic;
 using VRageMath;
 
 namespace Sisk.BuildColors.UI {
 
     /// <summary>
-    /// Full-screen transparent container that holds all UI panels and dialogs.
-    /// Ensures proper z-ordering and owns the modal dialog stack. Each dialog draws its own backdrop.
+    /// Full-screen transparent container that holds the panel and the modal dialog stack.
     /// </summary>
     public class MainWindow : HudElementBase {
         private const sbyte DIALOG_Z_OFFSET = 20;
 
-        private readonly ColorManagementPanel _colorPanel;
-        private readonly PaintJobPanel _paintJobPanel;
         private readonly List<DialogBase> _dialogStack = new List<DialogBase>();
 
+        private BuildColorsPanel _panel;
+
         public MainWindow(HudParentBase parent = null) : base(parent) {
-            // Full-screen transparent container
             DimAlignment = DimAlignments.Both;
-            
-            // Right panel - Color Management
-            _colorPanel = new ColorManagementPanel() {
-                ZOffset = 1,
-            };
-            _colorPanel.Register(this);
 
-            // Left panel - Paint Jobs
-            _paintJobPanel = new PaintJobPanel() {
-                ZOffset = 1,
-            };
-            _paintJobPanel.Register(this);
-
-            // Wire up dialog requests
-            _colorPanel.DialogRequested += OnDialogRequested;
-            _paintJobPanel.DialogRequested += OnDialogRequested;
+            BuildPanel();
         }
 
-        public ColorManagementPanel ColorPanel => _colorPanel;
-        public PaintJobPanel PaintJobPanel => _paintJobPanel;
-
         /// <summary>
-        /// True while any dialog is open. The workbench stands on its own, so the container has to stay up
-        /// for it even when the colour picker screen that normally hosts the panels is closed.
+        /// True while any dialog is open.
         /// </summary>
         public bool HasOpenDialogs => _dialogStack.Count > 0;
 
         /// <summary>
-        /// The two side panels belong to the colour picker screen and are hidden when it is not up.
+        /// The panel belongs to the color picker screen and is hidden whenever that screen is not up.
         /// </summary>
-        public bool PanelsVisible {
+        public bool PanelVisible {
+            get { return _panel != null && _panel.Visible; }
             set {
-                _colorPanel.Visible = value;
-                _paintJobPanel.Visible = value;
+                if (_panel == null || _panel.Visible == value) {
+                    return;
+                }
+
+                _panel.Visible = value;
+
+                if (value) {
+                    _panel.Reload();
+                } else {
+                    _panel.Commit();
+                }
             }
         }
 
+        public void RefreshPaintJobs(PaintJob jobToSelect = null) {
+            _panel?.RefreshPaintJobs(jobToSelect);
+        }
+
+        public void RefreshShares() {
+            _panel?.RefreshShares();
+        }
+
         /// <summary>
-        /// Shows a dialog as a modal overlay. Dialogs stack, so a dialog can open a nested dialog on top of itself.
+        /// Rebuilds the panel for the current screen size.
+        /// </summary>
+        public void RebuildIfScreenChanged() {
+            if (_panel == null || HasOpenDialogs) {
+                return;
+            }
+
+            var size = PickerScreenLayout.PanelSize;
+            var built = _panel.BuiltForSize;
+
+            if (built.X <= 0f || built.Y <= 0f) {
+                return;
+            }
+
+            if (Vector2.DistanceSquared(size, built) < 1f) {
+                return;
+            }
+
+            var wasVisible = _panel.Visible;
+
+            _panel.Commit();
+            _panel.DialogRequested -= OnDialogRequested;
+            _panel.Unregister();
+
+            BuildPanel();
+            _panel.Visible = wasVisible;
+        }
+
+        /// <summary>
+        /// Shows a dialog as a modal overlay.
         /// </summary>
         public void ShowDialog(DialogBase dialog) {
             if (dialog == null || _dialogStack.Contains(dialog)) {
                 return;
             }
 
-            // Only the topmost dialog accepts input. Without this a click on a dialog underneath would
-            // pull window focus and bury the dialog the user is actually working in.
             if (_dialogStack.Count > 0) {
                 _dialogStack[_dialogStack.Count - 1].InputEnabled = false;
             }
@@ -76,7 +101,6 @@ namespace Sisk.BuildColors.UI {
             dialog.Register(this);
             dialog.InputEnabled = true;
 
-            // WindowBase tracks its own draw layer, so the newest dialog has to claim focus explicitly.
             dialog.GetWindowFocus();
 
             _dialogStack.Add(dialog);
@@ -85,9 +109,13 @@ namespace Sisk.BuildColors.UI {
         protected override void Layout() {
             base.Layout();
 
-            // This element lives under the high DPI root, so it has to match that coordinate space rather
-            // than the raw viewport, otherwise dialog backdrops are oversized on high DPI displays.
             Size = DialogSafeArea.ScreenSize;
+        }
+
+        private void BuildPanel() {
+            _panel = new BuildColorsPanel() { ZOffset = 1 };
+            _panel.DialogRequested += OnDialogRequested;
+            _panel.Register(this);
         }
 
         private void OnDialogRequested(object sender, System.EventArgs e) {
@@ -108,7 +136,6 @@ namespace Sisk.BuildColors.UI {
                 return;
             }
 
-            // A dialog closing also discards anything stacked on top of it.
             for (var i = _dialogStack.Count - 1; i >= index; i--) {
                 var dialog = _dialogStack[i];
                 dialog.Closed -= OnDialogClosed;
@@ -121,7 +148,6 @@ namespace Sisk.BuildColors.UI {
                 _dialogStack.RemoveAt(i);
             }
 
-            // Hand input and focus back to whatever is now on top.
             if (_dialogStack.Count > 0) {
                 var top = _dialogStack[_dialogStack.Count - 1];
                 top.InputEnabled = true;

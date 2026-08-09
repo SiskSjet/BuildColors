@@ -1,4 +1,4 @@
-﻿using ProtoBuf;
+using ProtoBuf;
 using Sisk.BuildColors.Settings.Models.ColorSpace;
 using System.Xml.Serialization;
 using VRageMath;
@@ -9,7 +9,6 @@ namespace Sisk.BuildColors.Settings.Models {
 
     [ProtoContract]
     public struct Color {
-
         public Color(byte r, byte g, byte b) {
             R = r;
             G = g;

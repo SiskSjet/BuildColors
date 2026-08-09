@@ -1,9 +1,10 @@
-# Build Colors
+﻿# Build Colors
 ![Build Colors](./Mod/thumb.png)
 
 - [Build Colors](#build-colors)
   - [🛠︰Info](#info)
   - [🛠︰Installation](#installation)
+  - [🛠︰The panel](#the-panel)
   - [🛠︰Color Sets](#color-sets)
   - [🛠︰Paint Jobs](#paint-jobs)
   - [🛠︰Configs](#configs)
@@ -12,7 +13,7 @@
 
 ## 🛠︰Info
 
-This mod allows you to create customized color sets for building, which can then be easily imported into another world.
+This mod allows you to create customized color sets for building, which can then be easily carried into another world or handed to another player.
 
 ## 🛠︰Installation
 
@@ -20,9 +21,67 @@ The easiest way is to download it from [SteamWorkshop](https://steamcommunity.co
 
 You can also download the latest zip from [releases](https://github.com/SiskSjet/RotorReturnHome/BuildColors) and extract it to your '%appdata%\SpaceEngineers\Mods' folder
 
+## 🛠︰The panel
+
+Everything this mod does lives on the game's own color picker screen, in the room left of the vanilla controls. One panel, with a rail down its left side switching between the three things it does:
+
+```
+┌ BUILD COLORS ─────────────────────────────────────────┐
+│ ▸ Paint Jobs │ Jobs      Rules - "Hull"   Rule detail │
+│   Color Sets │ Hull      1. Heavy armor   [Cond][Paint]│
+│   Generator  │ Interior  2. Damaged        [0] all of  │
+│              │                                        │
+│              │ Alt+P apply · Alt+Z undo  [Undo][Apply]│
+└───────────────────────────────────────────────────────┘
+```
+
+**Paint Jobs** edits jobs and their rules, **Color Sets** manages saved palettes, and **Generator** builds a palette from a color scheme. Anything that needs its own screen — a condition tree, an elaborate paint source, naming something — opens as a dialog over the panel. Close the color picker and the whole thing goes away; there is no second window to keep track of. The hotkeys are spelled out on the Paint Jobs page as they are actually bound, so a rebind shows up there.
+
 ## 🛠︰Color Sets
 
-To save or load a color set you have to type the listed commands below in your chat box.
+A color set is the fourteen build color slots saved under a name. The **Color Sets** tab lists them and shows the selected set beside the palette you are actually building with, in the same slot order — loading replaces the palette wholesale, so seeing both is how you know what that costs.
+
+From there a set can be loaded, renamed, duplicated, marked a favourite, shared or removed. Double clicking loads it, **Load row 1** and **Load row 2** load only that half of the slots and leave the rest of your palette alone, and clicking a swatch opens that one slot in a colour picker. **Save current palette** goes the other way and stores what you have now; if the name is taken it asks before replacing.
+
+Favourites sort to the top and the filter box narrows a long list as you type.
+
+### Sharing
+
+A colour set or a paint job is sent straight to another player. **Share** on either page asks who it goes to — one player, or everyone online — and hands it over.
+
+Nothing arrives in someone's list uninvited. A share lands in the recipient's **Inbox**, the button carries the number waiting, and only **Accept** writes it to their own file, under a free name so an existing set of the same name is never overwritten. **Decline** or **Decline all** throws it away. Several shares can be waiting at once; the newest is on top, and a second share of the same name from the same player replaces the first instead of stacking up.
+
+The inbox holds what came in this session. Shares are not kept over a restart, and only players who are online can be sent to.
+
+```
+┌ Shared with you ──────────────────────────────┐
+│ Hull - color set from Sisk                    │
+│ Interior - paint job from Vex                 │
+│                                               │
+│ Color set from Sisk.                          │
+│ ▪▪▪▪▪▪▪  ▪▪▪▪▪▪▪                              │
+│              [Decline]            [Accept]    │
+│ [Decline all]                       [Done]    │
+└───────────────────────────────────────────────┘
+```
+
+Everything goes through the server, which stamps the sender from the connection it came in on, so the name on a share is the player who really sent it.
+
+### Generator
+
+The **Generator** tab builds a set instead of collecting one by hand.
+
+Pick a scheme — analogous, complementary, split complementary, triadic, tetradic, square, monochromatic, or hull and accent — and a preset that decides the mood. The preset shapes every slot, not only the colour the scheme is grown from.
+
+With no preset the palette follows the base colour itself: a dark base gives a dark palette, a washed out one a washed out palette, and the middle of the first row lands on the base colour you picked. A preset overrides that, which is what a preset is for.
+
+The layout is deliberate: the first row is a light to dark ramp of the primary hue, the row of number keys you build most of a hull with. The second row carries the accents of the scheme and then a neutral ramp, tinted slightly towards the primary hue so the greys do not read as dirty next to it. How many of those greys you get is yours to choose.
+
+**Base color** says where the colour the scheme is grown from comes from: rolled at **random**, taken **from palette**, sampled **from the target grid** you are looking at, or **custom** on the picker. The two sampling sources lay their colours out as swatches and let you click the one you want, starting on the most colourful. The picker appears with them and holds whatever is chosen — moving it switches to custom — and stays out of the way while the base colour is being rolled.
+
+**Generate** rolls a new palette. Everything else — scheme, preset, greys, base colour — re-rolls in place, so changing one of them shows you what that change did rather than an unrelated palette.
+
+Click any generated swatch to edit that slot; right click to lock it. Locked slots are held through every following roll, so a palette can be worked out one colour at a time instead of rolled until it happens to be right. No two slots are allowed to end up looking the same: they are compared perceptually and pushed apart.
 
 `Usage: /bc [command] [arguments]`
 
@@ -30,9 +89,22 @@ To save or load a color set you have to type the listed commands below in your c
 * **save** [*name*] *- Saves a Color Set with the given name.*
 * **load** [*name*] *- Loads a Color Set with the given name.*
 * **remove** [*name*] *- Removes a Color Set with given name.*
-* **generate** [*name*] *- generates a random color set. It is not saved, only the color palette is changed*
+* **generate** [*scheme*] [*preset*] *- Rolls a palette into the build colors. Both arguments are optional and may be given in any order.*
 * **list** *- Lists all available color sets.*
 * **help** *- Shows a help window with all commands.*
+
+**Sharing**:
+* **share** [*name*] [*player*] *- Sends a color set to a player. Without a player it goes to everyone online.*
+* **sharejob** [*job*] [*player*] *- Sends a paint job to a player. Without a player it goes to everyone online.*
+* **shares** *- Lists what other players have shared with you.*
+* **accept** [*#position\|name*] *- Keeps a share and saves it under a free name.*
+* **decline** [*#position\|name*] *- Throws a share away.*
+
+### Stored colors
+
+Colour sets are kept as the hue, saturation and value the game itself holds, not as RGB. Before this they went through eight bit RGB on the way to the file, which rounded the numbers the player had dialled in and clamped anything outside the sRGB gamut, so a set did not always load back as it was saved.
+
+Files written by an older version are read and converted the first time they are loaded. Once converted they are stored the new way only, so a set saved by this version cannot be read by an older build of the mod.
 
 ## 🛠︰Paint Jobs
 
@@ -46,7 +118,7 @@ Every application is recorded, and **undojob** puts one back. The history holds 
 
 ### Hotkeys
 
-One job is the **active** one — whichever you last picked in the paint job panel. These keys act on it with no menu open, and are rebindable in the Rich HUD terminal under Build Colors ▸ Controls:
+One job is the **active** one — whichever you last picked in the Paint Jobs tab. These keys act on it with no menu open, and are rebindable in the Rich HUD terminal under Build Colors ▸ Controls:
 
 | Default | Does |
 |---|---|
@@ -54,11 +126,10 @@ One job is the **active** one — whichever you last picked in the paint job pan
 | `Alt` + `Z` | Puts the last application back |
 | `Alt` + `.` | Next paint job — a notification names the one you land on |
 | `Alt` + `,` | Previous paint job |
-| `Alt` + `B` | Opens the workbench |
 
 Two-key combos on purpose: a paint job repaints a whole grid, which is not something a stray keypress should start. They do nothing while the chat is open or while a text field has focus.
 
-Paint jobs are edited in the **workbench**, opened with `Alt`+`B` or from the paint job panel of the color picker screen. It shows the jobs, the rules of the selected job and the detail of the selected rule side by side, and everything it can do is also available in chat.
+Paint jobs are edited in the **Paint Jobs** tab of the panel, which shows the jobs, the rules of the selected job and the detail of the selected rule side by side. Everything it can do is also available in chat.
 
 ```
 Jobs           Rules - "Hull"          Rule - "Heavy armor"
@@ -68,7 +139,7 @@ Jobs           Rules - "Hull"          Rule - "Heavy armor"
                                           [2] size is large
 ```
 
-Edits are written straight back, so there is nothing to save. The window is dragged by its title bar and closed with the button in its corner, and it keeps clear of the game's own toolbar. It stands on its own and does not need the color picker open.
+Edits are written straight back, so there is nothing to save. Conditions and the more elaborate paint sources open in a dialog over the panel.
 
 `Usage: /bc [command] [arguments]`
 
@@ -84,6 +155,7 @@ Names hold spaces, so arguments are quoted: `/bc ApplyJob "My Hull"`. Instead of
 * **removejob** [*job*] *- Removes a paint job.*
 * **renamejob** [*job*] [*new name*] *- Renames a paint job.*
 * **copyjob** [*job*] [*new name*] *- Copies a paint job.*
+* **sharejob** [*job*] [*player*] *- Sends a paint job to a player. Without a player it goes to everyone online.*
 * **joboption** [*job*] [*subgrids\|projected\|preview\|ownership*] [*on\|off*] *- Sets an option of a paint job. Without a value the option is flipped.*
 
 **Rules**:

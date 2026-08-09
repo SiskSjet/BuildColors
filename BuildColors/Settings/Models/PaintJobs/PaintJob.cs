@@ -9,15 +9,9 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
 
     [ProtoContract]
     public class PaintJob : IEquatable<PaintJob> {
-
         public PaintJob() {
             Rules = new List<PaintRule>();
             Options = new PaintJobOptions();
-
-            // Deliberately no EnsureRules() here. XmlSerializer appends to the list returned by the
-            // Rules getter instead of replacing it, so anything seeded in the constructor would be kept
-            // and the saved rules appended after it, growing the job by one rule on every load.
-            // Callers that need a usable job call EnsureRules() explicitly.
         }
 
         [ProtoMember(1)]
@@ -42,8 +36,7 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
         public List<PaintRule> Rules { get; set; }
 
         /// <summary>
-        ///     Creates an independent copy, keeping the identity of the original so that saving the copy
-        ///     replaces the job it was made from. Used to give dialogs a working copy that can be discarded.
+        /// Creates an independent copy that keeps the original's identity.
         /// </summary>
         public PaintJob Clone() {
             var clone = new PaintJob {

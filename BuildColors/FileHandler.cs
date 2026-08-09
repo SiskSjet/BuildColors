@@ -1,4 +1,4 @@
-﻿using Sandbox.ModAPI;
+using Sandbox.ModAPI;
 using Sisk.BuildColors.Settings;
 using System;
 using VRage.Utils;
@@ -6,7 +6,6 @@ using VRage.Utils;
 namespace Sisk.BuildColors {
 
     public static class FileHandler {
-
         public static T Load<T>(string fileName) where T : class {
             T data = null;
             if (MyAPIGateway.Utilities.FileExistsInGlobalStorage(fileName)) {

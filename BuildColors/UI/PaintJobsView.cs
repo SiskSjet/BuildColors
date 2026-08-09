@@ -1,10 +1,9 @@
-using RichHudFramework.UI;
+﻿using RichHudFramework.UI;
 using Sisk.BuildColors.Localization;
 using Sisk.BuildColors.Services;
 using Sisk.BuildColors.Settings.Models.PaintJobs;
 using Sisk.Utils.Localization.Extensions;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using VRageMath;
 
@@ -13,61 +12,40 @@ using ColorModel = Sisk.BuildColors.Settings.Models.Color;
 namespace Sisk.BuildColors.UI {
 
     /// <summary>
-    /// The paint job workbench: jobs, the rules of the selected job and the detail of the selected rule, all
-    /// on one screen.
-    /// <para>
-    /// It replaces a stack of four nested dialogs. Everything is edited in place and written straight back,
-    /// so there is nothing to commit and no working copy to lose - which is what lets the three panes stay
-    /// live next to each other instead of taking turns.
-    /// </para>
+    /// Paint jobs, the rules of the selected job and the detail of the selected rule, side by side.
     /// </summary>
-    public class PaintJobWorkbench : DialogBase {
-        private const float BUTTON_HEIGHT = LayoutMetrics.BUTTON_HEIGHT;
+    internal class PaintJobsView : PanelView {
+        /// <summary>
+        /// Width below which the two lists share a column instead of standing apart.
+        /// </summary>
+        private const float THREE_PANE_MIN_WIDTH = 900f;
+
+        private const float APPLY_BUTTON_WIDTH = 280f;
         private const float JOBS_PANE_WIDTH = 300f;
-        private const float MAX_HEIGHT = 860f;
-        /// <summary>
-        /// The inspector takes whatever the two lists beside it leave, so the width of the window is what
-        /// decides how wide it gets. Wider than this and the inspector is mostly empty space: it holds one
-        /// control per row and a condition tree, neither of which reads better for being stretched.
-        /// </summary>
-        private const float MAX_WIDTH = 1200f;
-
-        /// <summary>
-        /// Gap left at the sides of the screen on small displays.
-        /// </summary>
-        private const float SCREEN_MARGIN = 60f;
-
-        private const float MIN_HEIGHT = 700f;
-        private const float MIN_WIDTH = 1100f;
-        private const float PANE_SPACING = 16f;
-
-        /// <summary>
-        /// Slack left at the bottom of every pane. A chain that is filled to the last pixel overlaps its own
-        /// members the moment one of them measures larger than expected, so none of them is filled exactly.
-        /// </summary>
-        private const float PANE_SLACK = 12f;
         private const float RULES_PANE_WIDTH = 340f;
 
         private readonly ListBox<PaintJob> _jobList;
         private readonly TextField _jobNameField;
-        private readonly BorderedButton _removeJobButton;
-        private readonly BorderedButton _copyJobButton;
+        private readonly ActionButton _copyJobButton;
+        private readonly ActionButton _inboxButton;
+        private readonly ActionButton _removeJobButton;
+        private readonly ActionButton _shareJobButton;
 
-        private readonly Label _rulesLabel;
+        private readonly Card _rulesCard;
         private readonly ListBox<PaintRule> _ruleList;
         private readonly TextField _ruleNameField;
-        private readonly BorderedButton _addRuleButton;
-        private readonly BorderedButton _removeRuleButton;
-        private readonly BorderedButton _moveRuleUpButton;
-        private readonly BorderedButton _moveRuleDownButton;
+        private readonly ActionButton _addRuleButton;
+        private readonly ActionButton _removeRuleButton;
+        private readonly ActionButton _moveRuleUpButton;
+        private readonly ActionButton _moveRuleDownButton;
 
-        private readonly Label _inspectorLabel;
-        private readonly BorderedButton _conditionsTabButton;
-        private readonly BorderedButton _paintTabButton;
+        private readonly Card _inspectorCard;
+        private readonly ActionButton _conditionsTabButton;
+        private readonly ActionButton _paintTabButton;
 
         private readonly HudChain _conditionsView;
         private readonly ListBox<PaintRuleNode> _conditionTree;
-        private readonly BorderedButton _editConditionsButton;
+        private readonly ActionButton _editConditionsButton;
 
         private readonly HudChain _paintView;
         private readonly BorderedCheckBox _applyColorCheckbox;
@@ -79,112 +57,138 @@ namespace Sisk.BuildColors.UI {
         private readonly Dropdown<SkinListEntry, DefinitionCatalog.SkinOption> _skinDropdown;
         private readonly HudChain _sourceSection;
         private readonly Label _sourceSummaryLabel;
-        private readonly BorderedButton _editSourceButton;
+        private readonly ActionButton _editSourceButton;
 
         private readonly BorderedCheckBox _includeSubgridsCheckbox;
         private readonly BorderedCheckBox _includeProjectedCheckbox;
         private readonly BorderedCheckBox _includePreviewCheckbox;
         private readonly BorderedCheckBox _respectOwnershipCheckbox;
 
-        private readonly BorderedButton _applyButton;
-        private readonly BorderedButton _undoButton;
-        private readonly Label _statusLabel;
+        private readonly ActionButton _applyButton;
+        private readonly ActionButton _undoButton;
+        private readonly Label _hotkeyHint;
 
-        private DialogBase _activeDialog;
         private PaintJob _loadedJob;
         private PaintRule _loadedRule;
         private bool _suppressWrites;
 
-        public PaintJobWorkbench(HudParentBase parent = null) : base(parent) {
-            var screen = DialogSafeArea.ScreenSize;
-            var width = MathHelper.Clamp(screen.X - SCREEN_MARGIN * 2f, MIN_WIDTH, MAX_WIDTH);
-            var height = GetSafeHeight(MAX_HEIGHT, MIN_HEIGHT);
+        public PaintJobsView(float width, float height, HudParentBase parent = null) : base(width, height, parent) {
+            var optionsHeight = LayoutMetrics.HEADING_HEIGHT + LayoutMetrics.CHECKBOX_SIZE + LayoutMetrics.TIGHT_SPACING;
+            var paneHeight = height
+                - LayoutMetrics.BUTTON_HEIGHT
+                - optionsHeight
+                - LayoutMetrics.SECTION_SPACING * 2f;
 
-            Size = new Vector2(width, height);
-            HeaderText = ModText.BC_UI_WorkbenchTitle.GetString();
+            _applyButton = ControlFactory.CreateButton(ModText.BC_UI_ApplyToTargetGrid.GetString(), APPLY_BUTTON_WIDTH, ButtonRole.Primary);
+            _undoButton = ControlFactory.CreateButton(ModText.BC_UI_Undo.GetString(), 160f);
 
-            var contentWidth = width - Padding.X - LayoutMetrics.CONTENT_PADDING_X;
-            var contentHeight = height - Padding.Y - HEADER_HEIGHT - LayoutMetrics.CONTENT_PADDING_Y;
+            _hotkeyHint = ControlFactory.CreateCaption(
+                string.Empty,
+                width - APPLY_BUTTON_WIDTH - _undoButton.Width - LayoutMetrics.ROW_SPACING * 2f,
+                LayoutMetrics.BUTTON_HEIGHT);
 
-            // Four rows: the toolbar, the panes, the job options and the status line. Only the panes grow,
-            // so the height every pane gets is what is left once the other three have been taken off.
-            var paneHeight = contentHeight
-                - BUTTON_HEIGHT
-                - LayoutMetrics.CHECKBOX_SIZE
-                - LayoutMetrics.LABEL_HEIGHT
-                - LayoutMetrics.SECTION_SPACING * 3f;
-
-            var inspectorWidth = contentWidth - JOBS_PANE_WIDTH - RULES_PANE_WIDTH - PANE_SPACING * 2f;
-
-            // ---- toolbar ----
-            _applyButton = CreateButton(ModText.BC_UI_Apply.GetString(), 160f);
-            _undoButton = CreateButton(ModText.BC_UI_Undo.GetString(), 160f);
+            _hotkeyHint.VertCenterText = true;
 
             var toolbar = new HudChain(false) {
-                CollectionContainer = { _applyButton, _undoButton },
+                CollectionContainer = { _hotkeyHint, _undoButton, _applyButton },
                 Spacing = LayoutMetrics.ROW_SPACING,
                 SizingMode = HudChainSizingModes.AlignMembersEnd,
-                Width = contentWidth,
-                Height = BUTTON_HEIGHT,
+                Width = width,
+                Height = LayoutMetrics.BUTTON_HEIGHT,
             };
 
-            // ---- jobs pane ----
-            _jobList = CreateList<PaintJob>(JOBS_PANE_WIDTH, ListHeight(paneHeight, 2));
-            _jobNameField = CreateTextField(JOBS_PANE_WIDTH);
+            var wide = width >= THREE_PANE_MIN_WIDTH;
 
-            var newJobButton = CreateButton(ModText.BC_UI_New.GetString());
-            _copyJobButton = CreateButton(ModText.BC_UI_Copy.GetString());
-            _removeJobButton = CreateButton(ModText.BC_UI_Remove.GetString());
+            float jobsWidth;
+            float rulesWidth;
+            float inspectorWidth;
+            float jobsHeight;
+            float rulesHeight;
 
-            var jobsPane = CreatePane(JOBS_PANE_WIDTH, paneHeight);
-            jobsPane.Add(CreateLabel(ModText.BC_UI_Jobs.GetString(), JOBS_PANE_WIDTH), 0f);
-            jobsPane.Add(_jobList, 0f);
-            jobsPane.Add(_jobNameField, 0f);
-            jobsPane.Add(CreateButtonRow(JOBS_PANE_WIDTH, newJobButton, _copyJobButton, _removeJobButton), 0f);
+            if (wide) {
+                jobsWidth = JOBS_PANE_WIDTH;
+                rulesWidth = RULES_PANE_WIDTH;
+                inspectorWidth = width - JOBS_PANE_WIDTH - RULES_PANE_WIDTH - LayoutMetrics.SECTION_SPACING * 2f;
+                jobsHeight = paneHeight;
+                rulesHeight = paneHeight;
+            } else {
+                jobsWidth = (float)Math.Floor(width * .4f);
+                rulesWidth = jobsWidth;
+                inspectorWidth = width - jobsWidth - LayoutMetrics.SECTION_SPACING;
+                jobsHeight = (float)Math.Floor((paneHeight - LayoutMetrics.SECTION_SPACING) * .5f);
+                rulesHeight = paneHeight - jobsHeight - LayoutMetrics.SECTION_SPACING;
+            }
 
-            // ---- rules pane ----
-            _rulesLabel = CreateLabel(string.Empty, RULES_PANE_WIDTH);
-            _ruleList = CreateList<PaintRule>(RULES_PANE_WIDTH, ListHeight(paneHeight, 3));
-            _ruleNameField = CreateTextField(RULES_PANE_WIDTH);
+            var jobsCard = new Card(ModText.BC_UI_Jobs.GetString(), jobsWidth, jobsHeight);
+            var jobsContentWidth = Card.ContentWidth(jobsWidth);
+            var jobsListHeight = Card.ContentHeight(jobsHeight)
+                - LayoutMetrics.LABEL_HEIGHT
+                - LayoutMetrics.CONTROL_HEIGHT
+                - LayoutMetrics.BUTTON_HEIGHT
+                - LayoutMetrics.ROW_SPACING * 3f;
 
-            _addRuleButton = CreateButton(ModText.BC_UI_AddRule.GetString());
-            _removeRuleButton = CreateButton(ModText.BC_UI_RemoveRule.GetString());
-            _moveRuleUpButton = CreateButton(ModText.BC_UI_MoveUp.GetString());
-            _moveRuleDownButton = CreateButton(ModText.BC_UI_MoveDown.GetString());
+            _jobList = ControlFactory.CreateList<PaintJob>(jobsContentWidth, Math.Max(jobsListHeight, LayoutMetrics.CONTROL_HEIGHT));
+            _jobNameField = ControlFactory.CreateTextField(jobsContentWidth);
 
-            var rulesPane = CreatePane(RULES_PANE_WIDTH, paneHeight);
-            rulesPane.Add(_rulesLabel, 0f);
-            rulesPane.Add(_ruleList, 0f);
-            rulesPane.Add(_ruleNameField, 0f);
-            rulesPane.Add(CreateButtonRow(RULES_PANE_WIDTH, _addRuleButton, _removeRuleButton), 0f);
-            rulesPane.Add(CreateButtonRow(RULES_PANE_WIDTH, _moveRuleUpButton, _moveRuleDownButton), 0f);
+            var newJobButton = ControlFactory.CreateButton(ModText.BC_UI_New.GetString());
+            _copyJobButton = ControlFactory.CreateButton(ModText.BC_UI_Copy.GetString());
+            _removeJobButton = ControlFactory.CreateButton(ModText.BC_UI_Remove.GetString(), role: ButtonRole.Danger);
+            _shareJobButton = ControlFactory.CreateButton(ModText.BC_Share_Share.GetString());
+            _inboxButton = ControlFactory.CreateButton(ModText.BC_Share_Inbox.GetString());
 
-            // ---- inspector ----
-            _inspectorLabel = CreateLabel(string.Empty, inspectorWidth);
+            jobsCard.Content.Add(_jobList, 0f);
+            jobsCard.Content.Add(ControlFactory.CreateCaption(ModText.BC_UI_JobName.GetString(), jobsContentWidth), 0f);
+            jobsCard.Content.Add(_jobNameField, 0f);
+            jobsCard.Content.Add(ControlFactory.CreateButtonRow(jobsContentWidth, newJobButton, _copyJobButton, _removeJobButton), 0f);
+            jobsCard.Content.Add(ControlFactory.CreateButtonRow(jobsContentWidth, _shareJobButton, _inboxButton), 0f);
 
-            _conditionsTabButton = CreateButton(ModText.BC_UI_TabConditions.GetString());
-            _paintTabButton = CreateButton(ModText.BC_UI_TabPaint.GetString());
+            _rulesCard = new Card(ModText.BC_UI_Rules.GetString(), rulesWidth, rulesHeight);
+            var rulesContentWidth = Card.ContentWidth(rulesWidth);
+            var rulesListHeight = Card.ContentHeight(rulesHeight)
+                - LayoutMetrics.LABEL_HEIGHT
+                - LayoutMetrics.CONTROL_HEIGHT
+                - LayoutMetrics.BUTTON_HEIGHT * 2f
+                - LayoutMetrics.ROW_SPACING * 4f;
 
-            var tabRow = CreateButtonRow(inspectorWidth, _conditionsTabButton, _paintTabButton);
+            _ruleList = ControlFactory.CreateList<PaintRule>(rulesContentWidth, Math.Max(rulesListHeight, LayoutMetrics.CONTROL_HEIGHT));
+            _ruleNameField = ControlFactory.CreateTextField(rulesContentWidth);
 
-            // The two tabs occupy the same slot, so the height one of them may take is the height both get.
-            var tabHeight = paneHeight - LayoutMetrics.LABEL_HEIGHT - BUTTON_HEIGHT - LayoutMetrics.SECTION_SPACING * 2f - PANE_SLACK;
+            _addRuleButton = ControlFactory.CreateButton(ModText.BC_UI_AddRule.GetString());
+            _removeRuleButton = ControlFactory.CreateButton(ModText.BC_UI_RemoveRule.GetString(), role: ButtonRole.Danger);
+            _moveRuleUpButton = ControlFactory.CreateButton(ModText.BC_UI_MoveUp.GetString());
+            _moveRuleDownButton = ControlFactory.CreateButton(ModText.BC_UI_MoveDown.GetString());
 
-            _conditionTree = CreateList<PaintRuleNode>(inspectorWidth, tabHeight - BUTTON_HEIGHT - LayoutMetrics.SECTION_SPACING);
-            _editConditionsButton = CreateButton(ModText.BC_UI_EditConditions.GetString());
+            _rulesCard.Content.Add(_ruleList, 0f);
+            _rulesCard.Content.Add(ControlFactory.CreateCaption(ModText.BC_UI_RuleName.GetString(), rulesContentWidth), 0f);
+            _rulesCard.Content.Add(_ruleNameField, 0f);
+            _rulesCard.Content.Add(ControlFactory.CreateButtonRow(rulesContentWidth, _addRuleButton, _removeRuleButton), 0f);
+            _rulesCard.Content.Add(ControlFactory.CreateButtonRow(rulesContentWidth, _moveRuleUpButton, _moveRuleDownButton), 0f);
+
+            _inspectorCard = new Card(ModText.BC_UI_RuleDetails.GetString(), inspectorWidth, paneHeight);
+            var inspectorContentWidth = Card.ContentWidth(inspectorWidth);
+
+            _conditionsTabButton = ControlFactory.CreateButton(ModText.BC_UI_TabConditions.GetString());
+            _paintTabButton = ControlFactory.CreateButton(ModText.BC_UI_TabPaint.GetString());
+
+            var tabRow = ControlFactory.CreateButtonRow(inspectorContentWidth, _conditionsTabButton, _paintTabButton);
+
+            var tabHeight = Card.ContentHeight(paneHeight) - LayoutMetrics.BUTTON_HEIGHT - LayoutMetrics.ROW_SPACING;
+
+            _conditionTree = ControlFactory.CreateList<PaintRuleNode>(inspectorContentWidth, tabHeight - LayoutMetrics.BUTTON_HEIGHT - LayoutMetrics.ROW_SPACING);
+            _editConditionsButton = ControlFactory.CreateButton(ModText.BC_UI_EditConditions.GetString());
 
             _conditionsView = new HudChain(true) {
                 CollectionContainer = { _conditionTree, _editConditionsButton },
-                Spacing = LayoutMetrics.SECTION_SPACING,
+                Spacing = LayoutMetrics.ROW_SPACING,
                 SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                Width = inspectorWidth,
+                Width = inspectorContentWidth,
                 Height = tabHeight,
             };
 
-            _applyColorCheckbox = new BorderedCheckBox();
-            _applySkinCheckbox = new BorderedCheckBox();
+            _applyColorCheckbox = ControlFactory.CreateCheckbox();
+            _applySkinCheckbox = ControlFactory.CreateCheckbox();
 
-            _sourceTypeDropdown = new Dropdown<PaintSourceType>() { Width = inspectorWidth, Height = LayoutMetrics.CONTROL_HEIGHT };
+            _sourceTypeDropdown = ControlFactory.CreateDropdown<PaintSourceType>(ControlFactory.ControlWidth(inspectorContentWidth));
             _sourceTypeDropdown.Add(ModText.BC_UI_SourceType_Solid.GetString(), PaintSourceType.Solid);
             _sourceTypeDropdown.Add(ModText.BC_UI_SourceType_Gradient.GetString(), PaintSourceType.Gradient);
             _sourceTypeDropdown.Add(ModText.BC_UI_SourceType_Camo.GetString(), PaintSourceType.Camo);
@@ -193,133 +197,130 @@ namespace Sisk.BuildColors.UI {
 
             var channelRow = new HudChain(false) {
                 CollectionContainer = {
-                    CreateCheckboxRow(_applyColorCheckbox, ModText.BC_UI_ApplyColor.GetString(), inspectorWidth * .5f),
-                    CreateCheckboxRow(_applySkinCheckbox, ModText.BC_UI_ApplySkin.GetString(), inspectorWidth * .5f)
+                    ControlFactory.CreateCheckboxRow(_applyColorCheckbox, ModText.BC_UI_ApplyColor.GetString(), inspectorContentWidth * .5f),
+                    ControlFactory.CreateCheckboxRow(_applySkinCheckbox, ModText.BC_UI_ApplySkin.GetString(), inspectorContentWidth * .5f)
                 },
                 Spacing = 0f,
                 SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                Width = inspectorWidth,
+                Width = inspectorContentWidth,
                 Height = LayoutMetrics.CHECKBOX_SIZE,
             };
 
             _colorPicker = new ColorPickerHSV() {
-                Width = inspectorWidth,
+                Width = inspectorContentWidth,
                 Height = LayoutMetrics.COLOR_PICKER_HEIGHT,
                 Name = ModText.BC_UI_TargetColor.GetString(),
             };
 
-            _palette = new ColorPaletteSelector() { Width = inspectorWidth };
+            _palette = new ColorPaletteSelector() { Width = inspectorContentWidth };
             _palette.ColorPicked += OnPaletteColorPicked;
 
             _skinDropdown = DefinitionCatalog.CreateSkinDropdown(LayoutMetrics.CONTROL_HEIGHT);
             _skinDropdown.DimAlignment = DimAlignments.None;
-            _skinDropdown.Width = inspectorWidth;
+            _skinDropdown.Width = ControlFactory.ControlWidth(inspectorContentWidth);
 
-            // Color above skin. Stacked they cost the sum of their heights rather than the tallest, so on a
-            // window too short for all of it the swatches are what gives way - the picker can reach the same
-            // colors, and a section that does not fit overlaps itself rather than clipping.
             var stackHeight = LayoutMetrics.COLOR_PICKER_HEIGHT
-                + LayoutMetrics.LABEL_HEIGHT
                 + LayoutMetrics.CONTROL_HEIGHT
-                + LayoutMetrics.ROW_SPACING * 2f;
+                + LayoutMetrics.ROW_SPACING;
 
-            var paintChrome = LayoutMetrics.CHECKBOX_SIZE + LayoutMetrics.CONTROL_HEIGHT + LayoutMetrics.SECTION_SPACING * 2f;
-            var paletteCost = ColorPaletteSelector.TOTAL_HEIGHT + LayoutMetrics.ROW_SPACING;
+            var paintChrome = LayoutMetrics.CHECKBOX_SIZE + LayoutMetrics.CONTROL_HEIGHT + LayoutMetrics.ROW_SPACING * 2f;
+            var paletteCost = ColorPaletteSelector.TOTAL_HEIGHT + LayoutMetrics.LABEL_HEIGHT + LayoutMetrics.ROW_SPACING * 2f;
             var showPalette = paintChrome + stackHeight + paletteCost <= tabHeight;
 
             _solidSection = new HudChain(true) {
                 Spacing = LayoutMetrics.ROW_SPACING,
                 SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                Width = inspectorWidth,
+                Width = inspectorContentWidth,
                 Height = stackHeight + (showPalette ? paletteCost : 0f),
             };
 
             _solidSection.Add(_colorPicker, 0f);
 
             if (showPalette) {
+                _solidSection.Add(ControlFactory.CreateCaption(ModText.BC_UI_PickFromPalette.GetString(), inspectorContentWidth), 0f);
                 _solidSection.Add(_palette, 0f);
             }
 
-            _solidSection.Add(CreateLabel(ModText.BC_UI_TargetSkin.GetString(), inspectorWidth), 0f);
-            _solidSection.Add(_skinDropdown, 0f);
+            _solidSection.Add(ControlFactory.CreateControlRow(ModText.BC_UI_TargetSkin.GetString(), _skinDropdown, inspectorContentWidth), 0f);
 
-            _sourceSummaryLabel = CreateLabel(string.Empty, inspectorWidth);
-            _editSourceButton = CreateButton(ModText.BC_UI_EditSource.GetString());
+            _sourceSummaryLabel = ControlFactory.CreateLabel(string.Empty, inspectorContentWidth, LayoutMetrics.LABEL_HEIGHT * 2f);
+            _sourceSummaryLabel.BuilderMode = TextBuilderModes.Wrapped;
+            _editSourceButton = ControlFactory.CreateButton(ModText.BC_UI_EditSource.GetString());
 
             _sourceSection = new HudChain(true) {
                 CollectionContainer = { _sourceSummaryLabel, _editSourceButton },
                 Spacing = LayoutMetrics.ROW_SPACING,
                 SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                Width = inspectorWidth,
-                Height = LayoutMetrics.LABEL_HEIGHT + BUTTON_HEIGHT + LayoutMetrics.ROW_SPACING,
+                Width = inspectorContentWidth,
+                Height = _sourceSummaryLabel.Height + LayoutMetrics.BUTTON_HEIGHT + LayoutMetrics.ROW_SPACING,
             };
 
             _paintView = new HudChain(true) {
-                CollectionContainer = { channelRow, _sourceTypeDropdown, _solidSection, _sourceSection },
-                Spacing = LayoutMetrics.SECTION_SPACING,
+                CollectionContainer = {
+                    channelRow,
+                    ControlFactory.CreateControlRow(ModText.BC_UI_SourceType.GetString(), _sourceTypeDropdown, inspectorContentWidth),
+                    _solidSection,
+                    _sourceSection
+                },
+                Spacing = LayoutMetrics.ROW_SPACING,
                 SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                Width = inspectorWidth,
+                Width = inspectorContentWidth,
                 Height = tabHeight,
             };
 
-            var inspectorPane = CreatePane(inspectorWidth, paneHeight);
-            inspectorPane.Add(_inspectorLabel, 0f);
-            inspectorPane.Add(tabRow, 0f);
-            inspectorPane.Add(_conditionsView, 0f);
-            inspectorPane.Add(_paintView, 0f);
+            _inspectorCard.Content.Add(tabRow, 0f);
+            _inspectorCard.Content.Add(_conditionsView, 0f);
+            _inspectorCard.Content.Add(_paintView, 0f);
 
-            var panes = new HudChain(false) {
-                CollectionContainer = { jobsPane, rulesPane, inspectorPane },
-                Spacing = PANE_SPACING,
-                SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                Width = contentWidth,
-                Height = paneHeight,
-            };
+            var panes = ControlFactory.CreateRow(width, paneHeight, LayoutMetrics.SECTION_SPACING);
 
-            // ---- options ----
-            _includeSubgridsCheckbox = new BorderedCheckBox();
-            _includeProjectedCheckbox = new BorderedCheckBox();
-            _includePreviewCheckbox = new BorderedCheckBox();
-            _respectOwnershipCheckbox = new BorderedCheckBox();
+            if (wide) {
+                panes.Add(jobsCard, 0f);
+                panes.Add(_rulesCard, 0f);
+            } else {
+                var listColumn = ControlFactory.CreateColumn(jobsWidth, paneHeight);
+                listColumn.Add(jobsCard, 0f);
+                listColumn.Add(_rulesCard, 0f);
 
-            var optionWidth = contentWidth * .25f;
+                panes.Add(listColumn, 0f);
+            }
+
+            panes.Add(_inspectorCard, 0f);
+
+            _includeSubgridsCheckbox = ControlFactory.CreateCheckbox();
+            _includeProjectedCheckbox = ControlFactory.CreateCheckbox();
+            _includePreviewCheckbox = ControlFactory.CreateCheckbox();
+            _respectOwnershipCheckbox = ControlFactory.CreateCheckbox();
+
+            var optionWidth = width * .25f;
             var optionsRow = new HudChain(false) {
                 CollectionContainer = {
-                    CreateCheckboxRow(_includeSubgridsCheckbox, ModText.BC_UI_Option_IncludeSubgrids.GetString(), optionWidth),
-                    CreateCheckboxRow(_includeProjectedCheckbox, ModText.BC_UI_Option_IncludeProjected.GetString(), optionWidth),
-                    CreateCheckboxRow(_includePreviewCheckbox, ModText.BC_UI_Option_IncludePreview.GetString(), optionWidth),
-                    CreateCheckboxRow(_respectOwnershipCheckbox, ModText.BC_UI_Option_RespectOwnership.GetString(), optionWidth)
+                    ControlFactory.CreateCheckboxRow(_includeSubgridsCheckbox, ModText.BC_UI_Option_IncludeSubgrids.GetString(), optionWidth),
+                    ControlFactory.CreateCheckboxRow(_includeProjectedCheckbox, ModText.BC_UI_Option_IncludeProjected.GetString(), optionWidth),
+                    ControlFactory.CreateCheckboxRow(_includePreviewCheckbox, ModText.BC_UI_Option_IncludePreview.GetString(), optionWidth),
+                    ControlFactory.CreateCheckboxRow(_respectOwnershipCheckbox, ModText.BC_UI_Option_RespectOwnership.GetString(), optionWidth)
                 },
                 Spacing = 0f,
                 SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                Width = contentWidth,
+                Width = width,
                 Height = LayoutMetrics.CHECKBOX_SIZE,
             };
 
-            // ---- status ----
-            _statusLabel = new Label() {
-                Text = string.Empty,
-                Format = Style.BodyText,
-                AutoResize = false,
-                Height = LayoutMetrics.LABEL_HEIGHT,
-            };
+            var options = ControlFactory.CreateColumn(width, optionsHeight, LayoutMetrics.TIGHT_SPACING);
+            options.Add(ControlFactory.CreateHeading(ModText.BC_UI_JobOptions.GetString(), width), 0f);
+            options.Add(optionsRow, 0f);
 
-            var statusRow = new HudChain(false) {
-                CollectionContainer = { { _statusLabel, 1f } },
-                Spacing = LayoutMetrics.ROW_SPACING,
-                SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                Width = contentWidth,
-                Height = LayoutMetrics.LABEL_HEIGHT,
-            };
-
-            var layout = new HudChain(true, body) {
+            var layout = new HudChain(true, this) {
                 ParentAlignment = ParentAlignments.Inner,
-                DimAlignment = DimAlignments.UnpaddedSize,
-                SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                CollectionContainer = { toolbar, panes, optionsRow, statusRow },
                 Spacing = LayoutMetrics.SECTION_SPACING,
-                Padding = new Vector2(LayoutMetrics.CONTENT_PADDING_X, LayoutMetrics.CONTENT_PADDING_Y)
+                SizingMode = HudChainSizingModes.FitMembersOffAxis,
+                Width = width,
+                Height = height,
             };
+
+            layout.Add(toolbar, 0f);
+            layout.Add(panes, 0f);
+            layout.Add(options, 0f);
 
             _jobList.ValueChanged += OnJobSelected;
             _ruleList.ValueChanged += OnRuleSelected;
@@ -330,125 +331,48 @@ namespace Sisk.BuildColors.UI {
 
             _addRuleButton.MouseInput.LeftClicked += OnAddRule;
             _removeRuleButton.MouseInput.LeftClicked += OnRemoveRule;
-            _moveRuleUpButton.MouseInput.LeftClicked += (s, e) => MoveRule(-1);
-            _moveRuleDownButton.MouseInput.LeftClicked += (s, e) => MoveRule(1);
+            _moveRuleUpButton.MouseInput.LeftClicked += (sender, args) => MoveRule(-1);
+            _moveRuleDownButton.MouseInput.LeftClicked += (sender, args) => MoveRule(1);
 
-            _conditionsTabButton.MouseInput.LeftClicked += (s, e) => ShowTab(true);
-            _paintTabButton.MouseInput.LeftClicked += (s, e) => ShowTab(false);
+            _conditionsTabButton.MouseInput.LeftClicked += (sender, args) => ShowTab(true);
+            _paintTabButton.MouseInput.LeftClicked += (sender, args) => ShowTab(false);
             _editConditionsButton.MouseInput.LeftClicked += OnEditConditions;
             _editSourceButton.MouseInput.LeftClicked += OnEditSource;
 
             _sourceTypeDropdown.ValueChanged += OnSourceTypeChanged;
-            _applyColorCheckbox.MouseInput.LeftClicked += (s, e) => WriteRule();
-            _applySkinCheckbox.MouseInput.LeftClicked += (s, e) => WriteRule();
-            _skinDropdown.ValueChanged += (s, e) => WriteRule();
+            _applyColorCheckbox.MouseInput.LeftClicked += (sender, args) => WriteRule();
+            _applySkinCheckbox.MouseInput.LeftClicked += (sender, args) => WriteRule();
+            _skinDropdown.ValueChanged += (sender, args) => WriteRule();
 
-            _includeSubgridsCheckbox.MouseInput.LeftClicked += (s, e) => WriteOptions();
-            _includeProjectedCheckbox.MouseInput.LeftClicked += (s, e) => WriteOptions();
-            _includePreviewCheckbox.MouseInput.LeftClicked += (s, e) => WriteOptions();
-            _respectOwnershipCheckbox.MouseInput.LeftClicked += (s, e) => WriteOptions();
+            _includeSubgridsCheckbox.MouseInput.LeftClicked += (sender, args) => WriteOptions();
+            _includeProjectedCheckbox.MouseInput.LeftClicked += (sender, args) => WriteOptions();
+            _includePreviewCheckbox.MouseInput.LeftClicked += (sender, args) => WriteOptions();
+            _respectOwnershipCheckbox.MouseInput.LeftClicked += (sender, args) => WriteOptions();
 
             _applyButton.MouseInput.LeftClicked += OnApply;
             _undoButton.MouseInput.LeftClicked += OnUndo;
+            _shareJobButton.MouseInput.LeftClicked += OnShareJob;
+            _inboxButton.MouseInput.LeftClicked += OnOpenInbox;
 
             ShowTab(true);
-            RefreshJobs();
+            Refresh();
         }
 
         private static PaintJobService Service {
             get { return Mod.Static?.PaintJobService; }
         }
 
-        /// <summary>
-        /// Height a pane gives its list: whatever is left once the label, the name field and the button rows
-        /// under it have taken their share.
-        /// </summary>
-        private static float ListHeight(float paneHeight, int buttonRows) {
-            var used = LayoutMetrics.LABEL_HEIGHT
-                + LayoutMetrics.CONTROL_HEIGHT
-                + BUTTON_HEIGHT * buttonRows
-                + LayoutMetrics.SECTION_SPACING * (2f + buttonRows)
-                + PANE_SLACK;
-
-            return Math.Max(paneHeight - used, LayoutMetrics.CONTROL_HEIGHT);
-        }
-
-        private static HudChain CreatePane(float width, float height) {
-            return new HudChain(true) {
-                Spacing = LayoutMetrics.SECTION_SPACING,
-                SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                Width = width,
-                Height = height,
-            };
-        }
-
-        private static ListBox<TValue> CreateList<TValue>(float width, float height) {
-            return new ListBox<TValue>() { Width = width, Height = height };
-        }
-
-        private static Label CreateLabel(string text, float width) {
-            return new Label() {
-                Text = text,
-                Format = Style.BodyText,
-                AutoResize = false,
-                Width = width,
-                Height = LayoutMetrics.LABEL_HEIGHT,
-            };
-        }
-
-        private static TextField CreateTextField(float width) {
-            return new GameInputBlockingTextField() { Width = width, Height = LayoutMetrics.CONTROL_HEIGHT };
-        }
-
-        private static BorderedButton CreateButton(string text, float width = 0f) {
-            var button = new BorderedButton() { Text = text, Padding = Vector2.Zero, Height = BUTTON_HEIGHT };
-
-            if (width > 0f) {
-                button.Width = width;
-            }
-
-            return button;
+        public override void Refresh() {
+            Refresh(null);
         }
 
         /// <summary>
-        /// A row of buttons, each taking an equal share of the width. Bordered buttons carry a wide fixed
-        /// default size, so a row that does not size its members spills out of its pane.
+        /// Rebuilds the job list, landing on the given job or keeping the current selection.
         /// </summary>
-        private static HudChain CreateButtonRow(float width, params BorderedButton[] buttons) {
-            var row = new HudChain(false) {
-                Spacing = LayoutMetrics.ROW_SPACING,
-                SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                Width = width,
-                Height = BUTTON_HEIGHT,
-            };
+        public void Refresh(PaintJob jobToSelect) {
+            RefreshHotkeyHint();
+            RefreshShares();
 
-            foreach (var button in buttons) {
-                row.Add(button, 1f);
-            }
-
-            return row;
-        }
-
-        private static HudChain CreateCheckboxRow(BorderedCheckBox checkbox, string text, float width) {
-            var label = new Label() {
-                Text = text,
-                Format = Style.BodyText,
-                AutoResize = false,
-                Height = LayoutMetrics.CHECKBOX_SIZE,
-            };
-
-            return new HudChain(false) {
-                CollectionContainer = { { checkbox, 0f }, { label, 1f } },
-                Spacing = LayoutMetrics.ROW_SPACING,
-                SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                Width = width,
-                Height = LayoutMetrics.CHECKBOX_SIZE,
-            };
-        }
-
-        // ---- jobs ----
-
-        private void RefreshJobs(PaintJob jobToSelect = null) {
             var jobs = Service != null ? Service.GetJobs() : null;
             var selection = jobToSelect ?? _loadedJob;
 
@@ -456,7 +380,7 @@ namespace Sisk.BuildColors.UI {
             _jobList.ClearEntries();
 
             if (jobs != null) {
-                foreach (var job in jobs.OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase)) {
+                foreach (var job in PaintJobService.InNameOrder(jobs)) {
                     _jobList.Add(job.Name, job);
                 }
             }
@@ -473,6 +397,33 @@ namespace Sisk.BuildColors.UI {
 
             var index = IndexOfJob(selection);
             _jobList.SetSelectionAt(index >= 0 ? index : 0);
+        }
+
+        /// <summary>
+        /// Writes the hint from the binds as they are set right now, which a rebind changes.
+        /// </summary>
+        private void RefreshHotkeyHint() {
+            _hotkeyHint.Text = ModText.BC_UI_HotkeyHint.GetString(
+                PaintJobInput.DescribeBind(PaintJobInput.APPLY_BIND),
+                PaintJobInput.DescribeBind(PaintJobInput.UNDO_BIND),
+                PaintJobInput.DescribeBind(PaintJobInput.PREVIOUS_JOB_BIND),
+                PaintJobInput.DescribeBind(PaintJobInput.NEXT_JOB_BIND));
+        }
+
+        public override void Commit() {
+            CommitNames();
+        }
+
+        protected override void HandleInput(Vector2 cursorPos) {
+            base.HandleInput(cursorPos);
+
+            if (ActiveDialog != null) {
+                return;
+            }
+
+            if (SharedBinds.Enter.IsNewPressed || SharedBinds.LeftButton.IsNewPressed) {
+                CommitNames();
+            }
         }
 
         private int IndexOfJob(PaintJob job) {
@@ -493,7 +444,6 @@ namespace Sisk.BuildColors.UI {
             _loadedJob = _jobList.Value != null ? _jobList.Value.AssocMember : null;
             _loadedRule = null;
 
-            // The workbench selection is what the hotkeys act on, so choosing here also aims them.
             Service?.SetActiveJob(_loadedJob);
 
             _suppressWrites = true;
@@ -523,8 +473,7 @@ namespace Sisk.BuildColors.UI {
                 return;
             }
 
-            RefreshJobs(job);
-            Mod.Static?.RefreshPaintJobs(job);
+            Refresh(job);
             HudSoundUtils.PlaySound("HudMouseClick");
         }
 
@@ -535,25 +484,53 @@ namespace Sisk.BuildColors.UI {
 
             var copy = _loadedJob.Clone();
             copy.Id = Guid.NewGuid();
-            copy.Name = UniqueJobName(_loadedJob.Name);
+            copy.Name = Service.UniqueJobName(_loadedJob.Name);
 
             Service.SaveJob(copy);
-            RefreshJobs(copy);
-            Mod.Static?.RefreshPaintJobs(copy);
+            Refresh(copy);
             HudSoundUtils.PlaySound("HudMouseClick");
         }
 
-        private string UniqueJobName(string name) {
-            var jobs = Service.GetJobs();
-            var candidate = ModText.BC_UI_CopyOfName.GetString(name);
-            var index = 2;
+        /// <summary>
+        /// Puts the number of waiting shares on the inbox button.
+        /// </summary>
+        public override void RefreshShares() {
+            var count = Mod.Static?.Inbox?.Count ?? 0;
 
-            while (jobs.Any(job => string.Equals(job.Name, candidate, StringComparison.InvariantCultureIgnoreCase))) {
-                candidate = string.Format("{0} {1}", ModText.BC_UI_CopyOfName.GetString(name), index);
-                index++;
+            _inboxButton.Text = count > 0
+                ? ModText.BC_Share_InboxWithCount.GetString(count)
+                : ModText.BC_Share_Inbox.GetString();
+        }
+
+        private void OnShareJob(object sender, EventArgs e) {
+            if (ActiveDialog != null || _loadedJob == null) {
+                return;
             }
 
-            return candidate;
+            var job = _loadedJob.Clone();
+            var dialog = new ShareDialog(ModText.BC_Share_ShareTitle.GetString(job.Name));
+
+            dialog.Confirmed += recipient => ShareService.Share(new SharePacket { Kind = ShareKind.PaintJob, PaintJob = job }, recipient);
+
+            OpenDialog(dialog);
+        }
+
+        private void OnOpenInbox(object sender, EventArgs e) {
+            if (ActiveDialog != null) {
+                return;
+            }
+
+            var inbox = Mod.Static?.Inbox;
+
+            if (inbox == null) {
+                return;
+            }
+
+            var dialog = new InboxDialog(inbox);
+
+            dialog.Closed += (sender2, args) => Refresh();
+
+            OpenDialog(dialog);
         }
 
         private void OnRemoveJob(object sender, EventArgs e) {
@@ -561,15 +538,18 @@ namespace Sisk.BuildColors.UI {
                 return;
             }
 
-            Service.RemoveJob(_loadedJob);
-            _loadedJob = null;
+            var job = _loadedJob;
+            var dialog = new ConfirmDialog(ModText.BC_UI_Remove.GetString(), ModText.BC_UI_Confirm_RemoveJob.GetString(job.Name));
 
-            RefreshJobs();
-            Mod.Static?.RefreshPaintJobs();
-            HudSoundUtils.PlaySound("HudLockingLost");
+            dialog.Confirmed += (s, args) => {
+                Service.RemoveJob(job);
+                _loadedJob = null;
+
+                Refresh();
+            };
+
+            OpenDialog(dialog);
         }
-
-        // ---- rules ----
 
         private void RefreshRules(PaintRule ruleToSelect = null) {
             var selection = ruleToSelect ?? _loadedRule;
@@ -578,13 +558,13 @@ namespace Sisk.BuildColors.UI {
             _ruleList.ClearEntries();
 
             if (_loadedJob != null) {
-                _rulesLabel.Text = ModText.BC_UI_RulesOf.GetString(_loadedJob.Name);
+                _rulesCard.Title = ModText.BC_UI_RulesOf.GetString(_loadedJob.Name);
 
                 for (var i = 0; i < _loadedJob.Rules.Count; i++) {
                     _ruleList.Add(string.Format("{0}. {1}", i + 1, _loadedJob.Rules[i].Name), _loadedJob.Rules[i]);
                 }
             } else {
-                _rulesLabel.Text = string.Empty;
+                _rulesCard.Title = ModText.BC_UI_Rules.GetString();
             }
 
             _suppressWrites = false;
@@ -632,9 +612,7 @@ namespace Sisk.BuildColors.UI {
                 return;
             }
 
-            // A job with no rules cannot match anything, so the last one stays.
             if (_loadedJob.Rules.Count <= 1) {
-                _statusLabel.Text = ModText.BC_UI_Status_NeedsRule.GetString();
                 HudSoundUtils.PlaySound("HudLockingLost");
                 return;
             }
@@ -670,13 +648,10 @@ namespace Sisk.BuildColors.UI {
             HudSoundUtils.PlaySound("HudMouseClick");
         }
 
-        // ---- inspector ----
-
         private void ShowTab(bool conditions) {
             _conditionsView.Visible = conditions;
             _paintView.Visible = !conditions;
 
-            // The tab that is showing is the one you cannot press.
             _conditionsTabButton.InputEnabled = !conditions;
             _paintTabButton.InputEnabled = conditions;
         }
@@ -685,7 +660,7 @@ namespace Sisk.BuildColors.UI {
             _suppressWrites = true;
 
             if (_loadedRule == null) {
-                _inspectorLabel.Text = string.Empty;
+                _inspectorCard.Title = ModText.BC_UI_RuleDetails.GetString();
                 _ruleNameField.Text = string.Empty;
                 _conditionTree.ClearEntries();
                 _sourceSummaryLabel.Text = string.Empty;
@@ -694,7 +669,7 @@ namespace Sisk.BuildColors.UI {
                 return;
             }
 
-            _inspectorLabel.Text = ModText.BC_UI_RuleDetailsOf.GetString(_loadedRule.Name);
+            _inspectorCard.Title = ModText.BC_UI_RuleDetailsOf.GetString(_loadedRule.Name);
             _ruleNameField.Text = _loadedRule.Name;
 
             if (_loadedRule.Action == null) {
@@ -734,8 +709,6 @@ namespace Sisk.BuildColors.UI {
         private void UpdateSourceViews() {
             var isSolid = GetSelectedSourceType() == PaintSourceType.Solid;
 
-            // A single color and a source that works one out per block answer the same question, so only the
-            // one in use is on screen.
             _solidSection.Visible = isSolid;
             _sourceSection.Visible = !isSolid;
 
@@ -759,11 +732,8 @@ namespace Sisk.BuildColors.UI {
             WriteRule();
         }
 
-        // ---- writing back ----
-
         /// <summary>
-        /// Copies the editor onto the selected rule. Everything here edits in place, so this runs on every
-        /// change rather than on a save button.
+        /// Copies the editor onto the selected rule.
         /// </summary>
         private void WriteRule() {
             if (_suppressWrites || _loadedRule == null) {
@@ -819,8 +789,7 @@ namespace Sisk.BuildColors.UI {
         }
 
         /// <summary>
-        /// Names are committed as the field loses interest rather than per keystroke, which keeps the lists
-        /// from being rebuilt under the cursor while a name is being typed.
+        /// Writes the edited job and rule names back.
         /// </summary>
         private void CommitNames() {
             if (_loadedJob != null) {
@@ -829,8 +798,7 @@ namespace Sisk.BuildColors.UI {
                 if (!string.IsNullOrEmpty(jobName) && jobName != _loadedJob.Name) {
                     _loadedJob.Name = jobName;
                     Service?.Save();
-                    RefreshJobs(_loadedJob);
-                    Mod.Static?.RefreshPaintJobs(_loadedJob);
+                    Refresh(_loadedJob);
                 }
             }
 
@@ -844,8 +812,6 @@ namespace Sisk.BuildColors.UI {
                 }
             }
         }
-
-        // ---- actions ----
 
         private void OnApply(object sender, EventArgs e) {
             if (_loadedJob == null) {
@@ -864,7 +830,7 @@ namespace Sisk.BuildColors.UI {
         }
 
         private void OnEditConditions(object sender, EventArgs e) {
-            if (_loadedRule == null || _activeDialog != null) {
+            if (_loadedRule == null || ActiveDialog != null) {
                 return;
             }
 
@@ -878,7 +844,7 @@ namespace Sisk.BuildColors.UI {
         }
 
         private void OnEditSource(object sender, EventArgs e) {
-            if (_loadedRule == null || _activeDialog != null) {
+            if (_loadedRule == null || ActiveDialog != null) {
                 return;
             }
 
@@ -898,21 +864,7 @@ namespace Sisk.BuildColors.UI {
             OpenDialog(dialog);
         }
 
-        private void OpenDialog(DialogBase dialog) {
-            _activeDialog = dialog;
-            dialog.Closed += OnDialogClosed;
-
-            RequestDialog(dialog);
-            HudSoundUtils.PlaySound("HudMouseClick");
-        }
-
-        private void OnDialogClosed(object sender, EventArgs e) {
-            var dialog = sender as DialogBase;
-            if (dialog != null) {
-                dialog.Closed -= OnDialogClosed;
-            }
-
-            _activeDialog = null;
+        protected override void DialogClosed() {
             RefreshConditionTree();
             UpdateSourceViews();
         }
@@ -923,6 +875,7 @@ namespace Sisk.BuildColors.UI {
 
             _copyJobButton.InputEnabled = hasJob;
             _removeJobButton.InputEnabled = hasJob;
+            _shareJobButton.InputEnabled = hasJob;
             _applyButton.InputEnabled = hasJob;
             _addRuleButton.InputEnabled = hasJob;
 
@@ -933,24 +886,6 @@ namespace Sisk.BuildColors.UI {
             _editSourceButton.InputEnabled = hasRule;
 
             _undoButton.InputEnabled = (Service?.UndoCount ?? 0) > 0;
-
-            _statusLabel.Text = hasJob
-                ? ModText.BC_UI_WorkbenchStatus.GetString(_loadedJob.Rules.Count)
-                : ModText.BC_NoPaintJobsAvailable.GetString();
-        }
-
-        protected override void HandleInput(Vector2 cursorPos) {
-            base.HandleInput(cursorPos);
-
-            if (_activeDialog != null) {
-                return;
-            }
-
-            // Names are typed into fields that keep their own focus, so the commit happens once the field
-            // has been left rather than on every letter.
-            if (SharedBinds.Enter.IsNewPressed || SharedBinds.LeftButton.IsNewPressed) {
-                CommitNames();
-            }
         }
     }
 }

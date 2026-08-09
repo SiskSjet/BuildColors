@@ -1,7 +1,6 @@
-﻿namespace Sisk.BuildColors.Settings.Models.ColorSpace {
+namespace Sisk.BuildColors.Settings.Models.ColorSpace {
 
     public struct RGB {
-
         public RGB(byte r, byte g, byte b) {
             R = r;
             G = g;

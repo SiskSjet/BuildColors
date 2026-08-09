@@ -7,25 +7,20 @@ using System.Collections.Generic;
 using System.Globalization;
 using VRageMath;
 
+using static Sisk.BuildColors.UI.ControlFactory;
+
 using ColorModel = Sisk.BuildColors.Settings.Models.Color;
 
 namespace Sisk.BuildColors.UI {
 
     /// <summary>
     /// Editor for the paint source of a rule: where the color and skin of each matched block come from.
-    /// <para>
-    /// Three columns rather than two stacks: what the source does, the colors it picks from, and the one
-    /// color currently selected. Every control is given a width outright and every column is left with slack
-    /// at the bottom, because a chain whose members do not fit draws them on top of one another instead of
-    /// clipping them.
-    /// </para>
     /// </summary>
     public class PaintSourceDialog : DialogBase {
         private const float COLUMN_SPACING = 16f;
 
         /// <summary>
-        /// Slack left at the bottom of every column, so that one control measuring larger than its nominal
-        /// size cannot make the column overlap itself.
+        /// Slack left at the bottom of every column so it cannot overlap itself.
         /// </summary>
         private const float COLUMN_SLACK = 12f;
 
@@ -33,8 +28,7 @@ namespace Sisk.BuildColors.UI {
         private const int MIN_ENTRIES = 2;
 
         /// <summary>
-        /// Floor derived from the tallest column: the entry editor needs room for the color picker, the
-        /// swatches, a number and the skin list. Below this the columns would start overlapping.
+        /// Floor derived from the tallest column, the entry editor.
         /// </summary>
         private const float MIN_DIALOG_HEIGHT = 600f;
 
@@ -43,18 +37,11 @@ namespace Sisk.BuildColors.UI {
         private const float PREFERRED_DIALOG_WIDTH = 1130f;
 
         /// <summary>
-        /// Share of the content width taken by the settings and the list columns. What is left over goes to
-        /// the entry editor, which holds the widest single control.
+        /// Share of the content width taken by the settings and the list columns.
         /// </summary>
         private const float SETTINGS_COLUMN_SHARE = .34f;
 
         private const float LIST_COLUMN_SHARE = .27f;
-
-        /// <summary>
-        /// Widest a caption is allowed to be. On a narrow dialog it gives way rather than squeezing the
-        /// control beside it into something narrower than its own label.
-        /// </summary>
-        private const float MAX_CAPTION_WIDTH = 140f;
 
         private readonly PaintColorSource _source;
         private readonly PaintSourceType _type;
@@ -113,8 +100,6 @@ namespace Sisk.BuildColors.UI {
             _source = source;
             _seedColor = seedColor;
 
-            // Which kind of source this is was chosen in the rule editor and does not change here. Having the
-            // choice in one place keeps the two screens from disagreeing about what the rule paints with.
             _type = source.Type;
 
             var dialogWidth = MathHelper.Clamp(DialogSafeArea.GetAvailableWidth(), MIN_DIALOG_WIDTH, PREFERRED_DIALOG_WIDTH);
@@ -135,7 +120,6 @@ namespace Sisk.BuildColors.UI {
             var listWidth = (float)Math.Floor(contentWidth * LIST_COLUMN_SHARE);
             var entryWidth = contentWidth - settingsWidth - listWidth - COLUMN_SPACING * 2f;
 
-            // ---- column 1: what the source does ----
             _typeHintLabel = CreateLabel(PaintSourceText.DescribeHint(_type), settingsWidth);
 
             _axisDropdown = CreateDropdown<PaintSourceAxis>(ControlWidth(settingsWidth));
@@ -177,7 +161,7 @@ namespace Sisk.BuildColors.UI {
             _seedField = CreateTextField(ControlWidth(settingsWidth));
             _seedRow = CreateControlRow(ModText.BC_UI_Seed.GetString(), _seedField, settingsWidth);
 
-            _reverseCheckbox = new BorderedCheckBox();
+            _reverseCheckbox = CreateCheckbox();
             _reverseRow = CreateCheckboxRow(_reverseCheckbox, ModText.BC_UI_Reverse.GetString(), settingsWidth);
 
             var settingsColumn = CreateColumn(settingsWidth, columnHeight);
@@ -195,7 +179,6 @@ namespace Sisk.BuildColors.UI {
             settingsColumn.Add(_seedRow, 0f);
             settingsColumn.Add(_reverseRow, 0f);
 
-            // ---- column 2: the colors it picks from ----
             _entriesLabel = CreateLabel(string.Empty, listWidth);
 
             _addEntryButton = CreateButton(ModText.BC_UI_AddEntry.GetString());
@@ -207,14 +190,13 @@ namespace Sisk.BuildColors.UI {
                 - LayoutMetrics.SECTION_SPACING * 2f
                 - COLUMN_SLACK;
 
-            _entryList = new ListBox<SourceEntry>() { Width = listWidth, Height = listHeight };
+            _entryList = CreateList<SourceEntry>(listWidth, listHeight);
 
             var listColumn = CreateColumn(listWidth, columnHeight);
             listColumn.Add(_entriesLabel, 0f);
             listColumn.Add(_entryList, 0f);
             listColumn.Add(CreateButtonRow(listWidth, _addEntryButton, _removeEntryButton), 0f);
 
-            // ---- column 3: the color currently selected ----
             _entryColorPicker = new ColorPickerHSV() {
                 Width = entryWidth,
                 Height = LayoutMetrics.COLOR_PICKER_HEIGHT,
@@ -251,19 +233,13 @@ namespace Sisk.BuildColors.UI {
                 Height = columnHeight,
             };
 
-            _statusLabel = new Label() {
-                Text = string.Empty,
-                Format = Style.BodyText,
-                AutoResize = false,
-                Width = contentWidth,
-                Height = LayoutMetrics.STATUS_HEIGHT,
-            };
+            _statusLabel = CreateCaption(string.Empty, contentWidth, LayoutMetrics.STATUS_HEIGHT);
 
-            var saveButton = CreateButton(ModText.BC_UI_Save.GetString(), 150f);
             var cancelButton = CreateButton(ModText.BC_UI_Cancel.GetString(), 150f);
+            var saveButton = CreateButton(ModText.BC_UI_Save.GetString(), 150f, ButtonRole.Primary);
 
             var buttonRow = new HudChain(false) {
-                CollectionContainer = { saveButton, cancelButton },
+                CollectionContainer = { cancelButton, saveButton },
                 Spacing = LayoutMetrics.ROW_SPACING,
                 SizingMode = HudChainSizingModes.AlignMembersEnd,
                 Width = contentWidth,
@@ -292,116 +268,6 @@ namespace Sisk.BuildColors.UI {
         public event RichHudFramework.EventHandler Saved;
 
         public bool WasSaved { get; private set; }
-
-        private static HudChain CreateColumn(float width, float height) {
-            return new HudChain(true) {
-                Spacing = LayoutMetrics.SECTION_SPACING,
-                SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                Width = width,
-                Height = height,
-            };
-        }
-
-        /// <summary>
-        /// Width of the caption in a row of the given width.
-        /// </summary>
-        private static float CaptionWidth(float rowWidth) {
-            return Math.Min(MAX_CAPTION_WIDTH, rowWidth * .45f);
-        }
-
-        /// <summary>
-        /// Width left for the control beside a caption.
-        /// </summary>
-        private static float ControlWidth(float rowWidth) {
-            return rowWidth - CaptionWidth(rowWidth) - LayoutMetrics.ROW_SPACING;
-        }
-
-        private static Label CreateLabel(string text, float width) {
-            return new Label() {
-                Text = text,
-                Format = Style.BodyText,
-                AutoResize = false,
-                Width = width,
-                Height = LayoutMetrics.LABEL_HEIGHT,
-            };
-        }
-
-        private static TexturedBox CreateSeparator(float width) {
-            return new TexturedBox() { Width = width, Height = LayoutMetrics.SEPARATOR_HEIGHT, Color = Style.SeparatorColor };
-        }
-
-        private static BorderedButton CreateButton(string text, float width = 0f) {
-            var button = new BorderedButton() { Text = text, Padding = Vector2.Zero, Height = LayoutMetrics.BUTTON_HEIGHT };
-
-            if (width > 0f) {
-                button.Width = width;
-            }
-
-            return button;
-        }
-
-        private static TextField CreateTextField(float width) {
-            return new GameInputBlockingTextField() { Width = width, Height = LayoutMetrics.CONTROL_HEIGHT };
-        }
-
-        private static Dropdown<TValue> CreateDropdown<TValue>(float width) {
-            return new Dropdown<TValue>() { Width = width, Height = LayoutMetrics.CONTROL_HEIGHT };
-        }
-
-        /// <summary>
-        /// A caption beside a control. The caption keeps a fixed width so that the controls of a column all
-        /// start at the same place.
-        /// </summary>
-        private static HudChain CreateControlRow(string caption, HudElementBase control, float width) {
-            var captionLabel = new Label() {
-                Text = caption,
-                Format = Style.BodyText,
-                AutoResize = false,
-                Width = CaptionWidth(width),
-                Height = LayoutMetrics.CONTROL_HEIGHT,
-            };
-
-            return new HudChain(false) {
-                CollectionContainer = { { captionLabel, 0f }, { control, 0f } },
-                Spacing = LayoutMetrics.ROW_SPACING,
-                SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                Width = width,
-                Height = LayoutMetrics.CONTROL_HEIGHT,
-            };
-        }
-
-        private static HudChain CreateCheckboxRow(BorderedCheckBox checkbox, string text, float width) {
-            var label = new Label() {
-                Text = text,
-                Format = Style.BodyText,
-                AutoResize = false,
-                Width = width - LayoutMetrics.CHECKBOX_SIZE - LayoutMetrics.ROW_SPACING,
-                Height = LayoutMetrics.CHECKBOX_SIZE,
-            };
-
-            return new HudChain(false) {
-                CollectionContainer = { { checkbox, 0f }, { label, 0f } },
-                Spacing = LayoutMetrics.ROW_SPACING,
-                SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                Width = width,
-                Height = LayoutMetrics.CHECKBOX_SIZE,
-            };
-        }
-
-        private static HudChain CreateButtonRow(float width, params BorderedButton[] buttons) {
-            var row = new HudChain(false) {
-                Spacing = LayoutMetrics.ROW_SPACING,
-                SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                Width = width,
-                Height = LayoutMetrics.BUTTON_HEIGHT,
-            };
-
-            foreach (var button in buttons) {
-                row.Add(button, 1f);
-            }
-
-            return row;
-        }
 
         private static string DescribeEntry(int index, SourceEntry entry, PaintSourceType type) {
             var color = string.Format("#{0:X2}{1:X2}{2:X2}", entry.Color.R, entry.Color.G, entry.Color.B);
@@ -438,8 +304,6 @@ namespace Sisk.BuildColors.UI {
             _seedField.Text = _source.Seed.ToString(CultureInfo.CurrentCulture);
             _reverseCheckbox.Value = _source.Reverse;
 
-            // Stops and palette entries are edited as one kind of thing, so switching the type over keeps the
-            // colors that were already dialed in instead of starting from scratch.
             _entries.Clear();
 
             if (_source.Stops != null && _source.Stops.Count > 0) {
@@ -458,8 +322,7 @@ namespace Sisk.BuildColors.UI {
         }
 
         /// <summary>
-        /// Makes sure there is something to edit. A source that picks between colors needs at least two of
-        /// them, and the color the rule painted with before is the least surprising place to start.
+        /// Makes sure there is something to edit.
         /// </summary>
         private void EnsureEntries() {
             while (_entries.Count < MIN_ENTRIES) {
@@ -473,8 +336,7 @@ namespace Sisk.BuildColors.UI {
         }
 
         /// <summary>
-        /// Only the controls the chosen kind of source reads are on screen. The rest are hidden rather than
-        /// disabled, so a column never has to find room for a control nobody can use.
+        /// Only the controls the chosen kind of source reads are on screen.
         /// </summary>
         private void UpdateVisibility() {
             var isGradient = _type == PaintSourceType.Gradient;
@@ -557,8 +419,7 @@ namespace Sisk.BuildColors.UI {
         }
 
         /// <summary>
-        /// Writes the editor back into the entry it was loaded from. Numbers that do not read as numbers are
-        /// left at what they were, so a half typed value cannot wipe a stop out.
+        /// Writes the editor back into the entry it was loaded from.
         /// </summary>
         private void StoreEntry(SourceEntry entry) {
             if (entry == null || !_entries.Contains(entry)) {
@@ -652,8 +513,6 @@ namespace Sisk.BuildColors.UI {
         private bool ApplyChanges() {
             StoreEntry(_loadedEntry);
 
-            // Only the fields the chosen type actually reads are held to their range. A camo source is not
-            // stopped from saving because the band count left over from a gradient reads oddly.
             var steps = _source.Steps;
             var scale = _source.Scale;
             var period = _source.Period;
@@ -711,8 +570,6 @@ namespace Sisk.BuildColors.UI {
             _source.Seed = seed;
             _source.Reverse = _reverseCheckbox.Value;
 
-            // Both lists are written on every save. Which one the source reads follows from its type, and
-            // keeping the other one means switching back and forth does not cost the colors that were set.
             _source.Stops = new List<PaintColorStop>();
             _source.Palette = new List<PaintPaletteEntry>();
 
@@ -727,8 +584,7 @@ namespace Sisk.BuildColors.UI {
         }
 
         /// <summary>
-        /// One color as the dialog edits it. A gradient reads the position and a scatter reads the weight;
-        /// the other value is carried along untouched so switching the type does not lose it.
+        /// One color as the dialog edits it.
         /// </summary>
         private sealed class SourceEntry {
             public ColorModel Color;

@@ -4,11 +4,9 @@ using VRageMath;
 namespace Sisk.BuildColors.UI {
 
     /// <summary>
-    /// Resolves where a dialog may be placed. The vanilla color picker controls always draw on top of the
-    /// framework HUD, so dialogs are kept inside the free region rather than centered on the screen.
+    /// Resolves where a dialog may be placed.
     /// </summary>
     internal static class DialogSafeArea {
-
         /// <summary>
         /// Gap kept between a dialog and the edge of the region it is placed in.
         /// </summary>
@@ -25,20 +23,14 @@ namespace Sisk.BuildColors.UI {
         }
 
         /// <summary>
-        /// Right hand boundary of the free region, which is the right edge of the color management panel.
-        /// Dialogs may cover the mod panels, but everything further right belongs to the vanilla controls,
-        /// which always draw on top.
+        /// Right hand boundary of the free region.
         /// </summary>
         public static float GetRightBound() {
-            var screenSize = ScreenSize;
-            var aspectRatio = screenSize.X / screenSize.Y;
-            var panelAnchor = ColorManagementPanel.SLOPE * aspectRatio + ColorManagementPanel.Y_INTERCEPT;
-
-            return panelAnchor + ColorManagementPanel.WIDTH * .5f;
+            return PickerScreenLayout.RightBound;
         }
 
         /// <summary>
-        /// Width of the free region. Dialogs should not exceed it.
+        /// Width of the free region.
         /// </summary>
         public static float GetAvailableWidth() {
             return GetRightBound() - (-ScreenSize.X * .5f + MARGIN);
@@ -56,8 +48,6 @@ namespace Sisk.BuildColors.UI {
             var halfWidth = dialogSize.X * .5f;
             var offsetX = (leftBound + rightBound) * .5f;
 
-            // Keep the dialog inside the region; if it cannot fit, pin it to the left edge so the
-            // controls on its left stay reachable.
             if (offsetX + halfWidth > rightBound) {
                 offsetX = rightBound - halfWidth;
             }

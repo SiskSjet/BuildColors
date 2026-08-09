@@ -7,79 +7,87 @@ using VRageMath;
 namespace Sisk.BuildColors.UI {
 
     /// <summary>
-    /// Modal dialog for saving color sets with a custom name.
+    /// Asks for a name.
     /// </summary>
-    public class SaveDialog : DialogBase {
-        private readonly TextField _text;
-        private Settings.Models.ColorSet _colorset;
+    internal class SaveDialog : DialogBase {
+        private const float WIDTH = 420f;
 
-        public SaveDialog(HudParentBase parent = null, Settings.Models.ColorSet? colorSet = null) : base(parent) {
-            if (colorSet.HasValue) {
-                _colorset = colorSet.Value;
-            }
+        private readonly ActionButton _saveButton;
+        private readonly TextField _nameField;
 
-            Size = new Vector2(330, 180f);
-            HeaderText = ModText.BC_UI_SaveDialogTitle.GetString();
+        public SaveDialog(string title, string initialName = null, HudParentBase parent = null) : base(parent) {
+            var contentWidth = WIDTH - Padding.X - LayoutMetrics.CONTENT_PADDING_X * 2f;
 
-            _text = new GameInputBlockingTextField() {
-                Text = "",
-                Width = 310
+            _nameField = ControlFactory.CreateTextField(contentWidth, initialName);
+
+            _saveButton = ControlFactory.CreateButton(ModText.BC_UI_Save.GetString(), role: ButtonRole.Primary);
+            var cancelButton = ControlFactory.CreateButton(ModText.BC_UI_Cancel.GetString());
+
+            var height = HEADER_HEIGHT
+                + Padding.Y
+                + LayoutMetrics.CONTENT_PADDING_Y * 2f
+                + LayoutMetrics.LABEL_HEIGHT
+                + LayoutMetrics.CONTROL_HEIGHT
+                + LayoutMetrics.BUTTON_HEIGHT
+                + LayoutMetrics.ROW_SPACING
+                + LayoutMetrics.SECTION_SPACING;
+
+            Size = new Vector2(WIDTH, height);
+            HeaderText = title;
+
+            var layout = new HudChain(true, body) {
+                ParentAlignment = ParentAlignments.Inner,
+                Spacing = LayoutMetrics.ROW_SPACING,
+                SizingMode = HudChainSizingModes.FitMembersOffAxis,
+                DimAlignment = DimAlignments.UnpaddedSize,
+                Padding = new Vector2(LayoutMetrics.CONTENT_PADDING_X, LayoutMetrics.CONTENT_PADDING_Y),
             };
 
-            var save = new BorderedButton() {
-                Text = ModText.BC_UI_Save.GetString(),
-                Padding = Vector2.Zero,
-                Width = 150
-            };
+            layout.Add(ControlFactory.CreateCaption(ModText.BC_UI_Name.GetString(), contentWidth), 0f);
+            layout.Add(_nameField, 0f);
+            layout.Add(ControlFactory.CreateButtonRow(contentWidth, cancelButton, _saveButton), 0f);
 
-            var cancel = new BorderedButton() {
-                Text = ModText.BC_UI_Cancel.GetString(),
-                Padding = Vector2.Zero,
-                Width = 150
-            };
-
-            var controls = new HudChain(false) {
-                DimAlignment = DimAlignments.Width,
-                CollectionContainer = { save, cancel },
-                Spacing = 8f,
-            };
-
-            var layout = new HudChain(true) {
-                CollectionContainer = { _text, controls },
-                Spacing = 10f,
-            };
-
-            layout.Register(body);
-
-            _text.MouseInput.CursorEntered += OnMouseOver;
-            save.MouseInput.LeftClicked += OnSaveClicked;
-            save.MouseInput.CursorEntered += OnMouseOver;
-            cancel.MouseInput.LeftClicked += OnCancelClicked;
-            cancel.MouseInput.CursorEntered += OnMouseOver;
+            _saveButton.MouseInput.LeftClicked += OnSave;
+            cancelButton.MouseInput.LeftClicked += OnCancel;
         }
 
-        public event RichHudFramework.EventHandler SaveClicked;
+        public event RichHudFramework.EventHandler Saved;
 
-        public Settings.Models.ColorSet ColorSet {
-            get { return _colorset; }
-        }
-
+        /// <summary>
+        /// The name that was typed, trimmed.
+        /// </summary>
         public string Name {
-            get { return _text.Text.ToString(); }
+            get { return _nameField.Text.ToString().Trim(); }
         }
 
-        private void OnCancelClicked(object sender, EventArgs e) {
-            HudSoundUtils.PlaySound("HudLockingLost");
+        /// <summary>
+        /// Enter saves, which is what a dialog holding a single text field should do.
+        /// </summary>
+        protected override void HandleInput(Vector2 cursorPos) {
+            base.HandleInput(cursorPos);
+
+            if (SharedBinds.Enter.IsNewPressed && !string.IsNullOrEmpty(Name)) {
+                Save();
+            }
+        }
+
+        private void OnCancel(object sender, EventArgs args) {
+            HudSoundUtils.PlaySound("HudMouseClick");
             Close();
         }
 
-        private void OnMouseOver(object sender, EventArgs e) {
-            HudSoundUtils.PlaySound("HudMouseOver");
+        private void OnSave(object sender, EventArgs args) {
+            if (string.IsNullOrEmpty(Name)) {
+                HudSoundUtils.PlaySound("HudLockingLost");
+                return;
+            }
+
+            Save();
         }
 
-        private void OnSaveClicked(object sender, EventArgs e) {
+        private void Save() {
             HudSoundUtils.PlaySound("HudBleep");
-            SaveClicked?.Invoke(this, e);
+            Saved?.Invoke(this, EventArgs.Empty);
             Close();
         }
     }
