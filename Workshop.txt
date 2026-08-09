@@ -114,9 +114,8 @@ Your color sets and paint jobs live in your global storage, so they follow you i
 [h2]Support[/h2]
 It would be nice if you could consider supporting me
 
-[url=https://ko-fi.com/sisksjet][img]https://steamuserimages-a.akamaihd.net/ugc/2287333413738438809/074D2B10C793252F866EEB91EC748E0E8B3C3210/?imw=64&imh=64&ima=fit&impolicy=Letterbox&letterbox=false[/img][/url] [url=https://patreon.com/sisk][img]https://steamuserimages-a.akamaihd.net/ugc/2287333413738613768/8FE59EC78463E3EFA52D59347D83D3C9838BF6E6/?imw=64&imh=64&ima=fit&impolicy=Letterbox&letterbox=false[/img][/url] [url=https://paypal.me/sisksjet][img]https://steamuserimages-a.akamaihd.net/ugc/2287333413738619680/36B89C41163487AD5BFB13B2C673E0F153171D29/?imw=64&imh=64&ima=fit&impolicy=Letterbox&letterbox=true[/img][/url]
+[url=https://ko-fi.com/sisksjet][img]https://steamuserimages-a.akamaihd.net/ugc/2287333413738438809/074D2B10C793252F866EEB91EC748E0E8B3C3210/?imw=64&imh=64&ima=fit&impolicy=Letterbox&letterbox=false[/img][/url]
 
-or join my [url=https://discord.gg/2s22YCqSFg]Discord[/url] if you have suggestions, wishes, or just want to know what else I'm working on.
 You can also check out my other mods in my [url=https://steamcommunity.com/id/sisksjet/myworkshopfiles/?appid=244850]Workshop[/url].
 
 [hr][/hr]
@@ -128,7 +127,7 @@ Thanks [url=https://steamcommunity.com/id/zigglegarf]Dark Helmet[/url] for the a
 
 [hr][/hr]
 
-[h1]Build Colors, Deutsch[/h1]
+[h1]Build Colors[/h1]
 Speichere deine Baufarben unter einem Namen und lade sie in jeder Welt, auf jedem Server. Lass dir vom Mod eine passende Palette erzeugen. Und richte Paint Jobs ein, die ein ganzes Grid mit einem Tastendruck neu lackieren, Panzerung dunkel, beschädigte Blöcke rot, ein Verlauf vom Kiel bis zum Deck.
 
 Farbsätze und Paint Jobs lassen sich auch direkt an andere Spieler weitergeben.
@@ -244,9 +243,8 @@ Color Sets und Paint Jobs liegen im globalen Speicher und sind damit in jeder We
 [h2]Support[/h2]
 Es wäre schön, wenn ihr mich unterstützen würdet
 
-[url=https://ko-fi.com/sisksjet][img]https://steamuserimages-a.akamaihd.net/ugc/2287333413738438809/074D2B10C793252F866EEB91EC748E0E8B3C3210/?imw=64&imh=64&ima=fit&impolicy=Letterbox&letterbox=false[/img][/url] [url=https://patreon.com/sisk][img]https://steamuserimages-a.akamaihd.net/ugc/2287333413738613768/8FE59EC78463E3EFA52D59347D83D3C9838BF6E6/?imw=64&imh=64&ima=fit&impolicy=Letterbox&letterbox=false[/img][/url] [url=https://paypal.me/sisksjet][img]https://steamuserimages-a.akamaihd.net/ugc/2287333413738619680/36B89C41163487AD5BFB13B2C673E0F153171D29/?imw=64&imh=64&ima=fit&impolicy=Letterbox&letterbox=true[/img][/url]
+[url=https://ko-fi.com/sisksjet][img]https://steamuserimages-a.akamaihd.net/ugc/2287333413738438809/074D2B10C793252F866EEB91EC748E0E8B3C3210/?imw=64&imh=64&ima=fit&impolicy=Letterbox&letterbox=false[/img][/url]
 
-oder tretet meinem [url=https://discord.gg/2s22YCqSFg]Discord[/url] bei, wenn ihr Vorschläge oder Wünsche habt oder einfach wissen wollt, woran ich sonst noch arbeite.
 Meine anderen Mods findet ihr in meinem [url=https://steamcommunity.com/id/sisksjet/myworkshopfiles/?appid=244850]Workshop[/url].
 
 [hr][/hr]
