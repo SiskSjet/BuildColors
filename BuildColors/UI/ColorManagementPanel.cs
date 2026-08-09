@@ -2,26 +2,37 @@ using RichHudFramework;
 using RichHudFramework.UI;
 using RichHudFramework.UI.Client;
 using Sandbox.ModAPI;
+using Sisk.BuildColors.Localization;
 using Sisk.BuildColors.Settings.Models;
 using Sisk.BuildColors.Settings.Models.ColorSpace;
+using Sisk.Utils.Localization.Extensions;
 using System;
 using System.Linq;
 using VRageMath;
-using EventHandler = Sisk.BuildColors.EventHandler;
 
 namespace Sisk.BuildColors.UI {
 
-    public class BuildColorWindow : WindowBase {
+    /// <summary>
+    /// Right-side panel for color set management and color scheme generation.
+    /// Styled like a window but implemented as a panel component.
+    /// </summary>
+    public class ColorManagementPanel : HudElementBase {
         public const float ASPECT_RATIO_END = 5f / 4f;
         public const float ASPECT_RATIO_START = 16f / 9f;
         public const float OFFSET_END = -60;
         public const float OFFSET_START = 200;
         public const float SLOPE = (OFFSET_END - OFFSET_START) / (ASPECT_RATIO_END - ASPECT_RATIO_START);
+        public const float WIDTH = 500f;
         public const float Y_INTERCEPT = OFFSET_START - SLOPE * ASPECT_RATIO_START;
+        private const float HEIGHT = 1080f;
+
         private readonly ColorPickerHSV2 _baseColorPicker;
+        private readonly TexturedBox _border;
+        private readonly TexturedBox _body;
         private readonly ListBox<ColorSet> _colorsetList;
         private readonly ColorSetElement _colorsetPreview;
         private readonly BorderedButton _generateColorSchemeButton;
+        private readonly Label _header;
         private readonly BorderedButton _loadColorsetButton;
         private readonly Dropdown<ColorSchemeGenerator.Preset> _presetDropdown;
         private readonly BorderedButton _removeColorsetButton;
@@ -31,22 +42,34 @@ namespace Sisk.BuildColors.UI {
         private DateTime _lastClickTime;
         private string _lastSelectedName;
 
-        public BuildColorWindow(HudParentBase parent = null) : base(parent) {
-            BorderColor = Style.BorderColor;
-            BodyColor = Style.BodyBackgroundColor;
+        public ColorManagementPanel(HudParentBase parent = null) : base(parent) {
+            Size = new Vector2(WIDTH, HEIGHT);
 
-            header.Background.Color = Style.BodyBackgroundColor;
-            header.textElement.Offset = new Vector2(0, -10);
-            header.Format = Style.HeaderText;
-            header.Height = 63;
-            HeaderText = Mod.NAME;
-            ZOffset = 1;
+            // Window-style border
+            _border = new TexturedBox(this) {
+                DimAlignment = DimAlignments.Both,
+                Color = Style.BorderColor,
+            };
 
-            Size = new Vector2(500, 1080);
-            Offset = new Vector2(OFFSET_START, 0);
+            // Window-style body background
+            _body = new TexturedBox(this) {
+                DimAlignment = DimAlignments.Both,
+                Color = Style.BodyBackgroundColor,
+                Padding = new Vector2(2f),
+            };
 
-            CanDrag = false;
-            AllowResizing = false;
+            // Header
+            var headerBackground = new TexturedBox() {
+                DimAlignment = DimAlignments.Width,
+                Height = 20,
+                Color = VRageMath.Color.Transparent,
+            };
+
+            _header = new Label() {
+                Text = Mod.NAME,
+                Format = Style.HeaderText,
+                Padding = new Vector2(50f, 0f),
+            };
 
             var headerSeperator = new TexturedBox() {
                 DimAlignment = DimAlignments.Width,
@@ -62,38 +85,39 @@ namespace Sisk.BuildColors.UI {
                 Color = Style.SeparatorColor,
             };
 
+            var colorsetPreviewSeperator = new TexturedBox() {
+                DimAlignment = DimAlignments.Width,
+                Height = .75f,
+                Color = Style.SeparatorColor,
+            };
+
             var colorsetLabel = new Label() {
                 ParentAlignment = ParentAlignments.Left,
-                Text = "Color Sets",
+                Text = ModText.BC_UI_ColorSets.GetString(),
             };
 
             _colorsetList = new ListBox<ColorSet>() {
                 DimAlignment = DimAlignments.Width,
+                Height = 250f,
             };
 
             _loadColorsetButton = new BorderedButton() {
-                Text = "Load",
+                Text = ModText.BC_UI_Load.GetString(),
                 Padding = Vector2.Zero
             };
             _removeColorsetButton = new BorderedButton() {
-                Text = "Remove",
+                Text = ModText.BC_UI_Remove.GetString(),
                 Padding = Vector2.Zero
             };
             var saveActivColorsButton = new BorderedButton() {
                 ParentAlignment = ParentAlignments.Right,
-                Text = "Save (Color Picker)",
+                Text = ModText.BC_UI_SaveColorPicker.GetString(),
                 Padding = Vector2.Zero
             };
 
             var buttonRow1 = new HudChain(false) {
                 CollectionContainer = { _loadColorsetButton, _removeColorsetButton },
                 Spacing = 8f,
-            };
-
-            var colorsetPreviewSeperator = new TexturedBox() {
-                DimAlignment = DimAlignments.Width,
-                Height = .75f,
-                Color = Style.SeparatorColor,
             };
 
             var colorsetControls = new HudChain(true) {
@@ -109,12 +133,12 @@ namespace Sisk.BuildColors.UI {
 
             var colorSchemeGeneratorLabel = new Label() {
                 ParentAlignment = ParentAlignments.Left,
-                Text = "Color Scheme Generator",
+                Text = ModText.BC_UI_ColorSchemeGenerator.GetString(),
             };
 
             var schemeLabel = new Label() {
                 ParentAlignment = ParentAlignments.Left,
-                Text = "Color Scheme",
+                Text = ModText.BC_UI_ColorScheme.GetString(),
             };
 
             _schemeDropdown = new Dropdown<ColorSchemeGenerator.Scheme>() {
@@ -134,7 +158,7 @@ namespace Sisk.BuildColors.UI {
 
             var presetLabel = new Label() {
                 ParentAlignment = ParentAlignments.Left,
-                Text = "Color Presets",
+                Text = ModText.BC_UI_ColorPresets.GetString(),
             };
 
             _presetDropdown = new Dropdown<ColorSchemeGenerator.Preset>() {
@@ -159,7 +183,7 @@ namespace Sisk.BuildColors.UI {
 
             var randomColorLabel = new Label() {
                 ParentAlignment = ParentAlignments.Left,
-                Text = "Random base color"
+                Text = ModText.BC_UI_RandomBaseColor.GetString()
             };
 
             var randomColorCheckbox = new BorderedCheckBox() {
@@ -176,17 +200,17 @@ namespace Sisk.BuildColors.UI {
             _baseColorPicker = new ColorPickerHSV2() {
                 ParentAlignment = ParentAlignments.Left,
                 DimAlignment = DimAlignments.Width,
-                Name = "Base color",
+                Name = ModText.BC_UI_BaseColor.GetString(),
                 Visible = false,
             };
 
             _generateColorSchemeButton = new BorderedButton() {
-                Text = "Generate",
+                Text = ModText.BC_UI_Generate.GetString(),
                 Padding = Vector2.Zero
             };
 
             var saveGeneratedColorSchemeButton = new BorderedButton() {
-                Text = "Save",
+                Text = ModText.BC_UI_Save.GetString(),
                 Padding = Vector2.Zero
             };
 
@@ -209,8 +233,13 @@ namespace Sisk.BuildColors.UI {
 
             _schemePreview = new ColorSetElement();
 
+            var headerLayout = new HudChain(true) {
+                CollectionContainer = { headerBackground, _header, headerSeperator},
+                Spacing = 10f,
+            };
+
             var colorsetLayout = new HudChain(true) {
-                CollectionContainer = { colorsetLabel, _colorsetList, colorsetListSeperator, _colorsetPreview, colorsetPreviewSeperator, colorsetControls },
+                CollectionContainer = { colorsetLabel, _colorsetList, colorsetListSeperator, _colorsetPreview, colorsetPreviewSeperator, colorsetControls, colorsetSeperator },
                 Spacing = 10f,
             };
 
@@ -219,16 +248,16 @@ namespace Sisk.BuildColors.UI {
                 Spacing = 10f,
             };
 
-            var bodyLayout = new HudChain(true) {
+            var mainLayout = new HudChain(true, _body) {
                 ParentAlignment = ParentAlignments.Top | ParentAlignments.InnerV,
-                CollectionContainer = { headerSeperator, colorsetLayout, colorsetSeperator, generatorLayout },
+                CollectionContainer = { headerLayout, colorsetLayout, generatorLayout },
                 Spacing = 10f,
+                Padding = new Vector2(10f, 0f),
             };
-
-            bodyLayout.Register(body);
 
             _schemeGenerator = new ColorSchemeGenerator();
 
+            // Wire up events
             randomColorCheckbox.MouseInput.LeftClicked += OnRandomColorChanged;
             _baseColorPicker.ColorChanged += OnBaseColorChanged;
 
@@ -267,6 +296,8 @@ namespace Sisk.BuildColors.UI {
             LoadColorSets();
         }
 
+        public event RichHudFramework.EventHandler DialogRequested;
+
         public void LoadColorSets() {
             _colorsetList.ClearEntries();
             foreach (var colorSet in Mod.Static.ColorSets) {
@@ -280,12 +311,15 @@ namespace Sisk.BuildColors.UI {
 
         protected override void Draw() {
             base.Draw();
-
             SetOpacity();
         }
 
         protected override void Layout() {
             base.Layout();
+
+            if (MyAPIGateway.Session?.Camera == null) {
+                return;
+            }
 
             var screenWidth = MyAPIGateway.Session.Camera.ViewportSize.X;
             var screenHeight = MyAPIGateway.Session.Camera.ViewportSize.Y;
@@ -316,7 +350,7 @@ namespace Sisk.BuildColors.UI {
 
             // convert result to Color array.
             var colors = result.Select(x => (Settings.Models.Color)x).ToArray();
-            var colorSet = new ColorSet("Generated", colors);
+            var colorSet = new ColorSet(ModText.BC_UI_GeneratedColorSetName.GetString(), colors);
             _schemePreview.SetColorSet(colorSet);
         }
 
@@ -386,25 +420,25 @@ namespace Sisk.BuildColors.UI {
         }
 
         private void OnSaveActiveColorsClicked(object sender, EventArgs e) {
-            var window = new SaveWindow();
-            window.Register(HudMain.HighDpiRoot);
-            window.SaveClicked += (s, args) => {
-                Mod.Static.SaveColorSet(window.Name);
+            var dialog = new SaveDialog();
+            dialog.SaveClicked += (s, args) => {
+                Mod.Static.SaveColorSet(dialog.Name);
                 LoadColorSets();
             };
+            OnDialogRequested(dialog);
         }
 
         private void OnSaveGeneratedColorSchemeClicked(object sender, EventArgs e) {
             var colorSet = _schemePreview.ColorSet;
-            var window = new SaveWindow(colorSet: colorSet);
-            window.Register(HudMain.HighDpiRoot);
-            window.SaveClicked += (s, args) => {
-                var colorset = window.ColorSet;
-                colorset.Name = window.Name;
+            var dialog = new SaveDialog(colorSet: colorSet);
+            dialog.SaveClicked += (s, args) => {
+                var colorset = dialog.ColorSet;
+                colorset.Name = dialog.Name;
 
                 Mod.Static.SaveColorSet(colorset);
                 LoadColorSets();
             };
+            OnDialogRequested(dialog);
         }
 
         private void OnSchemeChanged(object sender, EventArgs e) {
@@ -413,11 +447,14 @@ namespace Sisk.BuildColors.UI {
         }
 
         private void SetOpacity() {
-            var opacity = MyAPIGateway.Session.Config.UIBkOpacity;
+            var opacity = MyAPIGateway.Session?.Config?.UIBkOpacity ?? 1f;
 
-            BorderColor = BorderColor.SetAlphaPct(opacity);
-            BodyColor = BodyColor.SetAlphaPct(opacity);
-            header.Background.Color = BodyColor.SetAlphaPct(opacity);
+            _border.Color = _border.Color.SetAlphaPct(opacity);
+            _body.Color = _body.Color.SetAlphaPct(opacity);
+        }
+
+        private void OnDialogRequested(DialogBase dialog) {
+            DialogRequested?.Invoke(this, new DialogRequestedEventArgs { Dialog = dialog });
         }
     }
 }

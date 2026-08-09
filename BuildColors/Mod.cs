@@ -2,7 +2,9 @@ using Sandbox.ModAPI;
 using Sisk.BuildColors.Localization;
 using Sisk.BuildColors.Settings;
 using Sisk.BuildColors.Settings.Models;
+using Sisk.BuildColors.Settings.Models.PaintJobs;
 using Sisk.BuildColors.UI;
+using Sisk.BuildColors.Services;
 using Sisk.Utils.CommandHandler;
 using Sisk.Utils.Localization.Extensions;
 using System;
@@ -19,8 +21,8 @@ namespace Sisk.BuildColors {
     public class Mod : MySessionComponentBase {
         public const string NAME = "BuildColors";
         private const string COLOR_SETS_FILE = "ColorSets.xml";
+        private const string PAINT_JOBS_FILE = "PaintJobs.xml";
         private const string SERVER_MEMORY_FILE = "BuildColorsServerMemory.xml";
-
         private readonly CommandHandler _commandHandler = new CommandHandler(NAME);
         private BuildColorUI _ui;
 
@@ -44,6 +46,16 @@ namespace Sisk.BuildColors {
         ///     Available color sets.
         /// </summary>
         public ColorSets ColorSets { get; private set; }
+
+        /// <summary>
+        ///     Stored paint jobs.
+        /// </summary>
+        public PaintJobSet PaintJobs { get; private set; }
+
+        /// <summary>
+        ///     Runtime service for manipulating and applying paint jobs.
+        /// </summary>
+        public PaintJobService PaintJobService { get; private set; }
 
         /// <summary>
         ///     Server memory.
@@ -92,13 +104,14 @@ namespace Sisk.BuildColors {
             }
 
             LoadColorSets();
+            LoadPaintJobs();
+            PaintJobService = new PaintJobService(this);
             if (MyAPIGateway.Multiplayer.MultiplayerActive && !MyAPIGateway.Utilities.IsDedicated) {
                 LoadServerColor();
                 MyAPIGateway.Session.OnSessionReady += OnSessionReady;
             }
 
             MyAPIGateway.Utilities.MessageEntered += OnMessageEntered;
-            MyAPIGateway.Gui.GuiControlRemoved += OnGuiControlRemoved;
         }
 
         /// <summary>
@@ -146,6 +159,27 @@ namespace Sisk.BuildColors {
         }
 
         /// <summary>
+        ///     Pulls the paint job list of the UI back in line after a console command changed it.
+        /// </summary>
+        /// <param name="jobToSelect">Job the list should end up on, or null to keep the current selection.</param>
+        internal void RefreshPaintJobs(PaintJob jobToSelect = null) {
+            _ui?.RefreshPaintJobs(jobToSelect);
+        }
+
+        /// <summary>
+        ///     Opens the paint job workbench. It stands on its own, so this works with no other screen up.
+        /// </summary>
+        internal void OpenWorkbench() {
+            _ui?.OpenWorkbench();
+        }
+
+        internal void SavePaintJobs() {
+            if (PaintJobs != null) {
+                FileHandler.Save(PAINT_JOBS_FILE, PaintJobs);
+            }
+        }
+
+        /// <summary>
         ///     Unregister events and stuff like that.
         /// </summary>
         protected override void UnloadData() {
@@ -153,8 +187,8 @@ namespace Sisk.BuildColors {
                 SaveServerMemory();
                 MyAPIGateway.Session.OnSessionReady -= OnSessionReady;
             }
+            SavePaintJobs();
             MyAPIGateway.Utilities.MessageEntered -= OnMessageEntered;
-            MyAPIGateway.Gui.GuiControlRemoved -= OnGuiControlRemoved;
             Static = null;
         }
 
@@ -169,6 +203,8 @@ namespace Sisk.BuildColors {
             _commandHandler.Register(new Command { Name = "Generate", Description = ModText.BC_Description_Generate.GetString(), Execute = GenerateColorSet });
             _commandHandler.Register(new Command { Name = "List", Description = ModText.BC_Description_List.GetString(), Execute = ListColorSets });
             _commandHandler.Register(new Command { Name = "Help", Description = ModText.BC_Description_Help.GetString(), Execute = _commandHandler.ShowHelp });
+
+            PaintJobCommands.Register(_commandHandler);
         }
 
         private void GenerateColorSet(string arguments) {
@@ -202,6 +238,20 @@ namespace Sisk.BuildColors {
             ColorSets = colorSets;
         }
 
+        private void LoadPaintJobs() {
+            var jobs = FileHandler.Load<PaintJobSet>(PAINT_JOBS_FILE);
+
+            if (jobs != null) {
+                if (jobs.Version < PaintJobSet.VERSION) {
+                    // todo: merge old and new paint job versions.
+                }
+            } else {
+                jobs = new PaintJobSet();
+            }
+
+            PaintJobs = jobs;
+        }
+
         private void LoadServerColor() {
             var serverMemory = FileHandler.Load<ServerMemory>(SERVER_MEMORY_FILE);
 
@@ -214,12 +264,6 @@ namespace Sisk.BuildColors {
             }
 
             ServerMemory = serverMemory;
-        }
-
-        private void OnGuiControlRemoved(object obj) {
-            if (obj.ToString().EndsWith("MyGuiScreenOptionsDisplay")) {
-                _ui?.UpdateScreenScaling();
-            }
         }
 
         private void OnMessageEntered(string messagetext, ref bool sendtoothers) {

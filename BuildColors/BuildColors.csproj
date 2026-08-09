@@ -1,3 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netframework48</TargetFramework>
@@ -8,31 +9,144 @@
     <Platforms>x64</Platforms>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Mal.Mdk2.ModAnalyzers" Version="2.1.14">
+    <PackageReference Include="Mal.Mdk2.ModAnalyzers" Version="2.1.16">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Mal.Mdk2.ModPackager" Version="2.1.7">
+    <PackageReference Include="Mal.Mdk2.ModPackager" Version="2.2.10">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Mal.Mdk2.References" Version="2.2.5" />
+    <PackageReference Include="Mal.Mdk2.References" Version="2.2.9" />
   </ItemGroup>
   <ItemGroup>
     <AdditionalFiles Include="Content\*\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </AdditionalFiles>
     <AdditionalFiles Remove="Content\*\**\*.cs" />
-    <AdditionalFiles Remove="Content\Data\Localization\MyTexts.de.resx" />
-    <AdditionalFiles Remove="Content\Data\Localization\MyTexts.resx" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Update="Content\Data\Localization\MyTexts.resx">
+    <EmbeddedResource Remove="Content\Data\Localization\MyTexts.de.resx" />
+    <EmbeddedResource Remove="Content\Data\Localization\MyTexts.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <AdditionalFiles Update="Content\Data\Localization\MyTexts.de.resx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </AdditionalFiles>
+    <AdditionalFiles Update="Content\Data\Localization\MyTexts.resx">
       <LastGenOutput>MyTexts.Designer.cs</LastGenOutput>
       <Generator>ResXFileCodeGenerator</Generator>
-    </EmbeddedResource>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </AdditionalFiles>
   </ItemGroup>
   <Import Project="..\Utils\CommandHandler\CommandHandler.projitems" Label="Shared" />
   <Import Project="..\Utils\Localization\Localization.projitems" Label="Shared" />
   <Import Project="..\RichHudFramework\RichHUDFramework.projitems" Label="Shared" />
+  <!--
+    Regenerates Content/Data/TransparentMaterials.sbc from the installed game's armor skin definitions.
+    RichHudFramework draws through MyTransparentGeometry, which only accepts registered transparent
+    materials, and the game does not register its GUI icon textures. Running this on every build keeps the
+    icon list in sync when Keen adds or renames skins. The generated file is checked in so the project
+    still builds where the game is not installed.
+  -->
+  <UsingTask TaskName="GenerateSkinIconMaterials" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <SourceFile ParameterType="System.String" Required="true" />
+      <OutputFile ParameterType="System.String" Required="true" />
+      <MaterialPrefix ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Text" />
+      <Using Namespace="System.Xml.Linq" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+if (!File.Exists(SourceFile))
+{
+    Log.LogMessage(MessageImportance.High, "Skin definitions not found at " + SourceFile + " - keeping the existing icon materials.");
+    return true;
+}
+
+var document = XDocument.Load(SourceFile);
+var builder = new StringBuilder();
+
+builder.AppendLine("<?xml version=\"1.0\"?>");
+builder.AppendLine("<Definitions xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">");
+builder.AppendLine("    <!-- Generated on build from " + Path.GetFileName(SourceFile) + ". Do not edit by hand. -->");
+builder.AppendLine("    <TransparentMaterials>");
+
+int count = 0;
+
+foreach (var modifier in document.Descendants("AssetModifier"))
+{
+    var iconElement = modifier.Element("Icon");
+    var idElement = modifier.Element("Id");
+
+    if (iconElement == null || idElement == null)
+        continue;
+
+    var icon = iconElement.Value.Trim();
+    if (icon.Length == 0)
+        continue;
+
+    // The game uses both the attribute and the element form of Id across its definition files.
+    var subtype = (string)idElement.Attribute("Subtype");
+    if (string.IsNullOrEmpty(subtype))
+    {
+        var subtypeElement = idElement.Element("SubtypeId");
+        subtype = subtypeElement == null ? null : subtypeElement.Value.Trim();
+    }
+
+    if (string.IsNullOrEmpty(subtype))
+        continue;
+
+    builder.AppendLine("        <TransparentMaterial>");
+    builder.AppendLine("            <Id>");
+    builder.AppendLine("                <TypeId>TransparentMaterialDefinition</TypeId>");
+    builder.AppendLine("                <SubtypeId>" + MaterialPrefix + subtype + "</SubtypeId>");
+    builder.AppendLine("            </Id>");
+    builder.AppendLine("            <AlphaMistingEnable>false</AlphaMistingEnable>");
+    builder.AppendLine("            <AlphaSaturation>1</AlphaSaturation>");
+    builder.AppendLine("            <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>");
+    builder.AppendLine("            <IgnoreDepth>true</IgnoreDepth>");
+    builder.AppendLine("            <SoftParticleDistanceScale>0.1</SoftParticleDistanceScale>");
+    builder.AppendLine("            <Texture>" + icon + "</Texture>");
+    builder.AppendLine("            <UseAtlas>false</UseAtlas>");
+    builder.AppendLine("            <UVOffset><X>0</X><Y>0</Y></UVOffset>");
+    builder.AppendLine("            <UVSize><X>1</X><Y>1</Y></UVSize>");
+    builder.AppendLine("        </TransparentMaterial>");
+    count++;
+}
+
+builder.AppendLine("    </TransparentMaterials>");
+builder.AppendLine("</Definitions>");
+
+if (count == 0)
+{
+    Log.LogWarning("No armor skin icons found in " + SourceFile + " - keeping the existing icon materials.");
+    return true;
+}
+
+var content = builder.ToString();
+
+// Only touch the file when it actually changes, so builds stay incremental and the diff stays quiet.
+if (File.Exists(OutputFile) && File.ReadAllText(OutputFile) == content)
+{
+    Log.LogMessage(MessageImportance.Normal, "Skin icon materials are up to date (" + count + " skins).");
+    return true;
+}
+
+Directory.CreateDirectory(Path.GetDirectoryName(OutputFile));
+File.WriteAllText(OutputFile, content);
+Log.LogMessage(MessageImportance.High, "Generated icon materials for " + count + " armor skins.");
+]]></Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="GenerateSkinIcons" AfterTargets="SpaceEngineers" Condition="'$(SpaceEngineersBinPath)' != ''">
+    <PropertyGroup>
+      <SkinDefinitionFile>$([System.IO.Path]::GetFullPath('$(SpaceEngineersBinPath)/../Content/Data/AssetModifiers/ArmorModifiers.sbc'))</SkinDefinitionFile>
+    </PropertyGroup>
+    <GenerateSkinIconMaterials SourceFile="$(SkinDefinitionFile)" OutputFile="$(MSBuildProjectDirectory)/Content/Data/TransparentMaterials.sbc" MaterialPrefix="BuildColors_Skin_" />
+  </Target>
 </Project>

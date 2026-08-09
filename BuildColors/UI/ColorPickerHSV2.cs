@@ -79,9 +79,9 @@ namespace Sisk.BuildColors.UI {
             };
 
             sliderTextBox = new TextField[] {
-                new TextField() { AutoResize = false, Format = TerminalFormatting.ControlFormat, Height = 47f },
-                new TextField() { AutoResize = false, Format = TerminalFormatting.ControlFormat, Height = 47f },
-                new TextField() { AutoResize = false, Format = TerminalFormatting.ControlFormat, Height = 47f }
+                new GameInputBlockingTextField() { AutoResize = false, Format = TerminalFormatting.ControlFormat, Height = 47f },
+                new GameInputBlockingTextField() { AutoResize = false, Format = TerminalFormatting.ControlFormat, Height = 47f },
+                new GameInputBlockingTextField() { AutoResize = false, Format = TerminalFormatting.ControlFormat, Height = 47f }
             };
 
             colorNameColumn = new HudChain(true) {
