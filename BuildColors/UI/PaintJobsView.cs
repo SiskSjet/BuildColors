@@ -337,6 +337,7 @@ namespace Sisk.BuildColors.UI {
             _editSourceButton.MouseInput.LeftClicked += OnEditSource;
 
             _sourceTypeDropdown.ValueChanged += OnSourceTypeChanged;
+            _colorPicker.ValueChanged += OnColorPickerChanged;
             _applyColorCheckbox.MouseInput.LeftClicked += (sender, args) => WriteRule();
             _applySkinCheckbox.MouseInput.LeftClicked += (sender, args) => WriteRule();
             _skinDropdown.ValueChanged += (sender, args) => WriteRule();
@@ -724,6 +725,24 @@ namespace Sisk.BuildColors.UI {
 
         private void OnPaletteColorPicked(VRageMath.Color color) {
             _colorPicker.Value = color;
+            WriteRule();
+        }
+
+        /// <summary>
+        /// The picker also fires this when a rule is loaded into it, so the rule is only written when the color really moved.
+        /// </summary>
+        private void OnColorPickerChanged(object sender, EventArgs e) {
+            if (_suppressWrites || _loadedRule == null || _loadedRule.Action == null) {
+                return;
+            }
+
+            var color = _colorPicker.Value;
+            var target = _loadedRule.Action.TargetColor;
+
+            if (target.R == color.R && target.G == color.G && target.B == color.B) {
+                return;
+            }
+
             WriteRule();
         }
 

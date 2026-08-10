@@ -306,9 +306,11 @@ namespace Sisk.BuildColors.UI {
 
             _entries.Clear();
 
-            if (_source.Stops != null && _source.Stops.Count > 0) {
-                foreach (var stop in _source.Stops) {
-                    _entries.Add(new SourceEntry { Color = stop.Color, Position = stop.Position, SkinId = stop.SkinId, Weight = 1f });
+            if (_source.UsesStops) {
+                if (_source.Stops != null) {
+                    foreach (var stop in _source.Stops) {
+                        _entries.Add(new SourceEntry { Color = stop.Color, Position = stop.Position, SkinId = stop.SkinId, Weight = 1f });
+                    }
                 }
             } else if (_source.Palette != null) {
                 foreach (var entry in _source.Palette) {
@@ -570,12 +572,18 @@ namespace Sisk.BuildColors.UI {
             _source.Seed = seed;
             _source.Reverse = _reverseCheckbox.Value;
 
-            _source.Stops = new List<PaintColorStop>();
-            _source.Palette = new List<PaintPaletteEntry>();
+            if (_source.UsesStops) {
+                _source.Stops = new List<PaintColorStop>();
 
-            foreach (var entry in _entries) {
-                _source.Stops.Add(new PaintColorStop(entry.Color, entry.Position) { SkinId = entry.SkinId });
-                _source.Palette.Add(new PaintPaletteEntry(entry.Color) { SkinId = entry.SkinId, Weight = entry.Weight });
+                foreach (var entry in _entries) {
+                    _source.Stops.Add(new PaintColorStop(entry.Color, entry.Position) { SkinId = entry.SkinId });
+                }
+            } else {
+                _source.Palette = new List<PaintPaletteEntry>();
+
+                foreach (var entry in _entries) {
+                    _source.Palette.Add(new PaintPaletteEntry(entry.Color) { SkinId = entry.SkinId, Weight = entry.Weight });
+                }
             }
 
             _statusLabel.Text = string.Empty;

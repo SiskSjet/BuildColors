@@ -1,3 +1,51 @@
+# [3.0.1](https://github.com/SiskSjet/BuildColors/compare/v3.0.0...3.0.1) (2026-08-10)
+
+
+### Bug Fixes
+
+* build color palette stayed grey and unclickable in the paint job editor, because the swatches were only read once while the local player did not exist yet
+* clicks passed through an open dialog to the panel behind it, so a click beside the conditions editor could hit Copy or New and duplicate the selected job
+* solid color picked with the HSV sliders was not written to the rule unless another control was touched afterwards
+* gradient stops and pattern palette overwrote each other, resetting scatter weights on every reopen
+* scatter weights were matched to the wrong palette entries when the palette held an empty entry
+
+
+
+# [3.0.0](https://github.com/SiskSjet/BuildColors/compare/v2.1.7...v3.0.0) (2026-08-09)
+
+
+### Features
+
+* add paint rule functionality ([aa6ad96](https://github.com/SiskSjet/BuildColors/commit/aa6ad96))
+* consolidate UI into a single navigable panel ([9e1027f](https://github.com/SiskSjet/BuildColors/commit/9e1027f))
+* implement multiplayer sharing for color sets and paint jobs ([3e6db6e](https://github.com/SiskSjet/BuildColors/commit/3e6db6e))
+
+
+### Bug Fixes
+
+* block game input when typing in UI text fields ([12cd7ac](https://github.com/SiskSjet/BuildColors/commit/12cd7ac))
+* prevent mod hotkeys from triggering game controls ([e5532e7](https://github.com/SiskSjet/BuildColors/commit/e5532e7))
+
+
+### Code Refactoring
+
+* refactor BuildColors and migrate to updated RichHudFramework API ([6e55225](https://github.com/SiskSjet/BuildColors/commit/6e55225))
+* remove 'Respect Ownership' option from paint jobs ([2aecbbb](https://github.com/SiskSjet/BuildColors/commit/2aecbbb))
+
+
+### Build System
+
+* migrate project to MDK ([36f05df](https://github.com/SiskSjet/BuildColors/commit/36f05df))
+
+
+### BREAKING CHANGES
+
+* the 'Respect Ownership' paint job option was removed, along with its UI control and
+command-line switch. The ownership check is now mandatory: grids you may not modify are
+always skipped, except in creative.
+
+
+
 # [2.1.7](https://github.com/SiskSjet/BuildColors/compare/v2.1.6...v2.1.7) (2024-10-01)
 
 

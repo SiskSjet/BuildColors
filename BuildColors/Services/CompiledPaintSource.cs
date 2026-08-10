@@ -149,9 +149,14 @@ namespace Sisk.BuildColors.Services {
         }
 
         private static CompiledPaintSource CompilePalette(PaintColorSource source, PaintEntry fallback) {
-            var entries = BuildPalette(source);
-            if (entries.Length == 0) {
+            var used = BuildPalette(source);
+            if (used.Count == 0) {
                 return new SolidPaintSource(fallback);
+            }
+
+            var entries = new PaintEntry[used.Count];
+            for (var i = 0; i < used.Count; i++) {
+                entries[i] = new PaintEntry { Mask = used[i].Color, SkinId = used[i].SkinId ?? string.Empty };
             }
 
             if (entries.Length == 1) {
@@ -163,7 +168,7 @@ namespace Sisk.BuildColors.Services {
                     return new CamoPaintSource(entries, source.Scale, source.Seed);
 
                 case PaintSourceType.Scatter:
-                    return new ScatterPaintSource(entries, BuildWeights(source, entries.Length), source.Seed);
+                    return new ScatterPaintSource(entries, BuildWeights(used), source.Seed);
 
                 default:
                     return new PatternPaintSource(entries, source.Shape, source.Axis, Math.Max(source.Period, 1));
@@ -187,31 +192,32 @@ namespace Sisk.BuildColors.Services {
             return stops.ToArray();
         }
 
-        private static PaintEntry[] BuildPalette(PaintColorSource source) {
-            if (source.Palette == null || source.Palette.Count == 0) {
-                return new PaintEntry[0];
+        private static List<PaintPaletteEntry> BuildPalette(PaintColorSource source) {
+            var entries = new List<PaintPaletteEntry>();
+
+            if (source.Palette == null) {
+                return entries;
             }
 
-            var entries = new List<PaintEntry>();
             foreach (var entry in source.Palette) {
                 if (entry != null) {
-                    entries.Add(new PaintEntry { Mask = entry.Color, SkinId = entry.SkinId ?? string.Empty });
+                    entries.Add(entry);
                 }
             }
 
-            return entries.ToArray();
+            return entries;
         }
 
         /// <summary>
         /// Turns the weights into the running total a pick is looked up in.
         /// </summary>
-        private static float[] BuildWeights(PaintColorSource source, int count) {
+        private static float[] BuildWeights(List<PaintPaletteEntry> entries) {
+            var count = entries.Count;
             var cumulative = new float[count];
             var total = 0f;
 
             for (var i = 0; i < count; i++) {
-                var entry = source.Palette[i];
-                var weight = entry != null ? entry.Weight : 1f;
+                var weight = entries[i].Weight;
 
                 total += weight > 0f ? weight : 0f;
                 cumulative[i] = total;

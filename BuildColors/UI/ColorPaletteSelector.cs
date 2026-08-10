@@ -76,6 +76,16 @@ namespace Sisk.BuildColors.UI {
         }
 
         /// <summary>
+        /// The slots are only there once the local player is, and they change while the selector is on screen,
+        /// so they are read again every frame instead of once at construction.
+        /// </summary>
+        protected override void Layout() {
+            base.Layout();
+
+            Refresh();
+        }
+
+        /// <summary>
         /// Reads the current build color slots.
         /// </summary>
         public void Refresh() {
