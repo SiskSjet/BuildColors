@@ -1,3 +1,16 @@
+# [Unreleased](https://github.com/SiskSjet/BuildColors/compare/v3.0.0...HEAD)
+
+
+### Bug Fixes
+
+* build color palette stayed grey and unclickable in the paint job editor, because the swatches were only read once while the local player did not exist yet
+* clicks passed through an open dialog to the panel behind it, so a click beside the conditions editor could hit Copy or New and duplicate the selected job
+* solid color picked with the HSV sliders was not written to the rule unless another control was touched afterwards
+* gradient stops and pattern palette overwrote each other, resetting scatter weights on every reopen
+* scatter weights were matched to the wrong palette entries when the palette held an empty entry
+
+
+
 # [2.1.7](https://github.com/SiskSjet/BuildColors/compare/v2.1.6...v2.1.7) (2024-10-01)
 
 

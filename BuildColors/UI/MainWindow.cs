@@ -93,6 +93,8 @@ namespace Sisk.BuildColors.UI {
 
             if (_dialogStack.Count > 0) {
                 _dialogStack[_dialogStack.Count - 1].InputEnabled = false;
+            } else if (_panel != null) {
+                _panel.InputEnabled = false;
             }
 
             dialog.ZOffset = DIALOG_Z_OFFSET;
@@ -152,6 +154,8 @@ namespace Sisk.BuildColors.UI {
                 var top = _dialogStack[_dialogStack.Count - 1];
                 top.InputEnabled = true;
                 top.GetWindowFocus();
+            } else if (_panel != null) {
+                _panel.InputEnabled = true;
             }
         }
     }
