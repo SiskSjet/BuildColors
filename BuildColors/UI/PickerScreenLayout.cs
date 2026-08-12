@@ -1,16 +1,17 @@
+using System;
 using VRageMath;
 
 namespace Sisk.BuildColors.UI {
 
     /// <summary>
-    /// Works out the region of the color picker screen this mod may draw in.
+    /// Works out the region of the color picker screen this mod may draw in, in <see cref="UiSpace"/> units.
     /// </summary>
     internal static class PickerScreenLayout {
         public const float ASPECT_RATIO_END = 5f / 4f;
         public const float ASPECT_RATIO_START = 16f / 9f;
 
         /// <summary>
-        /// Left edge of the vanilla controls at each measured aspect ratio.
+        /// Left edge of the vanilla controls at each measured aspect ratio, a gap short of their background.
         /// </summary>
         public const float BOUNDARY_AT_ASPECT_END = 190f;
 
@@ -20,36 +21,29 @@ namespace Sisk.BuildColors.UI {
         public const float Y_INTERCEPT = BOUNDARY_AT_ASPECT_START - SLOPE * ASPECT_RATIO_START;
 
         /// <summary>
-        /// Gap left between the mod panel and the vanilla controls.
+        /// Width the vanilla controls take at 16:9, which is what they take everywhere if their panel is one
+        /// fixed width pinned to the right edge of the screen.
         /// </summary>
-        public const float VANILLA_GAP = 16f;
+        public const float VANILLA_WIDTH = UiSpace.REFERENCE_HEIGHT * ASPECT_RATIO_START * .5f - BOUNDARY_AT_ASPECT_START;
 
         /// <summary>
-        /// Gap left at the left edge of the screen.
-        /// </summary>
-        public const float SIDE_MARGIN = 24f;
-
-        public const float TOP_MARGIN = 40f;
-
-        /// <summary>
-        /// Space kept clear at the bottom of the screen for the game's toolbar and status readouts.
-        /// </summary>
-        public const float BOTTOM_RESERVE = 150f;
-
-        /// <summary>
-        /// Right hand boundary of the region the mod may use.
+        /// Right hand boundary of the region the mod may use. The measurements disagree on how the vanilla
+        /// panel behaves off 16:9, so the narrower of what each implies wins.
         /// </summary>
         public static float RightBound {
             get {
                 var screen = DialogSafeArea.ScreenSize;
-                var aspectRatio = screen.X / screen.Y;
+                var aspectRatio = Math.Max(screen.X / screen.Y, ASPECT_RATIO_END);
 
-                return SLOPE * aspectRatio + Y_INTERCEPT - VANILLA_GAP;
+                var measured = SLOPE * aspectRatio + Y_INTERCEPT;
+                var fixedWidth = screen.X * .5f - VANILLA_WIDTH * (screen.Y / UiSpace.REFERENCE_HEIGHT);
+
+                return Math.Min(measured, fixedWidth);
             }
         }
 
         public static float LeftBound {
-            get { return -DialogSafeArea.ScreenSize.X * .5f + SIDE_MARGIN; }
+            get { return -DialogSafeArea.ScreenSize.X * .5f + LayoutMetrics.SCREEN_GAP; }
         }
 
         /// <summary>
@@ -59,7 +53,7 @@ namespace Sisk.BuildColors.UI {
             get {
                 var screen = DialogSafeArea.ScreenSize;
 
-                return new Vector2(RightBound - LeftBound, screen.Y - TOP_MARGIN - BOTTOM_RESERVE);
+                return new Vector2(RightBound - LeftBound, screen.Y - LayoutMetrics.SCREEN_GAP * 2f);
             }
         }
 
@@ -67,14 +61,7 @@ namespace Sisk.BuildColors.UI {
         /// Offset that places a panel of PanelSize in the region.
         /// </summary>
         public static Vector2 PanelOffset {
-            get {
-                var screen = DialogSafeArea.ScreenSize;
-
-                var top = screen.Y * .5f - TOP_MARGIN;
-                var bottom = -screen.Y * .5f + BOTTOM_RESERVE;
-
-                return new Vector2((LeftBound + RightBound) * .5f, (top + bottom) * .5f);
-            }
+            get { return new Vector2((LeftBound + RightBound) * .5f, 0f); }
         }
     }
 }

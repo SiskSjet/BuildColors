@@ -76,7 +76,7 @@ namespace Sisk.BuildColors.UI {
         }
 
         private void HudInit() {
-            _mainWindow = new MainWindow(HudMain.HighDpiRoot);
+            _mainWindow = new MainWindow(new UiSpaceRoot());
             RegisterSettingsMenu();
 
             PaintJobInput.Register();

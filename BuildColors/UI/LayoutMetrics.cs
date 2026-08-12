@@ -24,6 +24,11 @@
         /// </summary>
         public const float BLOCK_SPACING = 18f;
 
+        /// <summary>
+        /// Between the interface and what bounds it: the screen edges and the vanilla controls.
+        /// </summary>
+        public const float SCREEN_GAP = 24f;
+
         public const float CONTENT_PADDING_X = 20f;
         public const float CONTENT_PADDING_Y = 16f;
 

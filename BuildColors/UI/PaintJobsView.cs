@@ -16,9 +16,15 @@ namespace Sisk.BuildColors.UI {
     /// </summary>
     internal class PaintJobsView : PanelView {
         /// <summary>
-        /// Width below which the two lists share a column instead of standing apart.
+        /// Below this the lists move into a row above the rule detail instead of standing beside it, since
+        /// the detail is the only pane holding more than a list.
         /// </summary>
-        private const float THREE_PANE_MIN_WIDTH = 900f;
+        private const float INSPECTOR_MIN_WIDTH = 420f;
+
+        /// <summary>
+        /// Height the lists keep once they stand above the rule detail.
+        /// </summary>
+        private const float STACKED_LIST_MIN_HEIGHT = 340f;
 
         private const float APPLY_BUTTON_WIDTH = 280f;
         private const float JOBS_PANE_WIDTH = 300f;
@@ -96,26 +102,38 @@ namespace Sisk.BuildColors.UI {
                 Height = LayoutMetrics.BUTTON_HEIGHT,
             };
 
-            var wide = width >= THREE_PANE_MIN_WIDTH;
+            var paintChrome = LayoutMetrics.CHECKBOX_SIZE + LayoutMetrics.CONTROL_HEIGHT + LayoutMetrics.ROW_SPACING * 2f;
+            var stackHeight = LayoutMetrics.COLOR_PICKER_HEIGHT + LayoutMetrics.CONTROL_HEIGHT + LayoutMetrics.ROW_SPACING;
+            var paletteCost = ColorPaletteSelector.TOTAL_HEIGHT + LayoutMetrics.LABEL_HEIGHT + LayoutMetrics.ROW_SPACING * 2f;
+            var tabChrome = LayoutMetrics.BUTTON_HEIGHT + LayoutMetrics.ROW_SPACING;
+
+            var sideBySideInspectorWidth = width - JOBS_PANE_WIDTH - RULES_PANE_WIDTH - LayoutMetrics.SECTION_SPACING * 2f;
+            var wide = sideBySideInspectorWidth >= INSPECTOR_MIN_WIDTH;
 
             float jobsWidth;
             float rulesWidth;
             float inspectorWidth;
             float jobsHeight;
             float rulesHeight;
+            float inspectorHeight;
 
             if (wide) {
                 jobsWidth = JOBS_PANE_WIDTH;
                 rulesWidth = RULES_PANE_WIDTH;
-                inspectorWidth = width - JOBS_PANE_WIDTH - RULES_PANE_WIDTH - LayoutMetrics.SECTION_SPACING * 2f;
+                inspectorWidth = sideBySideInspectorWidth;
                 jobsHeight = paneHeight;
                 rulesHeight = paneHeight;
+                inspectorHeight = paneHeight;
             } else {
-                jobsWidth = (float)Math.Floor(width * .4f);
-                rulesWidth = jobsWidth;
-                inspectorWidth = width - jobsWidth - LayoutMetrics.SECTION_SPACING;
-                jobsHeight = (float)Math.Floor((paneHeight - LayoutMetrics.SECTION_SPACING) * .5f);
-                rulesHeight = paneHeight - jobsHeight - LayoutMetrics.SECTION_SPACING;
+                var wanted = Card.HeightFor(tabChrome + paintChrome + stackHeight + paletteCost);
+                var needed = Card.HeightFor(tabChrome + paintChrome + stackHeight);
+
+                jobsWidth = (float)Math.Floor((width - LayoutMetrics.SECTION_SPACING) * .5f);
+                rulesWidth = width - jobsWidth - LayoutMetrics.SECTION_SPACING;
+                inspectorWidth = width;
+                inspectorHeight = MathHelper.Clamp(paneHeight - STACKED_LIST_MIN_HEIGHT - LayoutMetrics.SECTION_SPACING, needed, wanted);
+                jobsHeight = paneHeight - inspectorHeight - LayoutMetrics.SECTION_SPACING;
+                rulesHeight = jobsHeight;
             }
 
             var jobsCard = new Card(ModText.BC_UI_Jobs.GetString(), jobsWidth, jobsHeight);
@@ -163,7 +181,7 @@ namespace Sisk.BuildColors.UI {
             _rulesCard.Content.Add(ControlFactory.CreateButtonRow(rulesContentWidth, _addRuleButton, _removeRuleButton), 0f);
             _rulesCard.Content.Add(ControlFactory.CreateButtonRow(rulesContentWidth, _moveRuleUpButton, _moveRuleDownButton), 0f);
 
-            _inspectorCard = new Card(ModText.BC_UI_RuleDetails.GetString(), inspectorWidth, paneHeight);
+            _inspectorCard = new Card(ModText.BC_UI_RuleDetails.GetString(), inspectorWidth, inspectorHeight);
             var inspectorContentWidth = Card.ContentWidth(inspectorWidth);
 
             _conditionsTabButton = ControlFactory.CreateButton(ModText.BC_UI_TabConditions.GetString());
@@ -171,7 +189,7 @@ namespace Sisk.BuildColors.UI {
 
             var tabRow = ControlFactory.CreateButtonRow(inspectorContentWidth, _conditionsTabButton, _paintTabButton);
 
-            var tabHeight = Card.ContentHeight(paneHeight) - LayoutMetrics.BUTTON_HEIGHT - LayoutMetrics.ROW_SPACING;
+            var tabHeight = Card.ContentHeight(inspectorHeight) - LayoutMetrics.BUTTON_HEIGHT - LayoutMetrics.ROW_SPACING;
 
             _conditionTree = ControlFactory.CreateList<PaintRuleNode>(inspectorContentWidth, tabHeight - LayoutMetrics.BUTTON_HEIGHT - LayoutMetrics.ROW_SPACING);
             _editConditionsButton = ControlFactory.CreateButton(ModText.BC_UI_EditConditions.GetString());
@@ -218,12 +236,6 @@ namespace Sisk.BuildColors.UI {
             _skinDropdown.DimAlignment = DimAlignments.None;
             _skinDropdown.Width = ControlFactory.ControlWidth(inspectorContentWidth);
 
-            var stackHeight = LayoutMetrics.COLOR_PICKER_HEIGHT
-                + LayoutMetrics.CONTROL_HEIGHT
-                + LayoutMetrics.ROW_SPACING;
-
-            var paintChrome = LayoutMetrics.CHECKBOX_SIZE + LayoutMetrics.CONTROL_HEIGHT + LayoutMetrics.ROW_SPACING * 2f;
-            var paletteCost = ColorPaletteSelector.TOTAL_HEIGHT + LayoutMetrics.LABEL_HEIGHT + LayoutMetrics.ROW_SPACING * 2f;
             var showPalette = paintChrome + stackHeight + paletteCost <= tabHeight;
 
             _solidSection = new HudChain(true) {
@@ -271,17 +283,19 @@ namespace Sisk.BuildColors.UI {
             _inspectorCard.Content.Add(_conditionsView, 0f);
             _inspectorCard.Content.Add(_paintView, 0f);
 
-            var panes = ControlFactory.CreateRow(width, paneHeight, LayoutMetrics.SECTION_SPACING);
+            HudChain panes;
 
             if (wide) {
+                panes = ControlFactory.CreateRow(width, paneHeight, LayoutMetrics.SECTION_SPACING);
                 panes.Add(jobsCard, 0f);
                 panes.Add(_rulesCard, 0f);
             } else {
-                var listColumn = ControlFactory.CreateColumn(jobsWidth, paneHeight);
-                listColumn.Add(jobsCard, 0f);
-                listColumn.Add(_rulesCard, 0f);
+                var listRow = ControlFactory.CreateRow(width, jobsHeight, LayoutMetrics.SECTION_SPACING);
+                listRow.Add(jobsCard, 0f);
+                listRow.Add(_rulesCard, 0f);
 
-                panes.Add(listColumn, 0f);
+                panes = ControlFactory.CreateColumn(width, paneHeight, LayoutMetrics.SECTION_SPACING);
+                panes.Add(listRow, 0f);
             }
 
             panes.Add(_inspectorCard, 0f);

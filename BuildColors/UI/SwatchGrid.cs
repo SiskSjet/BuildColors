@@ -29,6 +29,8 @@ namespace Sisk.BuildColors.UI {
         private bool[] _marked;
 
         public SwatchGrid(float width, float rowHeight, bool interactive = false, HudParentBase parent = null) : base(parent) {
+            rowHeight = MathHelper.Clamp(Math.Min(rowHeight, SlotWidth(width)), MIN_ROW_HEIGHT, MAX_ROW_HEIGHT);
+
             Size = new Vector2(width, HeightFor(rowHeight));
 
             var topRow = CreateRow(width, rowHeight);
@@ -86,6 +88,13 @@ namespace Sisk.BuildColors.UI {
 
         public static float HeightFor(float rowHeight) {
             return rowHeight * 2f + SPACING;
+        }
+
+        /// <summary>
+        /// Width one swatch gets. A row never grows past it, so swatches are never stood on end.
+        /// </summary>
+        public static float SlotWidth(float width) {
+            return (width - SPACING * (SLOTS_PER_ROW - 1)) / SLOTS_PER_ROW;
         }
 
         /// <summary>

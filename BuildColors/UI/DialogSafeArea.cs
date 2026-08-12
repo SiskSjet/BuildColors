@@ -1,4 +1,3 @@
-using RichHudFramework.UI.Client;
 using VRageMath;
 
 namespace Sisk.BuildColors.UI {
@@ -8,18 +7,10 @@ namespace Sisk.BuildColors.UI {
     /// </summary>
     internal static class DialogSafeArea {
         /// <summary>
-        /// Gap kept between a dialog and the edge of the region it is placed in.
-        /// </summary>
-        public const float MARGIN = 20f;
-
-        /// <summary>
-        /// Screen dimensions in the coordinate space used by elements parented to the high DPI root.
+        /// Screen dimensions in the coordinate space the mod lays out in.
         /// </summary>
         public static Vector2 ScreenSize {
-            get {
-                var size = HudMain.ScreenDimHighDPI;
-                return size.X > 0f && size.Y > 0f ? size : new Vector2(1920f, 1080f);
-            }
+            get { return UiSpace.Size; }
         }
 
         /// <summary>
@@ -33,7 +24,7 @@ namespace Sisk.BuildColors.UI {
         /// Width of the free region.
         /// </summary>
         public static float GetAvailableWidth() {
-            return GetRightBound() - (-ScreenSize.X * .5f + MARGIN);
+            return GetRightBound() - (-ScreenSize.X * .5f + LayoutMetrics.SCREEN_GAP);
         }
 
         /// <summary>
@@ -42,7 +33,7 @@ namespace Sisk.BuildColors.UI {
         public static Vector2 GetCenterOffset(Vector2 dialogSize) {
             var screenSize = ScreenSize;
 
-            var leftBound = -screenSize.X * .5f + MARGIN;
+            var leftBound = -screenSize.X * .5f + LayoutMetrics.SCREEN_GAP;
             var rightBound = GetRightBound();
 
             var halfWidth = dialogSize.X * .5f;
@@ -57,8 +48,8 @@ namespace Sisk.BuildColors.UI {
             }
 
             var halfHeight = dialogSize.Y * .5f;
-            var topBound = screenSize.Y * .5f - MARGIN;
-            var bottomBound = -screenSize.Y * .5f + MARGIN;
+            var topBound = screenSize.Y * .5f - LayoutMetrics.SCREEN_GAP;
+            var bottomBound = -screenSize.Y * .5f + LayoutMetrics.SCREEN_GAP;
             var offsetY = 0f;
 
             if (offsetY + halfHeight > topBound) {

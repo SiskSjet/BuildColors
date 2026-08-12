@@ -14,16 +14,6 @@ namespace Sisk.BuildColors.UI {
     public abstract class DialogBase : WindowBase {
         protected const float HEADER_HEIGHT = 63f;
 
-        /// <summary>
-        /// Space kept clear at the bottom of the screen.
-        /// </summary>
-        protected const float BOTTOM_RESERVE = 190f;
-
-        /// <summary>
-        /// Space kept clear at the top of the screen.
-        /// </summary>
-        protected const float TOP_MARGIN = 50f;
-
         private const float CLOSE_BUTTON_HEIGHT = 36f;
         private const float CLOSE_BUTTON_INSET = 12f;
         private const float CLOSE_BUTTON_WIDTH = 48f;
@@ -74,11 +64,9 @@ namespace Sisk.BuildColors.UI {
         /// The tallest a window may be without covering the game's HUD, given what it asked for.
         /// </summary>
         protected static float GetSafeHeight(float preferred, float minimum) {
-            var screen = DialogSafeArea.ScreenSize;
-            var available = screen.Y - TOP_MARGIN - BOTTOM_RESERVE;
-            var height = MathHelper.Clamp(preferred, Math.Min(minimum, available), Math.Max(available, minimum));
+            var available = DialogSafeArea.ScreenSize.Y - LayoutMetrics.SCREEN_GAP * 2f;
 
-            return Math.Min(height, screen.Y - TOP_MARGIN * 2f);
+            return MathHelper.Clamp(preferred, Math.Min(minimum, available), available);
         }
 
         /// <summary>
@@ -99,10 +87,9 @@ namespace Sisk.BuildColors.UI {
             var screen = DialogSafeArea.ScreenSize;
             var centered = DialogSafeArea.GetCenterOffset(Size);
 
-            var banded = (BOTTOM_RESERVE - TOP_MARGIN) * .5f;
-            var topAligned = screen.Y * .5f - TOP_MARGIN - Size.Y * .5f;
+            var topAligned = screen.Y * .5f - LayoutMetrics.SCREEN_GAP - Size.Y * .5f;
 
-            return new Vector2(centered.X, Math.Min(banded, topAligned));
+            return new Vector2(centered.X, Math.Min(centered.Y, topAligned));
         }
 
         protected override void Layout() {
