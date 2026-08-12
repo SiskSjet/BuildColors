@@ -1,3 +1,15 @@
+# [3.0.2](https://github.com/SiskSjet/BuildColors/compare/v3.0.1...3.0.2) (2026-08-12)
+
+
+### Bug Fixes
+
+* panel ran under the vanilla color controls and lost most of its height below 1080p, because the interface was laid out in raw pixels where the framework stops scaling
+* gap to the screen edges and the vanilla controls was uneven, and the reserve at the bottom took height nothing used
+* rule detail was squeezed to a fraction of its width at 4:3, 5:4 and 16:10, where the job and rule lists now share a row above it instead
+* swatches were drawn taller than they were wide in narrow grids
+
+
+
 # [3.0.1](https://github.com/SiskSjet/BuildColors/compare/v3.0.0...3.0.1) (2026-08-10)
 
 
