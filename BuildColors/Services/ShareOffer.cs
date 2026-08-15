@@ -50,7 +50,7 @@ namespace Sisk.BuildColors.Services {
                     return PaintJob != null && PaintJob.Rules != null && PaintJob.Rules.Count > 0;
                 }
 
-                return ColorSet.Masks != null && ColorSet.Masks.Length > 0;
+                return ColorSet.HasSavedColors();
             }
         }
 

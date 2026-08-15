@@ -1,6 +1,7 @@
 ﻿using ProtoBuf;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Serialization;
 using VRageMath;
 
@@ -21,7 +22,9 @@ namespace Sisk.BuildColors.Settings.Models {
         public ColorSet(string name, ColorMask[] masks) {
             Name = name;
             Masks = masks;
+            Hsv = null;
             Colors = null;
+            LegacyMasks = null;
             CreatedTicks = DateTime.UtcNow.Ticks;
             Tags = null;
             Favorite = false;
@@ -40,11 +43,26 @@ namespace Sisk.BuildColors.Settings.Models {
         public Color[] Colors { get; set; }
 
         /// <summary>
-        /// The slots as the game holds them.
+        /// Slots as the game's offset mask, written before version 3.
         /// </summary>
         [ProtoMember(3)]
-        [XmlArray(Order = 3)]
+        [XmlArray(ElementName = "Masks", Order = 3)]
         [XmlArrayItem]
+        public ColorMask[] LegacyMasks { get; set; }
+
+        /// <summary>
+        /// The slots as Space Engineers' own color picker shows them.
+        /// </summary>
+        [ProtoMember(7)]
+        [XmlArray(Order = 7)]
+        [XmlArrayItem]
+        public SeHsv[] Hsv { get; set; }
+
+        /// <summary>
+        /// The slots the game holds, resolved from whichever saved format is present. Not itself saved;
+        /// <see cref="Upgraded"/> keeps <see cref="Hsv"/>.
+        /// </summary>
+        [XmlIgnore]
         public ColorMask[] Masks { get; set; }
 
         [ProtoMember(4)]
@@ -75,7 +93,8 @@ namespace Sisk.BuildColors.Settings.Models {
         }
 
         /// <summary>
-        /// A copy with the masks filled in and padded, so everything downstream can assume they are there.
+        /// A copy with the masks filled in and padded, so everything downstream can assume they are there,
+        /// and re-saved as SE HSV regardless of which format it was loaded from.
         /// </summary>
         public ColorSet Upgraded() {
             var copy = this;
@@ -86,9 +105,21 @@ namespace Sisk.BuildColors.Settings.Models {
             }
 
             copy.Masks = masks;
+            copy.Hsv = masks.Select(mask => (SeHsv)mask).ToArray();
             copy.Colors = null;
+            copy.LegacyMasks = null;
 
             return copy;
+        }
+
+        /// <summary>
+        /// Whether any saved format, current or legacy, actually holds colors.
+        /// </summary>
+        public bool HasSavedColors() {
+            return (Masks != null && Masks.Length > 0)
+                || (Hsv != null && Hsv.Length > 0)
+                || (LegacyMasks != null && LegacyMasks.Length > 0)
+                || (Colors != null && Colors.Length > 0);
         }
 
         public ColorSet WithName(string name) {
@@ -107,11 +138,19 @@ namespace Sisk.BuildColors.Settings.Models {
         }
 
         /// <summary>
-        /// The masks, worked out from the legacy colors when a file written before version 2 has none.
+        /// The masks, preferring the current in-memory ones, then each older saved format in turn.
         /// </summary>
         private ColorMask[] ResolveMasks() {
             if (Masks != null && Masks.Length > 0) {
                 return Masks;
+            }
+
+            if (Hsv != null && Hsv.Length > 0) {
+                return Hsv.Select(hsv => (ColorMask)hsv).ToArray();
+            }
+
+            if (LegacyMasks != null && LegacyMasks.Length > 0) {
+                return LegacyMasks;
             }
 
             if (Colors == null) {
