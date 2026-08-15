@@ -62,9 +62,9 @@ namespace Sisk.BuildColors.UI {
         }
 
         /// <summary>
-        /// Raised with the picked color when a swatch is clicked.
+        /// Raised with the picked slot's mask when a swatch is clicked.
         /// </summary>
-        public event Action<VRageMath.Color> ColorPicked;
+        public event Action<ColorMask> ColorPicked;
 
         private static HudChain CreateRow() {
             return new HudChain(false) {
@@ -106,7 +106,7 @@ namespace Sisk.BuildColors.UI {
             }
 
             HudSoundUtils.PlaySound("HudMouseClick");
-            ColorPicked?.Invoke(((ColorMask)slots[slotIndex]).ToDisplayColor());
+            ColorPicked?.Invoke((ColorMask)slots[slotIndex]);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using RichHudFramework.UI;
 using Sisk.BuildColors.Localization;
 using Sisk.BuildColors.Services;
+using Sisk.BuildColors.Settings.Models;
 using Sisk.BuildColors.Settings.Models.PaintJobs;
 using Sisk.Utils.Localization.Extensions;
 using System;
@@ -737,8 +738,8 @@ namespace Sisk.BuildColors.UI {
             HudSoundUtils.PlaySound("HudMouseClick");
         }
 
-        private void OnPaletteColorPicked(VRageMath.Color color) {
-            _colorPicker.Value = color;
+        private void OnPaletteColorPicked(ColorMask mask) {
+            _colorPicker.Value = mask.ToDisplayColor();
             WriteRule();
         }
 

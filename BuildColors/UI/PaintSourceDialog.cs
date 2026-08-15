@@ -1,5 +1,6 @@
 using RichHudFramework.UI;
 using Sisk.BuildColors.Localization;
+using Sisk.BuildColors.Settings.Models;
 using Sisk.BuildColors.Settings.Models.PaintJobs;
 using Sisk.Utils.Localization.Extensions;
 using System;
@@ -491,8 +492,8 @@ namespace Sisk.BuildColors.UI {
             _addEntryButton.InputEnabled = _entries.Count < MAX_ENTRIES;
         }
 
-        private void OnPaletteColorPicked(VRageMath.Color color) {
-            _entryColorPicker.Value = color;
+        private void OnPaletteColorPicked(ColorMask mask) {
+            _entryColorPicker.Value = mask.ToDisplayColor();
         }
 
         private void OnSaveClicked(object sender, EventArgs e) {

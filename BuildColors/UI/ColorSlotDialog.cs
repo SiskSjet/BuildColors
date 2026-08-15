@@ -83,10 +83,8 @@ namespace Sisk.BuildColors.UI {
             _picker.Color = new Vector3(hsv.X * 360f, hsv.Y * 100f, hsv.Z * 100f);
         }
 
-        private void OnPaletteColorPicked(VRageMath.Color color) {
-            var hsv = VRageMath.ColorExtensions.ColorToHSV(color);
-
-            _picker.Color = new Vector3(hsv.X * 360f, hsv.Y * 100f, hsv.Z * 100f);
+        private void OnPaletteColorPicked(ColorMask mask) {
+            SetMask(mask);
         }
 
         private void OnCancel(object sender, EventArgs args) {
