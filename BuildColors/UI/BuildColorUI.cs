@@ -34,7 +34,7 @@ namespace Sisk.BuildColors.UI {
             HudMain.EnableCursor = pickScreen || hasDialogs;
 
             _mainWindow.Visible = pickScreen || hasDialogs;
-            _mainWindow.PanelVisible = pickScreen;
+            _mainWindow.PanelVisible = pickScreen && !MainWindow.Minimized;
 
             if (pickScreen) {
                 _mainWindow.RebuildIfScreenChanged();

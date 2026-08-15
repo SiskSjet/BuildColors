@@ -301,6 +301,7 @@ namespace Sisk.BuildColors.Localization {
         public static readonly MyStringId BC_UI_Load = MyStringId.GetOrCompute(nameof(BC_UI_Load));
         public static readonly MyStringId BC_UI_LoadFirstRow = MyStringId.GetOrCompute(nameof(BC_UI_LoadFirstRow));
         public static readonly MyStringId BC_UI_LoadSecondRow = MyStringId.GetOrCompute(nameof(BC_UI_LoadSecondRow));
+        public static readonly MyStringId BC_UI_MinimizeSymbol = MyStringId.GetOrCompute(nameof(BC_UI_MinimizeSymbol));
         public static readonly MyStringId BC_UI_Move = MyStringId.GetOrCompute(nameof(BC_UI_Move));
         public static readonly MyStringId BC_UI_MoveDown = MyStringId.GetOrCompute(nameof(BC_UI_MoveDown));
         public static readonly MyStringId BC_UI_MoveUp = MyStringId.GetOrCompute(nameof(BC_UI_MoveUp));
@@ -339,6 +340,7 @@ namespace Sisk.BuildColors.Localization {
         public static readonly MyStringId BC_UI_RemoveEntry = MyStringId.GetOrCompute(nameof(BC_UI_RemoveEntry));
         public static readonly MyStringId BC_UI_RemoveRule = MyStringId.GetOrCompute(nameof(BC_UI_RemoveRule));
         public static readonly MyStringId BC_UI_Rename = MyStringId.GetOrCompute(nameof(BC_UI_Rename));
+        public static readonly MyStringId BC_UI_Restore = MyStringId.GetOrCompute(nameof(BC_UI_Restore));
         public static readonly MyStringId BC_UI_Reverse = MyStringId.GetOrCompute(nameof(BC_UI_Reverse));
         public static readonly MyStringId BC_UI_RuleDetails = MyStringId.GetOrCompute(nameof(BC_UI_RuleDetails));
         public static readonly MyStringId BC_UI_RuleDetailsOf = MyStringId.GetOrCompute(nameof(BC_UI_RuleDetailsOf));

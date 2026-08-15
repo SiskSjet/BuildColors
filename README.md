@@ -31,6 +31,8 @@ This mod is best used with [Rich HUD Master](https://steamcommunity.com/workshop
 
 Open the game's color picker (default `P`). Everything the mod does sits in the free space left of the vanilla controls, in one panel with three pages: **Color Sets**, **Generator** and **Paint Jobs**.
 
+The panel gets in the way while you paint? The minimize button in its top right tucks it away into a small chip in the lower left corner. The chip's **Restore** button brings the panel back, and your paint job hotkeys keep working the whole time.
+
 ## Color Sets
 
 A color set is your fourteen build color slots saved under a name.
