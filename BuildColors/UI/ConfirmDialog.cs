@@ -13,7 +13,7 @@ namespace Sisk.BuildColors.UI {
         private const float WIDTH = 420f;
 
         public ConfirmDialog(string title, string message, string confirmLabel = null, HudParentBase parent = null) : base(parent) {
-            var contentWidth = WIDTH - Padding.X - LayoutMetrics.CONTENT_PADDING_X;
+            var contentWidth = ContentWidth(WIDTH);
 
             var messageLabel = new Label() {
                 Text = message,
@@ -26,7 +26,7 @@ namespace Sisk.BuildColors.UI {
             };
 
             var confirmButton = ControlFactory.CreateButton(confirmLabel ?? ModText.BC_UI_Remove.GetString(), role: confirmLabel == null ? ButtonRole.Danger : ButtonRole.Primary);
-            var cancelButton = ControlFactory.CreateButton(ModText.BC_UI_Cancel.GetString());
+            var cancelButton = CreateCancelButton();
 
             var buttons = ControlFactory.CreateButtonRow(contentWidth, cancelButton, confirmButton);
 
@@ -40,27 +40,15 @@ namespace Sisk.BuildColors.UI {
             Size = new Vector2(WIDTH, height);
             HeaderText = title;
 
-            var layout = new HudChain(true, body) {
-                ParentAlignment = ParentAlignments.Inner,
-                Spacing = LayoutMetrics.SECTION_SPACING,
-                SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                DimAlignment = DimAlignments.UnpaddedSize,
-                Padding = new Vector2(LayoutMetrics.CONTENT_PADDING_X, LayoutMetrics.CONTENT_PADDING_Y),
-            };
+            var layout = CreateContentColumn(LayoutMetrics.SECTION_SPACING);
 
             layout.Add(messageLabel, 0f);
             layout.Add(buttons, 0f);
 
             confirmButton.MouseInput.LeftClicked += OnConfirmed;
-            cancelButton.MouseInput.LeftClicked += OnCancelled;
         }
 
         public event RichHudFramework.EventHandler Confirmed;
-
-        private void OnCancelled(object sender, EventArgs args) {
-            HudSoundUtils.PlaySound("HudMouseClick");
-            Close();
-        }
 
         private void OnConfirmed(object sender, EventArgs args) {
             HudSoundUtils.PlaySound("HudLockingLost");

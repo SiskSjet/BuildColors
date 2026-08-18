@@ -28,7 +28,7 @@ namespace Sisk.BuildColors.UI {
         public InboxDialog(ShareInbox inbox, HudParentBase parent = null) : base(parent) {
             _inbox = inbox;
 
-            var contentWidth = WIDTH - Padding.X - LayoutMetrics.CONTENT_PADDING_X;
+            var contentWidth = ContentWidth(WIDTH);
             var previewHeight = SwatchGrid.HeightFor(SWATCH_ROW_HEIGHT);
 
             _offers = ControlFactory.CreateList<ShareOffer>(contentWidth, LIST_HEIGHT);
@@ -43,7 +43,7 @@ namespace Sisk.BuildColors.UI {
             _declineButton = ControlFactory.CreateButton(ModText.BC_Share_Decline.GetString());
             _declineAllButton = ControlFactory.CreateButton(ModText.BC_Share_DeclineAll.GetString(), role: ButtonRole.Danger);
 
-            var closeButton = ControlFactory.CreateButton(ModText.BC_UI_Done.GetString(), 140f);
+            var closeButton = CreateCancelButton(140f, ModText.BC_UI_Done.GetString());
 
             var height = HEADER_HEIGHT
                 + Padding.Y
@@ -57,13 +57,7 @@ namespace Sisk.BuildColors.UI {
             Size = new Vector2(WIDTH, height);
             HeaderText = ModText.BC_Share_InboxTitle.GetString();
 
-            var layout = new HudChain(true, body) {
-                ParentAlignment = ParentAlignments.Inner,
-                Spacing = LayoutMetrics.ROW_SPACING,
-                SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                DimAlignment = DimAlignments.UnpaddedSize,
-                Padding = new Vector2(LayoutMetrics.CONTENT_PADDING_X, LayoutMetrics.CONTENT_PADDING_Y),
-            };
+            var layout = CreateContentColumn(LayoutMetrics.ROW_SPACING);
 
             layout.Add(_offers, 0f);
             layout.Add(_detailLabel, 0f);
@@ -75,7 +69,6 @@ namespace Sisk.BuildColors.UI {
             _acceptButton.MouseInput.LeftClicked += OnAccept;
             _declineButton.MouseInput.LeftClicked += OnDecline;
             _declineAllButton.MouseInput.LeftClicked += OnDeclineAll;
-            closeButton.MouseInput.LeftClicked += OnClose;
 
             Closed += OnDialogClosed;
 
@@ -182,11 +175,6 @@ namespace Sisk.BuildColors.UI {
             _inbox.Clear();
             HudSoundUtils.PlaySound("HudLockingLost");
             Mod.Static?.RefreshShares();
-        }
-
-        private void OnClose(object sender, EventArgs args) {
-            HudSoundUtils.PlaySound("HudMouseClick");
-            Close();
         }
 
         private void OnDialogClosed(object sender, EventArgs args) {

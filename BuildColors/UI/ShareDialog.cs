@@ -18,13 +18,13 @@ namespace Sisk.BuildColors.UI {
         private readonly ListBox<SharePlayer> _recipients;
 
         public ShareDialog(string title, HudParentBase parent = null) : base(parent) {
-            var contentWidth = WIDTH - Padding.X - LayoutMetrics.CONTENT_PADDING_X;
+            var contentWidth = ContentWidth(WIDTH);
 
             var hintLabel = ControlFactory.CreateCaption(ModText.BC_Share_PickRecipient.GetString(), contentWidth);
 
             _recipients = ControlFactory.CreateList<SharePlayer>(contentWidth, LIST_HEIGHT);
 
-            var cancelButton = ControlFactory.CreateButton(ModText.BC_UI_Cancel.GetString(), 140f);
+            var cancelButton = CreateCancelButton(140f);
             _sendButton = ControlFactory.CreateButton(ModText.BC_Share_Send.GetString(), 140f, ButtonRole.Primary);
 
             var height = HEADER_HEIGHT
@@ -38,19 +38,12 @@ namespace Sisk.BuildColors.UI {
             Size = new Vector2(WIDTH, height);
             HeaderText = title;
 
-            var layout = new HudChain(true, body) {
-                ParentAlignment = ParentAlignments.Inner,
-                Spacing = LayoutMetrics.ROW_SPACING,
-                SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                DimAlignment = DimAlignments.UnpaddedSize,
-                Padding = new Vector2(LayoutMetrics.CONTENT_PADDING_X, LayoutMetrics.CONTENT_PADDING_Y),
-            };
+            var layout = CreateContentColumn(LayoutMetrics.ROW_SPACING);
 
             layout.Add(hintLabel, 0f);
             layout.Add(_recipients, 0f);
             layout.Add(ControlFactory.CreateButtonRow(contentWidth, cancelButton, _sendButton), 0f);
 
-            cancelButton.MouseInput.LeftClicked += OnCancel;
             _sendButton.MouseInput.LeftClicked += OnSend;
 
             FillRecipients(hintLabel);
@@ -85,11 +78,6 @@ namespace Sisk.BuildColors.UI {
             }
 
             _recipients.SetSelectionAt(0);
-        }
-
-        private void OnCancel(object sender, EventArgs args) {
-            HudSoundUtils.PlaySound("HudMouseClick");
-            Close();
         }
 
         private void OnSend(object sender, EventArgs args) {

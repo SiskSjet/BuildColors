@@ -29,7 +29,7 @@ namespace Sisk.BuildColors.UI {
             Size = new Vector2(dialogWidth, DIALOG_HEIGHT);
             HeaderText = isRoot ? ModText.BC_UI_GroupDialogTitleRoot.GetString() : ModText.BC_UI_GroupDialogTitle.GetString();
 
-            var contentWidth = dialogWidth - Padding.X - LayoutMetrics.CONTENT_PADDING_X;
+            var contentWidth = ContentWidth(dialogWidth);
 
             _operatorDropdown = CreateFullWidthDropdown<PaintRuleLogicalOperator>();
             _operatorDropdown.Add(ModText.BC_UI_Operator_And.GetString(), PaintRuleLogicalOperator.And);
@@ -57,7 +57,7 @@ namespace Sisk.BuildColors.UI {
                 Height = LayoutMetrics.CHECKBOX_SIZE,
             };
 
-            var cancelButton = CreateButton(ModText.BC_UI_Cancel.GetString(), 140f);
+            var cancelButton = CreateCancelButton(140f);
             var saveButton = CreateButton(ModText.BC_UI_Save.GetString(), 140f, ButtonRole.Primary);
 
             var buttonRow = new HudChain(false) {
@@ -68,25 +68,17 @@ namespace Sisk.BuildColors.UI {
                 Height = LayoutMetrics.BUTTON_HEIGHT,
             };
 
-            var layout = new HudChain(true, body) {
-                ParentAlignment = ParentAlignments.Inner,
-                DimAlignment = DimAlignments.UnpaddedSize,
-                SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                CollectionContainer = {
-                    { CreateFullWidthCaption(ModText.BC_UI_GroupHint.GetString()), 0f },
-                    { CreateFullWidthLabel(ModText.BC_UI_Operator.GetString()), 0f },
-                    { _operatorDropdown, 0f },
-                    { negateRow, 0f },
-                    { CreateFullWidthCaption(ModText.BC_UI_GroupHint_Empty.GetString()), 0f },
-                    { new EmptyHudElement(), 1f },
-                    { buttonRow, 0f }
-                },
-                Spacing = LayoutMetrics.SECTION_SPACING,
-                Padding = new Vector2(LayoutMetrics.CONTENT_PADDING_X, LayoutMetrics.CONTENT_PADDING_Y)
-            };
+            var layout = CreateContentColumn(LayoutMetrics.SECTION_SPACING);
+
+            layout.Add(CreateFullWidthCaption(ModText.BC_UI_GroupHint.GetString()), 0f);
+            layout.Add(CreateFullWidthLabel(ModText.BC_UI_Operator.GetString()), 0f);
+            layout.Add(_operatorDropdown, 0f);
+            layout.Add(negateRow, 0f);
+            layout.Add(CreateFullWidthCaption(ModText.BC_UI_GroupHint_Empty.GetString()), 0f);
+            layout.Add(new EmptyHudElement(), 1f);
+            layout.Add(buttonRow, 0f);
 
             saveButton.MouseInput.LeftClicked += OnSaveClicked;
-            cancelButton.MouseInput.LeftClicked += OnCancelClicked;
         }
 
         public event RichHudFramework.EventHandler Saved;
@@ -100,11 +92,6 @@ namespace Sisk.BuildColors.UI {
 
             HudSoundUtils.PlaySound("HudBleep");
             Saved?.Invoke(this, EventArgs.Empty);
-            Close();
-        }
-
-        private void OnCancelClicked(object sender, EventArgs e) {
-            HudSoundUtils.PlaySound("HudLockingLost");
             Close();
         }
     }
