@@ -25,6 +25,10 @@ namespace Sisk.BuildColors.UI {
         /// The mod API can only look a control up by name or hand out the first control on a key, so
         /// finding every collision on a key means walking the whole list.
         /// </para>
+        /// <para>
+        /// Gamepad only controls are left out on purpose. IsEnabled turns a control off for every device
+        /// bound to it, so nothing here may name one a keyboard key can never reach.
+        /// </para>
         /// </summary>
         private static readonly string[] GAME_CONTROLS = {
             "MAIN_MENU", "FORWARD", "BACKWARD", "STRAFE_LEFT", "STRAFE_RIGHT", "ROLL_LEFT", "ROLL_RIGHT", "SPRINT",
@@ -64,7 +68,7 @@ namespace Sisk.BuildColors.UI {
             "SPECTATOR_LOCK_TO_GRID", "SPECTATOR_TELEPORT", "SPECTATOR_SPEED_BOOST", "SPECTATOR_CHANGE_SPEED_UP",
             "SPECTATOR_CHANGE_SPEED_DOWN", "SPECTATOR_CHANGE_ROTATION_SPEED_UP",
             "SPECTATOR_CHANGE_ROTATION_SPEED_DOWN", "EXPORT_MODEL", "QUICK_LOAD_RECONNECT", "QUICK_SAVE",
-            "BUFFS_SHOW_ALL", "UP", "DOWN", "LEFT_STICK", "RIGHT_STICK",
+            "BUFFS_SHOW_ALL",
         };
 
         private static readonly List<IMyControl> _requested = new List<IMyControl>();

@@ -127,12 +127,12 @@ namespace Sisk.BuildColors.UI {
             }
 
             _binds.RegisterBinds(new BindGroupInitializer {
-                { "reorderGrab", RichHudControls.Space, new KeyComboInit { RichHudControls.GpadA } },
-                { "reorderCancel", RichHudControls.Escape, new KeyComboInit { RichHudControls.GpadB } },
-                { "reorderPrevious", RichHudControls.Up, new KeyComboInit { RichHudControls.DPadUp } },
-                { "reorderNext", RichHudControls.Down, new KeyComboInit { RichHudControls.DPadDown } },
-                { "reorderShallower", RichHudControls.Left, new KeyComboInit { RichHudControls.DPadLeft } },
-                { "reorderDeeper", RichHudControls.Right, new KeyComboInit { RichHudControls.DPadRight } },
+                { "reorderGrab", RichHudControls.Space },
+                { "reorderCancel", RichHudControls.Escape },
+                { "reorderPrevious", RichHudControls.Up },
+                { "reorderNext", RichHudControls.Down },
+                { "reorderShallower", RichHudControls.Left },
+                { "reorderDeeper", RichHudControls.Right },
             });
 
             _defaultBinds = _binds.GetBindDefinitions();
