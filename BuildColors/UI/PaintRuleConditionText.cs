@@ -1,8 +1,7 @@
 ﻿using Sisk.BuildColors.Localization;
+using Sisk.BuildColors.Settings.Models;
 using Sisk.BuildColors.Settings.Models.PaintJobs;
 using Sisk.Utils.Localization.Extensions;
-
-using ColorModel = Sisk.BuildColors.Settings.Models.Color;
 
 namespace Sisk.BuildColors.UI {
 
@@ -86,8 +85,10 @@ namespace Sisk.BuildColors.UI {
             }
         }
 
-        private static string DescribeColor(ColorModel color) {
-            return string.Format("({0}, {1}, {2})", color.R, color.G, color.B);
+        private static string DescribeColor(ColorMask mask) {
+            var hsv = (SeHsv)mask;
+
+            return string.Format("({0:0}°, {1:0}%, {2:0}%)", hsv.H, hsv.S, hsv.V);
         }
     }
 }

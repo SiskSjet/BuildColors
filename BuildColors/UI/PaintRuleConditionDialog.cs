@@ -9,8 +9,6 @@ using VRageMath;
 
 using static Sisk.BuildColors.UI.ControlFactory;
 
-using ColorModel = Sisk.BuildColors.Settings.Models.Color;
-
 namespace Sisk.BuildColors.UI {
 
     /// <summary>
@@ -42,7 +40,7 @@ namespace Sisk.BuildColors.UI {
         private readonly Label _comparisonLabel;
 
         private readonly HudChain _colorSection;
-        private readonly ColorPickerHSV _colorPicker;
+        private readonly ColorPickerHSV2 _colorPicker;
         private readonly ColorPaletteSelector _palette;
 
         private readonly HudChain _definitionSection;
@@ -79,7 +77,7 @@ namespace Sisk.BuildColors.UI {
             Size = new Vector2(dialogWidth, dialogHeight);
             HeaderText = ModText.BC_UI_ConditionEditorTitle.GetString();
 
-            var contentWidth = dialogWidth - Padding.X - LayoutMetrics.CONTENT_PADDING_X;
+            var contentWidth = ContentWidth(dialogWidth);
 
             var typeLabel = CreateFullWidthLabel(ModText.BC_UI_ConditionType.GetString());
             _conditionTypeDropdown = CreateFullWidthDropdown<PaintRuleConditionType>();
@@ -96,7 +94,7 @@ namespace Sisk.BuildColors.UI {
             _comparisonDropdown.Add(ModText.BC_UI_Comparison_Matches.GetString(), PaintRuleComparison.Equals);
             _comparisonDropdown.Add(ModText.BC_UI_Comparison_DoesNotMatch.GetString(), PaintRuleComparison.NotEquals);
 
-            _colorPicker = new ColorPickerHSV() {
+            _colorPicker = new ColorPickerHSV2() {
                 DimAlignment = DimAlignments.Width,
                 Height = LayoutMetrics.COLOR_PICKER_HEIGHT,
                 Name = ModText.BC_UI_ConditionType_BlockColor.GetString(),
@@ -222,7 +220,7 @@ namespace Sisk.BuildColors.UI {
 
             _statusLabel = CreateFullWidthCaption(string.Empty, STATUS_HEIGHT);
 
-            var cancelButton = CreateButton(ModText.BC_UI_Cancel.GetString(), 140f);
+            var cancelButton = CreateCancelButton(140f);
             var saveButton = CreateButton(ModText.BC_UI_Save.GetString(), 140f, ButtonRole.Primary);
 
             var buttonRow = new HudChain(false) {
@@ -241,29 +239,21 @@ namespace Sisk.BuildColors.UI {
                 Height = LayoutMetrics.CONDITION_SECTION_HEIGHT,
             };
 
-            var layout = new HudChain(true, body) {
-                ParentAlignment = ParentAlignments.Inner,
-                DimAlignment = DimAlignments.UnpaddedSize,
-                SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                CollectionContainer = {
-                    typeLabel,
-                    _conditionTypeDropdown,
-                    _comparisonLabel,
-                    _comparisonDropdown,
-                    CreateFullWidthSeparator(),
-                    { sectionHost, 1f },
-                    _statusLabel,
-                    buttonRow
-                },
-                Spacing = ROW_SPACING,
-                Padding = new Vector2(LayoutMetrics.CONTENT_PADDING_X, LayoutMetrics.CONTENT_PADDING_Y)
-            };
+            var layout = CreateContentColumn(ROW_SPACING);
+
+            layout.Add(typeLabel, 0f);
+            layout.Add(_conditionTypeDropdown, 0f);
+            layout.Add(_comparisonLabel, 0f);
+            layout.Add(_comparisonDropdown, 0f);
+            layout.Add(CreateFullWidthSeparator(), 0f);
+            layout.Add(sectionHost, 1f);
+            layout.Add(_statusLabel, 0f);
+            layout.Add(buttonRow, 0f);
 
             _conditionTypeDropdown.ValueChanged += OnConditionTypeChanged;
             _integrityDropdown.ValueChanged += OnIntegrityStateChanged;
             _definitionDropdown.ValueChanged += OnDefinitionSelected;
             saveButton.MouseInput.LeftClicked += OnSaveClicked;
-            cancelButton.MouseInput.LeftClicked += OnCancelClicked;
 
             LoadCondition();
         }
@@ -294,8 +284,7 @@ namespace Sisk.BuildColors.UI {
             _conditionTypeDropdown.SetSelection(_condition.Type);
             _comparisonDropdown.SetSelection(_condition.Comparison);
 
-            var color = _condition.Color;
-            _colorPicker.Value = new VRageMath.Color(color.R, color.G, color.B);
+            _colorPicker.Color = _condition.Hsv;
 
             _definitionTypeField.Text = _condition.Definition.TypeId ?? string.Empty;
             _definitionSubtypeField.Text = _condition.Definition.SubtypeId ?? string.Empty;
@@ -358,7 +347,7 @@ namespace Sisk.BuildColors.UI {
         }
 
         private void OnPaletteColorPicked(ColorMask mask) {
-            _colorPicker.Value = mask.ToDisplayColor();
+            _colorPicker.Color = mask;
         }
 
         private void OnDefinitionSelected(object sender, EventArgs e) {
@@ -380,11 +369,6 @@ namespace Sisk.BuildColors.UI {
             WasSaved = true;
             HudSoundUtils.PlaySound("HudBleep");
             Saved?.Invoke(this, EventArgs.Empty);
-            Close();
-        }
-
-        private void OnCancelClicked(object sender, EventArgs e) {
-            HudSoundUtils.PlaySound("HudLockingLost");
             Close();
         }
 
@@ -413,8 +397,7 @@ namespace Sisk.BuildColors.UI {
                 ? _comparisonDropdown.Value.AssocMember
                 : PaintRuleComparison.Equals;
 
-            var color = _colorPicker.Value;
-            _condition.Color = new ColorModel(color.R, color.G, color.B);
+            _condition.Hsv = _colorPicker.Color;
 
             _condition.Definition = new PaintRuleDefinitionValue {
                 TypeId = typeId,

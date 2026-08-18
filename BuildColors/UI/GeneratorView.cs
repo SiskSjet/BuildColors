@@ -1,4 +1,4 @@
-﻿using RichHudFramework.UI;
+using RichHudFramework.UI;
 using Sandbox.ModAPI;
 using Sisk.BuildColors.Localization;
 using Sisk.BuildColors.Settings.Models;
@@ -230,13 +230,13 @@ namespace Sisk.BuildColors.UI {
         private HSL ReadPickerColor() {
             var color = _baseColorPicker.Color;
 
-            return new HSV(color.X, color.Y / 100f, color.Z / 100f).ToHSL();
+            return new HSV(color.H, color.S / 100f, color.V / 100f).ToHSL();
         }
 
         private void WritePickerColor(HSL color) {
             var hsv = color.ToHSV();
 
-            _baseColorPicker.Color = new Vector3(hsv.H, hsv.S * 100f, hsv.V * 100f);
+            _baseColorPicker.Color = new SeHsv(hsv.H, hsv.S * 100f, hsv.V * 100f);
         }
 
         private void RefreshPalette() {

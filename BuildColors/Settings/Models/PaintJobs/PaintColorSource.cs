@@ -2,8 +2,6 @@ using ProtoBuf;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 
-using ColorModel = Sisk.BuildColors.Settings.Models.Color;
-
 namespace Sisk.BuildColors.Settings.Models.PaintJobs {
 
     /// <summary>
@@ -132,7 +130,7 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
         /// <summary>
         /// Fills the list a source of this type reads, so a type freshly switched to always has something to show.
         /// </summary>
-        public void EnsureEntries(ColorModel seedColor) {
+        public void EnsureEntries(ColorMask seedColor) {
             if (UsesStops) {
                 if (Stops == null) {
                     Stops = new List<PaintColorStop>();

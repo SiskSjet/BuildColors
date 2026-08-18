@@ -1,4 +1,5 @@
 using Sandbox.Definitions;
+using Sisk.BuildColors.Settings.Models;
 using Sisk.BuildColors.Settings.Models.PaintJobs;
 using System;
 using System.Collections.Generic;
@@ -7,8 +8,6 @@ using VRage.Game.ModAPI;
 using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
-
-using ColorModel = Sisk.BuildColors.Settings.Models.Color;
 
 namespace Sisk.BuildColors.Services {
 
@@ -381,8 +380,8 @@ namespace Sisk.BuildColors.Services {
     internal sealed class ColorCondition : IBlockCondition {
         private readonly Vector3 _mask;
 
-        public ColorCondition(ColorModel color) {
-            _mask = color;
+        public ColorCondition(ColorMask mask) {
+            _mask = mask;
         }
 
         public bool Matches(ref BlockFacts facts) {

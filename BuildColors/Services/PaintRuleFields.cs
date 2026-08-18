@@ -1,4 +1,5 @@
 using Sisk.BuildColors.Localization;
+using Sisk.BuildColors.Settings.Models;
 using Sisk.BuildColors.Settings.Models.PaintJobs;
 using Sisk.BuildColors.UI;
 using Sisk.Utils.Localization.Extensions;
@@ -61,7 +62,7 @@ namespace Sisk.BuildColors.Services {
                             return false;
                         }
 
-                        condition.Color = color;
+                        condition.Color = ColorMask.FromColor(color);
                         valueFieldGiven = ApplyInferredType(condition, PaintRuleConditionType.BlockColor, isNew, typeGiven, valueFieldGiven);
                         break;
 
@@ -185,7 +186,7 @@ namespace Sisk.BuildColors.Services {
                             return false;
                         }
 
-                        action.TargetColor = color;
+                        action.TargetColor = ColorMask.FromColor(color);
                         colorGiven = true;
                         break;
 
@@ -444,7 +445,7 @@ namespace Sisk.BuildColors.Services {
                     return false;
                 }
 
-                stops.Add(new PaintColorStop(color, position) { SkinId = skinId });
+                stops.Add(new PaintColorStop(ColorMask.FromColor(color), position) { SkinId = skinId });
                 positions.Add(hasPosition ? position : -1f);
             }
 
@@ -491,7 +492,7 @@ namespace Sisk.BuildColors.Services {
                     return false;
                 }
 
-                palette.Add(new PaintPaletteEntry(color) { SkinId = skinId, Weight = hasWeight ? weight : 1f });
+                palette.Add(new PaintPaletteEntry(ColorMask.FromColor(color)) { SkinId = skinId, Weight = hasWeight ? weight : 1f });
             }
 
             return palette.Count > 0;

@@ -10,7 +10,6 @@ using VRageMath;
 
 using static Sisk.BuildColors.UI.ControlFactory;
 
-using ColorModel = Sisk.BuildColors.Settings.Models.Color;
 
 namespace Sisk.BuildColors.UI {
 
@@ -46,7 +45,7 @@ namespace Sisk.BuildColors.UI {
 
         private readonly PaintColorSource _source;
         private readonly PaintSourceType _type;
-        private readonly ColorModel _seedColor;
+        private readonly ColorMask _seedColor;
         private readonly List<SourceEntry> _entries = new List<SourceEntry>();
 
         private readonly Label _typeHintLabel;
@@ -85,7 +84,7 @@ namespace Sisk.BuildColors.UI {
         private readonly BorderedButton _addEntryButton;
         private readonly BorderedButton _removeEntryButton;
 
-        private readonly ColorPickerHSV _entryColorPicker;
+        private readonly ColorPickerHSV2 _entryColorPicker;
         private readonly ColorPaletteSelector _entryPalette;
         private readonly HudChain _positionRow;
         private readonly TextField _positionField;
@@ -97,7 +96,7 @@ namespace Sisk.BuildColors.UI {
 
         private SourceEntry _loadedEntry;
 
-        public PaintSourceDialog(PaintColorSource source, ColorModel seedColor, HudParentBase parent = null) : base(parent) {
+        public PaintSourceDialog(PaintColorSource source, ColorMask seedColor, HudParentBase parent = null) : base(parent) {
             _source = source;
             _seedColor = seedColor;
 
@@ -109,7 +108,7 @@ namespace Sisk.BuildColors.UI {
             Size = new Vector2(dialogWidth, dialogHeight);
             HeaderText = ModText.BC_UI_SourceEditorTitleFor.GetString(PaintSourceText.DescribeType(_type));
 
-            var contentWidth = dialogWidth - Padding.X - LayoutMetrics.CONTENT_PADDING_X;
+            var contentWidth = ContentWidth(dialogWidth);
             var contentHeight = dialogHeight - Padding.Y - HEADER_HEIGHT - LayoutMetrics.CONTENT_PADDING_Y;
 
             var columnHeight = contentHeight
@@ -198,7 +197,7 @@ namespace Sisk.BuildColors.UI {
             listColumn.Add(_entryList, 0f);
             listColumn.Add(CreateButtonRow(listWidth, _addEntryButton, _removeEntryButton), 0f);
 
-            _entryColorPicker = new ColorPickerHSV() {
+            _entryColorPicker = new ColorPickerHSV2() {
                 Width = entryWidth,
                 Height = LayoutMetrics.COLOR_PICKER_HEIGHT,
                 Name = ModText.BC_UI_EntryColor.GetString(),
@@ -236,7 +235,7 @@ namespace Sisk.BuildColors.UI {
 
             _statusLabel = CreateCaption(string.Empty, contentWidth, LayoutMetrics.STATUS_HEIGHT);
 
-            var cancelButton = CreateButton(ModText.BC_UI_Cancel.GetString(), 150f);
+            var cancelButton = CreateCancelButton(150f);
             var saveButton = CreateButton(ModText.BC_UI_Save.GetString(), 150f, ButtonRole.Primary);
 
             var buttonRow = new HudChain(false) {
@@ -247,21 +246,17 @@ namespace Sisk.BuildColors.UI {
                 Height = LayoutMetrics.BUTTON_HEIGHT,
             };
 
-            var layout = new HudChain(true, body) {
-                ParentAlignment = ParentAlignments.Inner,
-                DimAlignment = DimAlignments.UnpaddedSize,
-                SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                CollectionContainer = { columns, _statusLabel, buttonRow },
-                Spacing = LayoutMetrics.SECTION_SPACING,
-                Padding = new Vector2(LayoutMetrics.CONTENT_PADDING_X, LayoutMetrics.CONTENT_PADDING_Y)
-            };
+            var layout = CreateContentColumn(LayoutMetrics.SECTION_SPACING);
+
+            layout.Add(columns, 0f);
+            layout.Add(_statusLabel, 0f);
+            layout.Add(buttonRow, 0f);
 
             _entryList.ValueChanged += OnEntrySelectionChanged;
             _addEntryButton.MouseInput.LeftClicked += OnAddEntry;
             _removeEntryButton.MouseInput.LeftClicked += OnRemoveEntry;
 
             saveButton.MouseInput.LeftClicked += OnSaveClicked;
-            cancelButton.MouseInput.LeftClicked += OnCancelClicked;
 
             LoadSource();
         }
@@ -271,7 +266,8 @@ namespace Sisk.BuildColors.UI {
         public bool WasSaved { get; private set; }
 
         private static string DescribeEntry(int index, SourceEntry entry, PaintSourceType type) {
-            var color = string.Format("#{0:X2}{1:X2}{2:X2}", entry.Color.R, entry.Color.G, entry.Color.B);
+            var display = entry.Color.ToDisplayColor();
+            var color = string.Format("#{0:X2}{1:X2}{2:X2}", display.R, display.G, display.B);
             var detail = string.Empty;
 
             if (type == PaintSourceType.Gradient) {
@@ -411,7 +407,7 @@ namespace Sisk.BuildColors.UI {
                 return;
             }
 
-            _entryColorPicker.Value = new VRageMath.Color(entry.Color.R, entry.Color.G, entry.Color.B);
+            _entryColorPicker.Color = entry.Color;
             _positionField.Text = entry.Position.ToString("0.##", CultureInfo.CurrentCulture);
             _weightField.Text = entry.Weight.ToString("0.##", CultureInfo.CurrentCulture);
 
@@ -429,8 +425,7 @@ namespace Sisk.BuildColors.UI {
                 return;
             }
 
-            var color = _entryColorPicker.Value;
-            entry.Color = new ColorModel(color.R, color.G, color.B);
+            entry.Color = _entryColorPicker.Color;
 
             float position;
             if (TryParseNumber(_positionField.Text.ToString(), out position)) {
@@ -493,7 +488,7 @@ namespace Sisk.BuildColors.UI {
         }
 
         private void OnPaletteColorPicked(ColorMask mask) {
-            _entryColorPicker.Value = mask.ToDisplayColor();
+            _entryColorPicker.Color = mask;
         }
 
         private void OnSaveClicked(object sender, EventArgs e) {
@@ -505,11 +500,6 @@ namespace Sisk.BuildColors.UI {
             WasSaved = true;
             HudSoundUtils.PlaySound("HudBleep");
             Saved?.Invoke(this, EventArgs.Empty);
-            Close();
-        }
-
-        private void OnCancelClicked(object sender, EventArgs e) {
-            HudSoundUtils.PlaySound("HudLockingLost");
             Close();
         }
 
@@ -596,7 +586,7 @@ namespace Sisk.BuildColors.UI {
         /// One color as the dialog edits it.
         /// </summary>
         private sealed class SourceEntry {
-            public ColorModel Color;
+            public ColorMask Color;
             public float Position;
             public string SkinId;
             public float Weight;

@@ -6,7 +6,9 @@ using VRageMath;
 namespace Sisk.BuildColors.Settings.Models {
 
     /// <summary>
-    /// A build color slot as Space Engineers' own color picker shows it.
+    /// A build color slot as Space Engineers' own color picker shows it, and the one shape every saved
+    /// color is kept in. <see cref="ColorMask"/> is what the game works in, RGB <see cref="Color"/> only
+    /// command input, display and older files.
     /// </summary>
     [ProtoContract]
     public struct SeHsv {

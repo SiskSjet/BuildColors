@@ -1,4 +1,4 @@
-﻿using ProtoBuf;
+using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +35,7 @@ namespace Sisk.BuildColors.Settings.Models {
         public string Name { get; set; }
 
         /// <summary>
-        /// Colors as written before version 2.
+        /// Colors as written before version 2. Read so old files still restore, never written again.
         /// </summary>
         [ProtoMember(2)]
         [XmlArray(Order = 2)]
@@ -43,7 +43,7 @@ namespace Sisk.BuildColors.Settings.Models {
         public Color[] Colors { get; set; }
 
         /// <summary>
-        /// Slots as the game's offset mask, written before version 3.
+        /// Slots as the game's offset mask, written before version 3. Read only, never written again.
         /// </summary>
         [ProtoMember(3)]
         [XmlArray(ElementName = "Masks", Order = 3)]

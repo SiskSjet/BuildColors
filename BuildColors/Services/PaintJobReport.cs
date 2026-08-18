@@ -63,7 +63,9 @@ namespace Sisk.BuildColors.Services {
             }
 
             if (action.ApplyColor) {
-                parts.Add(ModText.BC_Cmd_ActionColor.GetString(action.TargetColor.R, action.TargetColor.G, action.TargetColor.B));
+                var color = action.TargetColor.ToDisplayColor();
+
+                parts.Add(ModText.BC_Cmd_ActionColor.GetString(color.R, color.G, color.B));
             }
 
             if (action.ApplySkin) {

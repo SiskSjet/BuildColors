@@ -386,16 +386,7 @@ namespace Sisk.BuildColors {
         }
 
         private void LoadServerColor() {
-            var serverMemory = FileHandler.Load<ServerMemory>(SERVER_MEMORY_FILE);
-
-            if (serverMemory != null) {
-                if (serverMemory.Version < ColorSets.VERSION) {
-                }
-            } else {
-                serverMemory = new ServerMemory();
-            }
-
-            ServerMemory = serverMemory;
+            ServerMemory = FileHandler.Load<ServerMemory>(SERVER_MEMORY_FILE) ?? new ServerMemory();
         }
 
         private void OnMessageEntered(string messagetext, ref bool sendtoothers) {
