@@ -266,8 +266,7 @@ namespace Sisk.BuildColors.UI {
         public bool WasSaved { get; private set; }
 
         private static string DescribeEntry(int index, SourceEntry entry, PaintSourceType type) {
-            var display = entry.Color.ToDisplayColor();
-            var color = string.Format("#{0:X2}{1:X2}{2:X2}", display.R, display.G, display.B);
+            var color = ((SeHsv)entry.Color).ToString();
             var detail = string.Empty;
 
             if (type == PaintSourceType.Gradient) {

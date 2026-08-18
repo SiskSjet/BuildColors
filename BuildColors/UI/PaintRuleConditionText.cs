@@ -1,4 +1,4 @@
-﻿using Sisk.BuildColors.Localization;
+using Sisk.BuildColors.Localization;
 using Sisk.BuildColors.Settings.Models;
 using Sisk.BuildColors.Settings.Models.PaintJobs;
 using Sisk.Utils.Localization.Extensions;
@@ -18,7 +18,7 @@ namespace Sisk.BuildColors.UI {
 
             switch (condition.Type) {
                 case PaintRuleConditionType.BlockColor:
-                    return ModText.BC_UI_Desc_Color.GetString(comparison, DescribeColor(condition.Color));
+                    return ModText.BC_UI_Desc_Color.GetString(comparison, ((SeHsv)condition.Color).ToString());
 
                 case PaintRuleConditionType.BlockDefinition:
                     var typeId = string.IsNullOrWhiteSpace(condition.Definition.TypeId) ? ModText.BC_UI_Desc_Any.GetString() : condition.Definition.TypeId;
@@ -83,12 +83,6 @@ namespace Sisk.BuildColors.UI {
                 default:
                     return ModText.BC_UI_Desc_Intact.GetString();
             }
-        }
-
-        private static string DescribeColor(ColorMask mask) {
-            var hsv = (SeHsv)mask;
-
-            return string.Format("({0:0}°, {1:0}%, {2:0}%)", hsv.H, hsv.S, hsv.V);
         }
     }
 }

@@ -30,6 +30,13 @@ namespace Sisk.BuildColors.Settings.Models {
         [XmlAttribute("v")]
         public float V { get; set; }
 
+        /// <summary>
+        /// How a color reads anywhere the UI puts one into text, in the picker's own units.
+        /// </summary>
+        public override string ToString() {
+            return string.Format("({0:0}°, {1:0}%, {2:0}%)", H, S, V);
+        }
+
         public static implicit operator ColorMask(SeHsv hsv) {
             var normalized = new Vector3(hsv.H / 360f, hsv.S / 100f, hsv.V / 100f);
 
