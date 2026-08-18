@@ -354,7 +354,7 @@ namespace Sisk.BuildColors.Services {
 
                 var span = to.Position - from.Position;
                 var local = span > 0f ? (t - from.Position) / span : 0f;
-                ColorMask blended = PaintColorBlend.Lerp(from.Color, to.Color, local, _blend);
+                var blended = (ColorMask)PaintColorBlend.Lerp(from.Hsv, to.Hsv, local, _blend);
 
                 return new PaintEntry {
                     Mask = blended,
