@@ -1,4 +1,4 @@
-﻿using Sandbox.ModAPI;
+using Sandbox.ModAPI;
 using Sisk.BuildColors.Localization;
 using Sisk.BuildColors.Settings.Models.PaintJobs;
 using Sisk.Utils.Localization.Extensions;
@@ -64,7 +64,6 @@ namespace Sisk.BuildColors.Services {
             }
 
             _mod.PaintJobs.ActiveJobId = id;
-            _mod.SavePaintJobs();
         }
 
         /// <summary>
