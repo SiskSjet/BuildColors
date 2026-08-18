@@ -7,9 +7,38 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
 
     [ProtoContract]
     public class PaintRuleAction {
+        private bool _hasHsv;
+        private SeHsv _hsv;
+
+        [ProtoMember(6)]
+        [XmlElement]
+        public SeHsv TargetHsv {
+            get { return _hsv; }
+            set {
+                _hsv = value;
+                _hasHsv = true;
+            }
+        }
+
+        /// <summary>
+        /// RGB as written before SE HSV. Read so old files still paint the same, never written again.
+        /// </summary>
         [ProtoMember(1)]
-        [XmlElement(Order = 1)]
-        public ColorModel TargetColor { get; set; }
+        [XmlElement("TargetColor")]
+        public ColorModel LegacyTargetColor {
+            get { return default(ColorModel); }
+            set {
+                if (!_hasHsv) {
+                    TargetHsv = (SeHsv)ColorMask.FromColor(value);
+                }
+            }
+        }
+
+        [XmlIgnore]
+        public ColorMask TargetColor {
+            get { return TargetHsv; }
+            set { TargetHsv = value; }
+        }
 
         [ProtoMember(2)]
         [XmlAttribute("applyColor")]
@@ -27,7 +56,7 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
         /// How the color and skin are derived per block.
         /// </summary>
         [ProtoMember(5)]
-        [XmlElement(Order = 5)]
+        [XmlElement]
         public PaintColorSource Source { get; set; }
 
         /// <summary>
@@ -37,12 +66,16 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
             get { return Source != null ? Source.Type : PaintSourceType.Solid; }
         }
 
+        public bool ShouldSerializeLegacyTargetColor() {
+            return false;
+        }
+
         /// <summary>
         /// Creates an independent copy.
         /// </summary>
         public PaintRuleAction Clone() {
             return new PaintRuleAction {
-                TargetColor = TargetColor,
+                TargetHsv = TargetHsv,
                 ApplyColor = ApplyColor,
                 TargetSkinId = TargetSkinId,
                 ApplySkin = ApplySkin,

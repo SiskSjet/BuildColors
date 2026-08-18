@@ -111,5 +111,39 @@ namespace Sisk.BuildColors.UI {
             Closed?.Invoke(this, System.EventArgs.Empty);
             Unregister();
         }
+
+        /// <summary>
+        /// Width left once the dialog's padding and the content column's padding are taken out.
+        /// </summary>
+        protected float ContentWidth(float dialogWidth) {
+            return dialogWidth - Padding.X - LayoutMetrics.CONTENT_PADDING_X;
+        }
+
+        /// <summary>
+        /// The column every dialog lays its content out in.
+        /// </summary>
+        protected HudChain CreateContentColumn(float spacing) {
+            return new HudChain(true, body) {
+                ParentAlignment = ParentAlignments.Inner,
+                Spacing = spacing,
+                SizingMode = HudChainSizingModes.FitMembersOffAxis,
+                DimAlignment = DimAlignments.UnpaddedSize,
+                Padding = new Vector2(LayoutMetrics.CONTENT_PADDING_X, LayoutMetrics.CONTENT_PADDING_Y),
+            };
+        }
+
+        /// <summary>
+        /// A button that closes the dialog, so every cancel sounds and behaves the same.
+        /// </summary>
+        internal ActionButton CreateCancelButton(float width = 0f, string label = null) {
+            var button = ControlFactory.CreateButton(label ?? ModText.BC_UI_Cancel.GetString(), width);
+
+            button.MouseInput.LeftClicked += (sender, args) => {
+                HudSoundUtils.PlaySound("HudMouseClick");
+                Close();
+            };
+
+            return button;
+        }
     }
 }

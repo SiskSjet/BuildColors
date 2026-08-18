@@ -13,8 +13,9 @@ namespace Sisk.BuildColors.Settings {
     public class ColorSets : HashSet<ColorSet> {
         /// <summary>
         /// Version 2 keeps the slots as the game holds them instead of as eight bit RGB.
+        /// Version 3 saves them as SE HSV, the game's own picker values, instead of the game's offset mask.
         /// </summary>
-        public const int VERSION = 2;
+        public const int VERSION = 3;
 
         public ColorSets() : base(new ColorSetComparer()) { }
 
@@ -23,7 +24,7 @@ namespace Sisk.BuildColors.Settings {
         public int Version { get; set; } = VERSION;
 
         /// <summary>
-        /// Fills in the masks of any set written before version 2.
+        /// Fills in the masks of any set written before the current version, and re-saves it in that version.
         /// </summary>
         public void Upgrade() {
             var upgraded = this.Select(set => set.Upgraded()).ToList();

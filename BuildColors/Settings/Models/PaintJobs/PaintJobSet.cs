@@ -17,10 +17,11 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
         public int Version { get; set; } = VERSION;
 
         /// <summary>
-        /// The job the hotkeys act on.
+        /// The job the hotkeys act on. Session only: a set serializes just its items, so nothing declared
+        /// here reaches the file, <see cref="Version"/> included.
         /// </summary>
         [ProtoMember(2)]
-        [XmlAttribute("active")]
+        [XmlIgnore]
         public Guid ActiveJobId { get; set; }
     }
 }

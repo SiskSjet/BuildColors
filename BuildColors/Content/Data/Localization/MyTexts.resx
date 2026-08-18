@@ -1282,4 +1282,10 @@
   <data name="BC_Share_Failed" xml:space="preserve">
     <value>Could not send '{0}'.</value>
   </data>
+  <data name="BC_UI_MinimizeSymbol" xml:space="preserve">
+    <value>-</value>
+  </data>
+  <data name="BC_UI_Restore" xml:space="preserve">
+    <value>Restore</value>
+  </data>
 </root>

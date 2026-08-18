@@ -16,6 +16,8 @@ namespace Sisk.BuildColors.UI {
     internal class BuildColorsPanel : HudElementBase {
         private const float HEADER_HEIGHT = 54f;
 
+        private const float MINIMIZE_BUTTON_WIDTH = 48f;
+
         /// <summary>
         /// Width of the navigation rail, and the panel width below which it gives some of that back.
         /// </summary>
@@ -63,6 +65,16 @@ namespace Sisk.BuildColors.UI {
                 Height = HEADER_HEIGHT - LayoutMetrics.SEPARATOR_HEIGHT - LayoutMetrics.TIGHT_SPACING,
             };
 
+            var minimizeButton = ControlFactory.CreateButton(ModText.BC_UI_MinimizeSymbol.GetString(), MINIMIZE_BUTTON_WIDTH, role: ButtonRole.Danger);
+            minimizeButton.Height = LayoutMetrics.BUTTON_HEIGHT;
+            minimizeButton.ParentAlignment = ParentAlignments.Top | ParentAlignments.Right;
+            minimizeButton.Offset = new Vector2(-(MINIMIZE_BUTTON_WIDTH + LayoutMetrics.CONTENT_PADDING_X), -(LayoutMetrics.BUTTON_HEIGHT + LayoutMetrics.CONTENT_PADDING_Y));
+
+            minimizeButton.MouseInput.LeftClicked += (sender, args) => {
+                HudSoundUtils.PlaySound("HudMouseClick");
+                MinimizeRequested?.Invoke(this, EventArgs.Empty);
+            };
+
             var header = ControlFactory.CreateColumn(contentWidth, HEADER_HEIGHT, LayoutMetrics.TIGHT_SPACING);
             header.Add(title, 0f);
             header.Add(ControlFactory.CreateSeparator(contentWidth), 0f);
@@ -108,8 +120,15 @@ namespace Sisk.BuildColors.UI {
             layout.Add(header, 0f);
             layout.Add(contentRow, 0f);
 
+            minimizeButton.Register(this);
+
             ShowView(0);
         }
+
+        /// <summary>
+        /// Raised when the player asks to tuck the panel away.
+        /// </summary>
+        public event RichHudFramework.EventHandler MinimizeRequested;
 
         public event RichHudFramework.EventHandler DialogRequested;
 

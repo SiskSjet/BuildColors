@@ -20,7 +20,11 @@ namespace Sisk.BuildColors.UI {
     /// Input for picking a list item up, moving it and putting it down.
     /// </summary>
     internal static class ReorderInput {
-        private const string GROUP_NAME = "BuildColors";
+        /// <summary>
+        /// Renamed away from "BuildColors" so the saved bind group that still carries the old gamepad
+        /// aliases is left behind rather than restored over these defaults.
+        /// </summary>
+        private const string GROUP_NAME = "BuildColorsReorder";
 
         private static IBindGroup _binds;
         private static BindDefinition[] _defaultBinds;
@@ -127,12 +131,12 @@ namespace Sisk.BuildColors.UI {
             }
 
             _binds.RegisterBinds(new BindGroupInitializer {
-                { "reorderGrab", RichHudControls.Space, new KeyComboInit { RichHudControls.GpadA } },
-                { "reorderCancel", RichHudControls.Escape, new KeyComboInit { RichHudControls.GpadB } },
-                { "reorderPrevious", RichHudControls.Up, new KeyComboInit { RichHudControls.DPadUp } },
-                { "reorderNext", RichHudControls.Down, new KeyComboInit { RichHudControls.DPadDown } },
-                { "reorderShallower", RichHudControls.Left, new KeyComboInit { RichHudControls.DPadLeft } },
-                { "reorderDeeper", RichHudControls.Right, new KeyComboInit { RichHudControls.DPadRight } },
+                { "reorderGrab", RichHudControls.Space },
+                { "reorderCancel", RichHudControls.Escape },
+                { "reorderPrevious", RichHudControls.Up },
+                { "reorderNext", RichHudControls.Down },
+                { "reorderShallower", RichHudControls.Left },
+                { "reorderDeeper", RichHudControls.Right },
             });
 
             _defaultBinds = _binds.GetBindDefinitions();

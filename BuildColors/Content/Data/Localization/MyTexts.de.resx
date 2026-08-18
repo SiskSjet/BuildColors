@@ -1302,4 +1302,10 @@
   <data name="BC_Share_Failed" xml:space="preserve">
     <value>'{0}' konnte nicht gesendet werden.</value>
   </data>
+  <data name="BC_UI_MinimizeSymbol" xml:space="preserve">
+    <value>-</value>
+  </data>
+  <data name="BC_UI_Restore" xml:space="preserve">
+    <value>Wiederherstellen</value>
+  </data>
 </root>

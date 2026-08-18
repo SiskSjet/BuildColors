@@ -1,4 +1,5 @@
-﻿using RichHudFramework.UI;
+using RichHudFramework.UI;
+using Sisk.BuildColors.Settings.Models;
 using System;
 using VRageMath;
 
@@ -152,12 +153,13 @@ namespace Sisk.BuildColors.UI {
         public event RichHudFramework.EventHandler ColorChanged;
 
         /// <summary>
-        /// Color currently specified by the color picker.
+        /// Color currently specified by the picker. The sliders already run in SE's own H/S/V units, so
+        /// callers store this directly rather than round tripping through RGB and losing hue.
         /// </summary>
-        public Vector3 Color {
-            get { return _color; }
+        public SeHsv Color {
+            get { return new SeHsv(_color.X, _color.Y, _color.Z); }
             set {
-                _color = value;
+                _color = new Vector3(value.H, value.S, value.V);
                 SetColorsToSliders();
                 SetColorToTextBoxes();
                 display.Color = (_color / new Vector3(360f, 100f, 100f)).HSVtoColor();

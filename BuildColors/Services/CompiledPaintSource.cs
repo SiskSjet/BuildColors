@@ -1,9 +1,8 @@
+using Sisk.BuildColors.Settings.Models;
 using Sisk.BuildColors.Settings.Models.PaintJobs;
 using System;
 using System.Collections.Generic;
 using VRageMath;
-
-using ColorModel = Sisk.BuildColors.Settings.Models.Color;
 
 namespace Sisk.BuildColors.Services {
 
@@ -355,7 +354,7 @@ namespace Sisk.BuildColors.Services {
 
                 var span = to.Position - from.Position;
                 var local = span > 0f ? (t - from.Position) / span : 0f;
-                ColorModel blended = PaintColorBlend.Lerp(from.Color, to.Color, local, _blend);
+                var blended = (ColorMask)PaintColorBlend.Lerp(from.Hsv, to.Hsv, local, _blend);
 
                 return new PaintEntry {
                     Mask = blended,

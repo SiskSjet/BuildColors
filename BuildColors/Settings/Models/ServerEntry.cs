@@ -1,49 +1,53 @@
 using ProtoBuf;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Serialization;
 using VRageMath;
-
-// ReSharper disable ExplicitCallerInfoArgument
 
 namespace Sisk.BuildColors.Settings.Models {
 
     /// <summary>
-    /// The palette a player last built with on one server.
+    /// The build colors a server was last left with, so they can be put back on returning to it.
     /// </summary>
     [ProtoContract]
     public struct ServerEntry {
+        [ProtoMember(1)]
+        [XmlAttribute()]
+        public string Id { get; set; }
+
         /// <summary>
-        /// Colors as written before version 2, kept so an old file still restores a palette.
+        /// Colors as written before version 2. Read so old files still restore, never written again.
         /// </summary>
         [ProtoMember(2)]
         [XmlArray(Order = 2)]
         [XmlArrayItem]
         public Color[] Colors { get; set; }
 
-        [ProtoMember(1)]
-        [XmlAttribute()]
-        public string Id { get; set; }
-
         /// <summary>
-        /// The slots as the game holds them.
+        /// Slots as the game's offset mask, written before SE HSV. Read only, never written again.
         /// </summary>
         [ProtoMember(3)]
-        [XmlArray(Order = 3)]
+        [XmlArray(ElementName = "Masks", Order = 3)]
         [XmlArrayItem]
-        public ColorMask[] Masks { get; set; }
+        public ColorMask[] LegacyMasks { get; set; }
+
+        [ProtoMember(4)]
+        [XmlArray(Order = 4)]
+        [XmlArrayItem]
+        public SeHsv[] Hsv { get; set; }
 
         public static ServerEntry FromSlots(string id, IEnumerable<Vector3> slots) {
-            var masks = new List<ColorMask>(ColorSet.SLOTS);
+            var hsv = new List<SeHsv>(ColorSet.SLOTS);
 
             foreach (var slot in slots) {
-                masks.Add(slot);
+                hsv.Add((ColorMask)slot);
             }
 
-            return new ServerEntry { Id = id, Masks = masks.ToArray() };
+            return new ServerEntry { Id = id, Hsv = hsv.ToArray() };
         }
 
         public List<Vector3> ToBuildColorSlots() {
-            return new ColorSet { Colors = Colors, Masks = Masks }.ToBuildColorSlots();
+            return new ColorSet { Colors = Colors, LegacyMasks = LegacyMasks, Hsv = Hsv }.ToBuildColorSlots();
         }
     }
 }

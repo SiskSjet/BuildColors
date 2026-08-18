@@ -1,13 +1,13 @@
-﻿using RichHudFramework.UI;
+using RichHudFramework.UI;
 using Sisk.BuildColors.Localization;
 using Sisk.BuildColors.Services;
+using Sisk.BuildColors.Settings.Models;
 using Sisk.BuildColors.Settings.Models.PaintJobs;
 using Sisk.Utils.Localization.Extensions;
 using System;
 using System.Linq;
 using VRageMath;
 
-using ColorModel = Sisk.BuildColors.Settings.Models.Color;
 
 namespace Sisk.BuildColors.UI {
 
@@ -58,7 +58,7 @@ namespace Sisk.BuildColors.UI {
         private readonly BorderedCheckBox _applySkinCheckbox;
         private readonly Dropdown<PaintSourceType> _sourceTypeDropdown;
         private readonly HudChain _solidSection;
-        private readonly ColorPickerHSV _colorPicker;
+        private readonly ColorPickerHSV2 _colorPicker;
         private readonly ColorPaletteSelector _palette;
         private readonly Dropdown<SkinListEntry, DefinitionCatalog.SkinOption> _skinDropdown;
         private readonly HudChain _sourceSection;
@@ -223,7 +223,7 @@ namespace Sisk.BuildColors.UI {
                 Height = LayoutMetrics.CHECKBOX_SIZE,
             };
 
-            _colorPicker = new ColorPickerHSV() {
+            _colorPicker = new ColorPickerHSV2() {
                 Width = inspectorContentWidth,
                 Height = LayoutMetrics.COLOR_PICKER_HEIGHT,
                 Name = ModText.BC_UI_TargetColor.GetString(),
@@ -351,7 +351,7 @@ namespace Sisk.BuildColors.UI {
             _editSourceButton.MouseInput.LeftClicked += OnEditSource;
 
             _sourceTypeDropdown.ValueChanged += OnSourceTypeChanged;
-            _colorPicker.ValueChanged += OnColorPickerChanged;
+            _colorPicker.ColorChanged += OnColorPickerChanged;
             _applyColorCheckbox.MouseInput.LeftClicked += (sender, args) => WriteRule();
             _applySkinCheckbox.MouseInput.LeftClicked += (sender, args) => WriteRule();
             _skinDropdown.ValueChanged += (sender, args) => WriteRule();
@@ -689,8 +689,7 @@ namespace Sisk.BuildColors.UI {
             _applyColorCheckbox.Value = _loadedRule.Action.ApplyColor;
             _applySkinCheckbox.Value = _loadedRule.Action.ApplySkin;
 
-            var color = _loadedRule.Action.TargetColor;
-            _colorPicker.Value = new VRageMath.Color(color.R, color.G, color.B);
+            _colorPicker.Color = _loadedRule.Action.TargetHsv;
 
             var skinIndex = DefinitionCatalog.IndexOfSkin(_loadedRule.Action.TargetSkinId);
             _skinDropdown.SetSelectionAt(skinIndex >= 0 ? skinIndex : 0);
@@ -737,8 +736,8 @@ namespace Sisk.BuildColors.UI {
             HudSoundUtils.PlaySound("HudMouseClick");
         }
 
-        private void OnPaletteColorPicked(VRageMath.Color color) {
-            _colorPicker.Value = color;
+        private void OnPaletteColorPicked(ColorMask mask) {
+            _colorPicker.Color = mask;
             WriteRule();
         }
 
@@ -750,10 +749,10 @@ namespace Sisk.BuildColors.UI {
                 return;
             }
 
-            var color = _colorPicker.Value;
-            var target = _loadedRule.Action.TargetColor;
+            var color = _colorPicker.Color;
+            var target = _loadedRule.Action.TargetHsv;
 
-            if (target.R == color.R && target.G == color.G && target.B == color.B) {
+            if (target.H == color.H && target.S == color.S && target.V == color.V) {
                 return;
             }
 
@@ -777,8 +776,7 @@ namespace Sisk.BuildColors.UI {
             action.ApplyColor = _applyColorCheckbox.Value;
             action.ApplySkin = _applySkinCheckbox.Value;
 
-            var color = _colorPicker.Value;
-            action.TargetColor = new ColorModel(color.R, color.G, color.B);
+            action.TargetHsv = _colorPicker.Color;
 
             var skin = _skinDropdown.Value != null ? _skinDropdown.Value.AssocMember : null;
             action.TargetSkinId = skin != null ? skin.SkinId : string.Empty;

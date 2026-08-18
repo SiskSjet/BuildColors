@@ -1,3 +1,4 @@
+using Sisk.BuildColors.Settings.Models;
 using Sisk.BuildColors.Settings.Models.ColorSpace;
 using Sisk.BuildColors.Settings.Models.PaintJobs;
 using VRageMath;
@@ -10,12 +11,13 @@ namespace Sisk.BuildColors.Services {
     /// Mixes two paint colors.
     /// </summary>
     internal static class PaintColorBlend {
-        /// <summary>
-        /// Saturation below which a color carries no hue worth blending.
-        /// </summary>
-        private const float ACHROMATIC_SATURATION = .01f;
+        private const float ACHROMATIC_SATURATION = 1f;
 
-        public static ColorModel Lerp(ColorModel from, ColorModel to, float amount, PaintBlendSpace space) {
+        /// <summary>
+        /// Hsv walks the picker's own numbers, so a gradient lands exactly on the values the user set. Rgb
+        /// and Lab are deliberately other spaces, and only those convert. The ends are never round tripped.
+        /// </summary>
+        public static SeHsv Lerp(SeHsv from, SeHsv to, float amount, PaintBlendSpace space) {
             var t = MathHelper.Clamp(amount, 0f, 1f);
 
             if (t <= 0f) {
@@ -26,35 +28,26 @@ namespace Sisk.BuildColors.Services {
                 return to;
             }
 
-            switch (space) {
-                case PaintBlendSpace.Hsv:
-                    return LerpHsv(from, to, t);
-
-                case PaintBlendSpace.Lab:
-                    return LerpLab(from, to, t);
-
-                default:
-                    return LerpRgb(from, to, t);
+            if (space == PaintBlendSpace.Hsv) {
+                return LerpSeHsv(from, to, t);
             }
+
+            ColorModel start = ((ColorMask)from).ToDisplayColor();
+            ColorModel end = ((ColorMask)to).ToDisplayColor();
+
+            return (SeHsv)ColorMask.FromColor(space == PaintBlendSpace.Lab ? LerpLab(start, end, t) : LerpRgb(start, end, t));
         }
 
-        private static ColorModel LerpRgb(ColorModel from, ColorModel to, float t) {
-            return new ColorModel(
-                LerpByte(from.R, to.R, t),
-                LerpByte(from.G, to.G, t),
-                LerpByte(from.B, to.B, t));
-        }
+        /// <summary>
+        /// Takes the hue the short way round.
+        /// </summary>
+        private static SeHsv LerpSeHsv(SeHsv from, SeHsv to, float t) {
+            var startHue = from.H;
+            var endHue = to.H;
 
-        private static ColorModel LerpHsv(ColorModel from, ColorModel to, float t) {
-            var start = new RGB(from.R, from.G, from.B).ToHSV();
-            var end = new RGB(to.R, to.G, to.B).ToHSV();
-
-            var startHue = start.H;
-            var endHue = end.H;
-
-            if (start.S < ACHROMATIC_SATURATION) {
+            if (from.S < ACHROMATIC_SATURATION) {
                 startHue = endHue;
-            } else if (end.S < ACHROMATIC_SATURATION) {
+            } else if (to.S < ACHROMATIC_SATURATION) {
                 endHue = startHue;
             }
 
@@ -65,9 +58,14 @@ namespace Sisk.BuildColors.Services {
                 hue -= 360f;
             }
 
-            var blended = new HSV(hue, MathHelper.Lerp(start.S, end.S, t), MathHelper.Lerp(start.V, end.V, t)).ToRGB();
+            return new SeHsv(hue, MathHelper.Lerp(from.S, to.S, t), MathHelper.Lerp(from.V, to.V, t));
+        }
 
-            return new ColorModel(blended.R, blended.G, blended.B);
+        private static ColorModel LerpRgb(ColorModel from, ColorModel to, float t) {
+            return new ColorModel(
+                LerpByte(from.R, to.R, t),
+                LerpByte(from.G, to.G, t),
+                LerpByte(from.B, to.B, t));
         }
 
         private static ColorModel LerpLab(ColorModel from, ColorModel to, float t) {

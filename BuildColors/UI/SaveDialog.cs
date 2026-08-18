@@ -16,12 +16,12 @@ namespace Sisk.BuildColors.UI {
         private readonly TextField _nameField;
 
         public SaveDialog(string title, string initialName = null, HudParentBase parent = null) : base(parent) {
-            var contentWidth = WIDTH - Padding.X - LayoutMetrics.CONTENT_PADDING_X * 2f;
+            var contentWidth = ContentWidth(WIDTH);
 
             _nameField = ControlFactory.CreateTextField(contentWidth, initialName);
 
             _saveButton = ControlFactory.CreateButton(ModText.BC_UI_Save.GetString(), role: ButtonRole.Primary);
-            var cancelButton = ControlFactory.CreateButton(ModText.BC_UI_Cancel.GetString());
+            var cancelButton = CreateCancelButton();
 
             var height = HEADER_HEIGHT
                 + Padding.Y
@@ -35,20 +35,13 @@ namespace Sisk.BuildColors.UI {
             Size = new Vector2(WIDTH, height);
             HeaderText = title;
 
-            var layout = new HudChain(true, body) {
-                ParentAlignment = ParentAlignments.Inner,
-                Spacing = LayoutMetrics.ROW_SPACING,
-                SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                DimAlignment = DimAlignments.UnpaddedSize,
-                Padding = new Vector2(LayoutMetrics.CONTENT_PADDING_X, LayoutMetrics.CONTENT_PADDING_Y),
-            };
+            var layout = CreateContentColumn(LayoutMetrics.ROW_SPACING);
 
             layout.Add(ControlFactory.CreateCaption(ModText.BC_UI_Name.GetString(), contentWidth), 0f);
             layout.Add(_nameField, 0f);
             layout.Add(ControlFactory.CreateButtonRow(contentWidth, cancelButton, _saveButton), 0f);
 
             _saveButton.MouseInput.LeftClicked += OnSave;
-            cancelButton.MouseInput.LeftClicked += OnCancel;
         }
 
         public event RichHudFramework.EventHandler Saved;
@@ -69,11 +62,6 @@ namespace Sisk.BuildColors.UI {
             if (SharedBinds.Enter.IsNewPressed && !string.IsNullOrEmpty(Name)) {
                 Save();
             }
-        }
-
-        private void OnCancel(object sender, EventArgs args) {
-            HudSoundUtils.PlaySound("HudMouseClick");
-            Close();
         }
 
         private void OnSave(object sender, EventArgs args) {

@@ -69,7 +69,7 @@ namespace Sisk.BuildColors.UI {
             Size = new Vector2(dialogWidth, dialogHeight);
             HeaderText = ModText.BC_UI_ConditionsDialogTitle.GetString(_rule.Name);
 
-            var contentWidth = dialogWidth - Padding.X - LayoutMetrics.CONTENT_PADDING_X;
+            var contentWidth = ContentWidth(dialogWidth);
 
             var helpLabel = CreateCaption(ModText.BC_UI_ConditionsHint.GetString(), contentWidth);
 
@@ -95,7 +95,7 @@ namespace Sisk.BuildColors.UI {
 
             _statusLabel = CreateCaption(string.Empty, contentWidth, LayoutMetrics.STATUS_HEIGHT);
 
-            var cancelButton = CreateButton(ModText.BC_UI_Cancel.GetString(), 150f);
+            var cancelButton = CreateCancelButton(150f);
             var doneButton = CreateButton(ModText.BC_UI_Done.GetString(), 150f, ButtonRole.Primary);
 
             var buttonRow = new HudChain(false) {
@@ -106,21 +106,14 @@ namespace Sisk.BuildColors.UI {
                 Height = BUTTON_ROW_HEIGHT,
             };
 
-            var layout = new HudChain(true, body) {
-                ParentAlignment = ParentAlignments.Inner,
-                DimAlignment = DimAlignments.UnpaddedSize,
-                SizingMode = HudChainSizingModes.FitMembersOffAxis,
-                CollectionContainer = {
-                    helpLabel,
-                    CreateSeparator(contentWidth),
-                    { _treeList, 1f },
-                    treeButtons,
-                    _statusLabel,
-                    buttonRow
-                },
-                Spacing = LayoutMetrics.SECTION_SPACING,
-                Padding = new Vector2(LayoutMetrics.CONTENT_PADDING_X, LayoutMetrics.CONTENT_PADDING_Y)
-            };
+            var layout = CreateContentColumn(LayoutMetrics.SECTION_SPACING);
+
+            layout.Add(helpLabel, 0f);
+            layout.Add(CreateSeparator(contentWidth), 0f);
+            layout.Add(_treeList, 1f);
+            layout.Add(treeButtons, 0f);
+            layout.Add(_statusLabel, 0f);
+            layout.Add(buttonRow, 0f);
 
             _treeList.ValueChanged += OnSelectionChanged;
 
@@ -131,7 +124,6 @@ namespace Sisk.BuildColors.UI {
             _moveButton.MouseInput.LeftClicked += OnMoveClicked;
 
             doneButton.MouseInput.LeftClicked += OnDoneClicked;
-            cancelButton.MouseInput.LeftClicked += OnCancelClicked;
 
             RefreshTree();
         }
@@ -733,11 +725,6 @@ namespace Sisk.BuildColors.UI {
 
             HudSoundUtils.PlaySound("HudBleep");
             Saved?.Invoke(this, EventArgs.Empty);
-            Close();
-        }
-
-        private void OnCancelClicked(object sender, EventArgs e) {
-            HudSoundUtils.PlaySound("HudLockingLost");
             Close();
         }
 
