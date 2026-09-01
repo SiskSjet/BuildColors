@@ -292,14 +292,35 @@ namespace Sisk.BuildColors.UI {
         }
 
         /// <summary>
-        /// Whether a world action should run at all.
+        /// Whether a world action should run at all. The binds read the keyboard directly, so the chat,
+        /// any screen or panel holding a cursor and every seat or camera have to be ruled out here.
         /// </summary>
         private static bool CanAct() {
-            if (MyAPIGateway.Gui == null || MyAPIGateway.Gui.ChatEntryVisible) {
+            var gui = MyAPIGateway.Gui;
+
+            if (gui == null || gui.ChatEntryVisible || gui.IsCursorVisible) {
                 return false;
             }
 
-            return HudMain.InputMode != HudInputMode.Full;
+            if (HudMain.InputMode != HudInputMode.NoInput) {
+                return false;
+            }
+
+            return IsControllingCharacter();
+        }
+
+        /// <summary>
+        /// True only while the player walks or flies their own character.
+        /// </summary>
+        private static bool IsControllingCharacter() {
+            var session = MyAPIGateway.Session;
+            var character = session?.LocalHumanPlayer?.Character;
+
+            if (character == null || character.IsDead) {
+                return false;
+            }
+
+            return session.ControlledObject?.Entity == character;
         }
 
         /// <summary>
