@@ -1,3 +1,13 @@
+# [3.0.4](https://github.com/SiskSjet/BuildColors/compare/v3.0.3...3.0.4) (2026-09-01)
+
+
+### Bug Fixes
+
+* paint job hotkeys fired while the chat, a menu or the color picker held the input, and while the player sat in a cockpit, turret or camera, where the keys belong to the game
+* undo on Alt + Z swallowed the dampener toggle in a seat, because the game control was taken off the key for as long as Alt was held, wherever the player was
+
+
+
 # [3.0.2](https://github.com/SiskSjet/BuildColors/compare/v3.0.1...3.0.2) (2026-08-12)
 
 
