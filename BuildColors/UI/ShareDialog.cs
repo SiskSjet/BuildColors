@@ -15,7 +15,7 @@ namespace Sisk.BuildColors.UI {
         private const float WIDTH = 460f;
 
         private readonly ActionButton _sendButton;
-        private readonly SafeListBox<SharePlayer> _recipients;
+        private readonly RangeClampedListBox<SharePlayer> _recipients;
 
         public ShareDialog(string title, HudParentBase parent = null) : base(parent) {
             var contentWidth = ContentWidth(WIDTH);

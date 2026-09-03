@@ -3,9 +3,7 @@ using VRageMath;
 
 namespace Sisk.BuildColors.UI {
 
-    internal class SafeListBox<TValue> : ListBox<TValue> {
-        public SafeListBox(HudParentBase parent = null) : base(parent) { }
-
+    internal class RangeClampedListBox<TValue> : ListBox<TValue> {
         public new void ClearEntries() {
             base.ClearEntries();
             ClampVisibleRange();
