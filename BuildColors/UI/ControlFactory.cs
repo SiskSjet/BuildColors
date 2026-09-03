@@ -84,11 +84,20 @@ namespace Sisk.BuildColors.UI {
             return field;
         }
 
-        public static ListBox<TValue> CreateList<TValue>(float width, float height) {
-            var list = new ListBox<TValue>() { Width = width, Height = height };
+        public static RangeClampedListBox<TValue> CreateList<TValue>() {
+            var list = new RangeClampedListBox<TValue>();
 
             StyleList(list);
             list.MouseInput.CursorEntered += OnCursorEntered;
+
+            return list;
+        }
+
+        public static RangeClampedListBox<TValue> CreateList<TValue>(float width, float height) {
+            var list = CreateList<TValue>();
+
+            list.Width = width;
+            list.Height = height;
 
             return list;
         }

@@ -20,7 +20,7 @@ namespace Sisk.BuildColors.UI {
 
         private readonly Card _detailCard;
         private readonly GameInputBlockingTextField _filterField;
-        private readonly ListBox<ColorSet> _list;
+        private readonly RangeClampedListBox<ColorSet> _list;
         private readonly SwatchGrid _paletteGrid;
         private readonly SwatchGrid _setGrid;
 

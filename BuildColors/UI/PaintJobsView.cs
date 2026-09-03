@@ -30,7 +30,7 @@ namespace Sisk.BuildColors.UI {
         private const float JOBS_PANE_WIDTH = 300f;
         private const float RULES_PANE_WIDTH = 340f;
 
-        private readonly ListBox<PaintJob> _jobList;
+        private readonly RangeClampedListBox<PaintJob> _jobList;
         private readonly TextField _jobNameField;
         private readonly ActionButton _copyJobButton;
         private readonly ActionButton _inboxButton;
@@ -38,7 +38,7 @@ namespace Sisk.BuildColors.UI {
         private readonly ActionButton _shareJobButton;
 
         private readonly Card _rulesCard;
-        private readonly ListBox<PaintRule> _ruleList;
+        private readonly RangeClampedListBox<PaintRule> _ruleList;
         private readonly TextField _ruleNameField;
         private readonly ActionButton _addRuleButton;
         private readonly ActionButton _removeRuleButton;
@@ -50,7 +50,7 @@ namespace Sisk.BuildColors.UI {
         private readonly ActionButton _paintTabButton;
 
         private readonly HudChain _conditionsView;
-        private readonly ListBox<PaintRuleNode> _conditionTree;
+        private readonly RangeClampedListBox<PaintRuleNode> _conditionTree;
         private readonly ActionButton _editConditionsButton;
 
         private readonly HudChain _paintView;

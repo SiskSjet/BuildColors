@@ -80,7 +80,7 @@ namespace Sisk.BuildColors.UI {
         private readonly BorderedCheckBox _reverseCheckbox;
 
         private readonly Label _entriesLabel;
-        private readonly ListBox<SourceEntry> _entryList;
+        private readonly RangeClampedListBox<SourceEntry> _entryList;
         private readonly BorderedButton _addEntryButton;
         private readonly BorderedButton _removeEntryButton;
 

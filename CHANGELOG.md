@@ -1,3 +1,13 @@
+# [3.0.5](https://github.com/SiskSjet/BuildColors/compare/v3.0.4...3.0.5) (2026-09-03)
+
+
+### Bug Fixes
+
+* panel crashed when a list grew shorter, because the visible range still pointed past the last remaining entry — deleting a paint job, rule, condition or source entry, answering a share offer, or narrowing the color set filter could all take the panel down
+* conditions list in the rule editor gave no hover feedback, unlike every other list in the mod
+
+
+
 # [3.0.4](https://github.com/SiskSjet/BuildColors/compare/v3.0.3...3.0.4) (2026-09-01)
 
 

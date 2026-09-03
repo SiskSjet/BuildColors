@@ -24,7 +24,7 @@ namespace Sisk.BuildColors.UI {
 
         private readonly PaintRule _rule;
         private readonly PaintRuleConditionGroup _workingGroup;
-        private readonly ListBox<ConditionNode> _treeList;
+        private readonly RangeClampedListBox<ConditionNode> _treeList;
         private readonly BorderedButton _addConditionButton;
         private readonly BorderedButton _addGroupButton;
         private readonly BorderedButton _editButton;
@@ -73,8 +73,8 @@ namespace Sisk.BuildColors.UI {
 
             var helpLabel = CreateCaption(ModText.BC_UI_ConditionsHint.GetString(), contentWidth);
 
-            _treeList = new ListBox<ConditionNode>() { DimAlignment = DimAlignments.Width };
-            StyleList(_treeList);
+            _treeList = CreateList<ConditionNode>();
+            _treeList.DimAlignment = DimAlignments.Width;
 
             _addConditionButton = CreateButton(ModText.BC_UI_AddCondition.GetString());
             _addGroupButton = CreateButton(ModText.BC_UI_AddGroup.GetString());
