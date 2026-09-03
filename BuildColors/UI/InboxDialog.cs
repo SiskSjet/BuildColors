@@ -20,7 +20,7 @@ namespace Sisk.BuildColors.UI {
         private readonly ActionButton _declineButton;
         private readonly Label _detailLabel;
         private readonly ShareInbox _inbox;
-        private readonly ListBox<ShareOffer> _offers;
+        private readonly SafeListBox<ShareOffer> _offers;
         private readonly SwatchGrid _preview;
 
         private bool _rebuilding;

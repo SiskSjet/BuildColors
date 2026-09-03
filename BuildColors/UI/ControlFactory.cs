@@ -84,8 +84,8 @@ namespace Sisk.BuildColors.UI {
             return field;
         }
 
-        public static ListBox<TValue> CreateList<TValue>(float width, float height) {
-            var list = new ListBox<TValue>() { Width = width, Height = height };
+        public static SafeListBox<TValue> CreateList<TValue>(float width, float height) {
+            var list = new SafeListBox<TValue>() { Width = width, Height = height };
 
             StyleList(list);
             list.MouseInput.CursorEntered += OnCursorEntered;
