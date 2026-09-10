@@ -6,6 +6,7 @@ using Sisk.BuildColors.Localization;
 using Sisk.Utils.Localization.Extensions;
 using System.Collections.Generic;
 using System.Text;
+using VRage.Input;
 using VRage.ModAPI;
 
 namespace Sisk.BuildColors.UI {
@@ -179,14 +180,23 @@ namespace Sisk.BuildColors.UI {
         }
 
         /// <summary>
-        /// Drops every handle taken from Rich HUD so the next init rebuilds them.
+        /// Stores the combos as they are set right now.
+        /// </summary>
+        public static void SaveBinds() {
+            if (_binds != null) {
+                HotkeyStore.Capture(GROUP_NAME, _binds);
+            }
+        }
+
+        /// <summary>
+        /// Drops every handle taken from Rich HUD so the next init rebuilds them. The defaults are kept,
+        /// so the reset button of the rebind page stays on them.
         /// </summary>
         public static void Reset() {
             Unsubscribe();
             GameControlSuppressor.RestoreAll();
 
             _binds = null;
-            _defaultBinds = null;
             _apply = null;
             _undo = null;
             _nextJob = null;
@@ -205,14 +215,15 @@ namespace Sisk.BuildColors.UI {
                 return;
             }
 
-            _binds.RegisterBinds(new BindGroupInitializer {
-                { APPLY_BIND, RichHudControls.Alt, RichHudControls.P },
-                { UNDO_BIND, RichHudControls.Alt, RichHudControls.Z },
-                { NEXT_JOB_BIND, RichHudControls.Alt, RichHudControls.OemPeriod },
-                { PREVIOUS_JOB_BIND, RichHudControls.Alt, RichHudControls.OemComma },
-            });
+            if (_binds.Count == 0) {
+                RegisterDefaults();
+            }
 
-            _defaultBinds = _binds.GetBindDefinitions();
+            if (_defaultBinds == null) {
+                _defaultBinds = _binds.GetBindDefinitions();
+            }
+
+            HotkeyStore.Apply(GROUP_NAME, _binds);
 
             _apply = _binds[APPLY_BIND];
             _undo = _binds[UNDO_BIND];
@@ -220,6 +231,61 @@ namespace Sisk.BuildColors.UI {
             _previousJob = _binds[PREVIOUS_JOB_BIND];
 
             Subscribe();
+        }
+
+        /// <summary>
+        /// Registers the binds the mod ships with, on the keys the game has the colour controls on.
+        /// </summary>
+        private static void RegisterDefaults() {
+            var applyKey = GameKey("CUBE_COLOR_CHANGE", RichHudControls.P);
+
+            RegisterDefault(APPLY_BIND, Combo(RichHudControls.Alt, applyKey));
+            RegisterDefault(UNDO_BIND, UndoCombo(applyKey));
+            RegisterDefault(NEXT_JOB_BIND, Combo(RichHudControls.Alt, GameKey("CYCLE_COLOR_RIGHT", RichHudControls.OemPeriod)));
+            RegisterDefault(PREVIOUS_JOB_BIND, Combo(RichHudControls.Alt, GameKey("CYCLE_COLOR_LEFT", RichHudControls.OemComma)));
+        }
+
+        /// <summary>
+        /// Alt + Z, the key every layout puts Ctrl + Z on, unless the player walks with it as on ZQSD,
+        /// where Alt is held to look around and undo would fire on every step.
+        /// </summary>
+        private static List<int> UndoCombo(ControlHandle applyKey) {
+            if (GameControlSuppressor.IsHeldControlKey(MyKeys.Z)) {
+                return Combo(RichHudControls.Alt, RichHudControls.Shift, applyKey);
+            }
+
+            return Combo(RichHudControls.Alt, RichHudControls.Z);
+        }
+
+        private static List<int> Combo(ControlHandle first, ControlHandle second) {
+            return new List<int> { first.id, second.id };
+        }
+
+        private static List<int> Combo(ControlHandle first, ControlHandle second, ControlHandle third) {
+            return new List<int> { first.id, second.id, third.id };
+        }
+
+        /// <summary>
+        /// Registers one bind, unbound rather than throwing if an earlier bind holds its combination.
+        /// </summary>
+        private static void RegisterDefault(string bindName, List<int> combo) {
+            IBind bind;
+
+            if (!_binds.TryRegisterBind(bindName, out bind, combo)) {
+                _binds.TryRegisterBind(bindName, out bind);
+            }
+        }
+
+        /// <summary>
+        /// The key of the given game control, or the fallback if it is unbound, a modifier, or held.
+        /// </summary>
+        private static ControlHandle GameKey(string gameControl, ControlHandle fallback) {
+            var key = GameControlSuppressor.GetKeyboardKey(gameControl);
+            var isUsable = key != MyKeys.None
+                && GameControlSuppressor.GetModifier((int)key) == MyKeyboardModifiers.None
+                && !GameControlSuppressor.IsHeldControlKey(key);
+
+            return isUsable ? new ControlHandle(key) : fallback;
         }
 
         private static void Subscribe() {
