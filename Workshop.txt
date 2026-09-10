@@ -62,11 +62,15 @@ One job is the [b]active[/b] one, whatever you last selected on the Paint Jobs p
 
 [table]
 [tr][th]Default[/th][th]Does[/th][/tr]
-[tr][td]Alt + P[/td][td]Apply the active paint job to the grid you are looking at[/td][/tr]
+[tr][td]Alt + your color change key (P)[/td][td]Apply the active paint job to the grid you are looking at[/td][/tr]
 [tr][td]Alt + Z[/td][td]Undo the last application[/td][/tr]
-[tr][td]Alt + .[/td][td]Next paint job[/td][/tr]
-[tr][td]Alt + ,[/td][td]Previous paint job[/td][/tr]
+[tr][td]Alt + your cycle color right key (.)[/td][td]Next paint job[/td][/tr]
+[tr][td]Alt + your cycle color left key (,)[/td][td]Previous paint job[/td][/tr]
 [/table]
+
+The defaults follow the keys you have the game's own color controls on, so they land where your keyboard and your control setup put them.
+
+Undo is the one exception: if you walk with Z, as a ZQSD player does, it starts on Alt + Shift + your apply key (Alt + Shift + P with the game's own defaults) instead.
 
 The last ten applications can be undone, until you leave the world.
 
@@ -191,11 +195,15 @@ Ein Job ist der [b]aktive[/b], der, den du zuletzt auf der Paint-Jobs-Seite ausg
 
 [table]
 [tr][th]Standard[/th][th]Funktion[/th][/tr]
-[tr][td]Alt + P[/td][td]Wendet den aktiven Paint Job auf das Grid vor dir an[/td][/tr]
+[tr][td]Alt + deine Taste für Farbe ändern (P)[/td][td]Wendet den aktiven Paint Job auf das Grid vor dir an[/td][/tr]
 [tr][td]Alt + Z[/td][td]Macht die letzte Anwendung rückgängig[/td][/tr]
-[tr][td]Alt + .[/td][td]Nächster Paint Job[/td][/tr]
-[tr][td]Alt + ,[/td][td]Vorheriger Paint Job[/td][/tr]
+[tr][td]Alt + deine Taste für Farbe vorwärts (.)[/td][td]Nächster Paint Job[/td][/tr]
+[tr][td]Alt + deine Taste für Farbe rückwärts (,)[/td][td]Vorheriger Paint Job[/td][/tr]
 [/table]
+
+Die Standardbelegung folgt den Tasten, auf denen du die Farbsteuerung des Spiels hast, sie liegt also dort, wo dein Tastaturlayout und deine Steuerung sie hinlegen.
+
+Eine Ausnahme ist Rückgängig: Läufst du mit Z, wie auf ZQSD, liegt es stattdessen auf Alt + Shift + deiner Apply-Taste (Alt + Shift + P mit der Standardsteuerung des Spiels).
 
 Die letzten zehn Anwendungen lassen sich rückgängig machen, bis du die Welt verlässt.
 
