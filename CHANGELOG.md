@@ -1,3 +1,14 @@
+﻿# [3.0.6](https://github.com/SiskSjet/BuildColors/compare/v3.0.5...3.0.6) (2026-09-10)
+
+
+### Bug Fixes
+
+* rebound and removed paint job hotkeys were back to their defaults on the next load, because Rich HUD keeps no config for mod binds and the mod stored none of its own
+* holding Alt took walking, flying and looking around away from the player, since every game control sharing a key with a bind was switched off for as long as the modifier was held
+* default hotkeys were picked off a US layout; they now sit on the keys the game has its own color controls on, and undo leaves Z where the player walks with it, as on AZERTY
+
+
+
 # [3.0.5](https://github.com/SiskSjet/BuildColors/compare/v3.0.4...3.0.5) (2026-09-03)
 
 

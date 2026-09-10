@@ -1,4 +1,4 @@
-using Sandbox.ModAPI;
+﻿using Sandbox.ModAPI;
 using System.Collections.Generic;
 using VRage.Input;
 using VRage.ModAPI;
@@ -29,14 +29,16 @@ namespace Sisk.BuildColors.UI {
         /// Gamepad only controls are left out on purpose. IsEnabled turns a control off for every device
         /// bound to it, so nothing here may name one a keyboard key can never reach.
         /// </para>
+        /// <para>
+        /// The held controls are left out as well, see <see cref="HELD_CONTROLS" />.
+        /// </para>
         /// </summary>
         private static readonly string[] GAME_CONTROLS = {
-            "MAIN_MENU", "FORWARD", "BACKWARD", "STRAFE_LEFT", "STRAFE_RIGHT", "ROLL_LEFT", "ROLL_RIGHT", "SPRINT",
-            "PRIMARY_TOOL_ACTION", "SECONDARY_TOOL_ACTION", "JUMP", "CROUCH", "SWITCH_WALK", "USE", "PICK_UP",
+            "MAIN_MENU", "SWITCH_WALK", "USE", "PICK_UP",
+            "PRIMARY_TOOL_ACTION", "SECONDARY_TOOL_ACTION",
             "TERMINAL", "REMOTE_ACCESS_MENU", "HELP_SCREEN", "CONTROL_MENU", "FACTIONS_MENU", "SYSTEM_RADIAL_MENU",
-            "TOOLBAR_RADIAL_MENU", "CAMERA_ZOOM_IN", "CAMERA_ZOOM_OUT", "ACTIVE_CONTRACT_SCREEN", "ROTATION_LEFT",
-            "ROTATION_RIGHT", "ROTATION_UP", "ROTATION_DOWN", "HEADLIGHTS", "SCREENSHOT", "LOOKAROUND", "LOOK_UP",
-            "LOOK_DOWN", "LOOK_RIGHT", "LOOK_LEFT", "SIGNALS_FULLY_VISIBLE", "TOGGLE_SIGNALS", "SWITCH_LEFT",
+            "TOOLBAR_RADIAL_MENU", "CAMERA_ZOOM_IN", "CAMERA_ZOOM_OUT", "ACTIVE_CONTRACT_SCREEN",
+            "HEADLIGHTS", "SCREENSHOT", "SIGNALS_FULLY_VISIBLE", "TOGGLE_SIGNALS", "SWITCH_LEFT",
             "SWITCH_RIGHT", "CUBE_COLOR_CHANGE", "TOGGLE_REACTORS", "TOGGLE_REACTORS_ALL", "THRUSTS",
             "BUILD_PLANNER", "CONSUME_HEALTH", "CONSUME_ENERGY", "BUILD_PLANNER_DEPOSIT_ORE",
             "BUILD_PLANNER_ADD_COMPONNETS", "BUILD_PLANNER_WITHDRAW_COMPONENTS", "BUILD_SCREEN",
@@ -50,7 +52,7 @@ namespace Sisk.BuildColors.UI {
             "TOOLBAR_DOWN", "TOOLBAR_NEXT_ITEM", "TOOLBAR_PREV_ITEM", "TOGGLE_HUD", "DAMPING", "DAMPING_RELATIVE",
             "CAMERA_MODE", "BROADCASTING", "HELMET", "CHAT_SCREEN", "CONSOLE", "SUICIDE", "LANDING_GEAR",
             "INVENTORY", "PAUSE_GAME", "SPECTATOR_NONE", "SPECTATOR_DELTA", "SPECTATOR_FREE", "SPECTATOR_STATIC",
-            "FREE_ROTATION", "VOICE_CHAT", "SPECTATOR_LOCK", "SPECTATOR_SWITCHMODE", "SPECTATOR_NEXTPLAYER",
+            "VOICE_CHAT", "SPECTATOR_LOCK", "SPECTATOR_SWITCHMODE", "SPECTATOR_NEXTPLAYER",
             "SPECTATOR_PREVPLAYER", "RELOAD", "BUILD_MODE", "NEXT_BLOCK_STAGE", "PREV_BLOCK_STAGE", "MOVE_CLOSER",
             "MOVE_FURTHER", "COPY_PASTE_ACTION", "COPY_PASTE_CANCEL", "CHANGE_ROTATION_AXIS", "ROTATE_AXIS_LEFT",
             "ROTATE_AXIS_RIGHT", "CREATE_BLUEPRINT", "CREATE_BLUEPRINT_DETACHED", "CREATE_BLUEPRINT_MAGNETIC_LOCKS",
@@ -65,10 +67,19 @@ namespace Sisk.BuildColors.UI {
             "CYCLE_COLOR_LEFT", "CYCLE_COLOR_RIGHT", "CYCLE_SKIN_LEFT", "CYCLE_SKIN_RIGHT", "COPY_COLOR",
             "WARNING_SCREEN", "RECOLOR", "MEDIUM_COLOR_BRUSH", "LARGE_COLOR_BRUSH", "RECOLOR_WHOLE_GRID",
             "COLOR_PICKER", "QUICK_PICK_COLOR", "SPECTATOR_FOCUS_PLAYER", "SPECTATOR_PLAYER_CONTROL",
-            "SPECTATOR_LOCK_TO_GRID", "SPECTATOR_TELEPORT", "SPECTATOR_SPEED_BOOST", "SPECTATOR_CHANGE_SPEED_UP",
+            "SPECTATOR_LOCK_TO_GRID", "SPECTATOR_TELEPORT", "SPECTATOR_CHANGE_SPEED_UP",
             "SPECTATOR_CHANGE_SPEED_DOWN", "SPECTATOR_CHANGE_ROTATION_SPEED_UP",
             "SPECTATOR_CHANGE_ROTATION_SPEED_DOWN", "EXPORT_MODEL", "QUICK_LOAD_RECONNECT", "QUICK_SAVE",
             "BUFFS_SHOW_ALL",
+        };
+
+        /// <summary>
+        /// Controls held rather than tapped. Never suppressed, and no default bind sits on their keys.
+        /// </summary>
+        private static readonly string[] HELD_CONTROLS = {
+            "FORWARD", "BACKWARD", "STRAFE_LEFT", "STRAFE_RIGHT", "ROLL_LEFT", "ROLL_RIGHT", "SPRINT", "JUMP",
+            "CROUCH", "LOOKAROUND", "LOOK_UP", "LOOK_DOWN", "LOOK_LEFT", "LOOK_RIGHT", "ROTATION_LEFT",
+            "ROTATION_RIGHT", "ROTATION_UP", "ROTATION_DOWN", "FREE_ROTATION",
         };
 
         private static readonly List<IMyControl> _requested = new List<IMyControl>();
@@ -154,6 +165,52 @@ namespace Sisk.BuildColors.UI {
                     Add(control, result);
                 }
             }
+        }
+
+        /// <summary>
+        /// The key the game has a control on.
+        /// </summary>
+        public static MyKeys GetKeyboardKey(string gameControl) {
+            var input = MyAPIGateway.Input;
+
+            if (input == null) {
+                return MyKeys.None;
+            }
+
+            var control = input.GetGameControl(MyStringId.GetOrCompute(gameControl));
+
+            if (control == null) {
+                return MyKeys.None;
+            }
+
+            var key = control.GetKeyboardControl();
+
+            return key != MyKeys.None ? key : control.GetSecondKeyboardControl();
+        }
+
+        /// <summary>
+        /// Whether the player walks, flies or looks around with the given key.
+        /// </summary>
+        public static bool IsHeldControlKey(MyKeys key) {
+            var input = MyAPIGateway.Input;
+
+            if (key == MyKeys.None || input == null) {
+                return false;
+            }
+
+            for (var i = 0; i < HELD_CONTROLS.Length; i++) {
+                var control = input.GetGameControl(MyStringId.GetOrCompute(HELD_CONTROLS[i]));
+
+                if (control == null) {
+                    continue;
+                }
+
+                if (control.GetKeyboardControl() == key || control.GetSecondKeyboardControl() == key) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>

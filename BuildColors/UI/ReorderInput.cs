@@ -1,4 +1,4 @@
-using RichHudFramework.UI;
+﻿using RichHudFramework.UI;
 using RichHudFramework.UI.Client;
 
 namespace Sisk.BuildColors.UI {
@@ -21,8 +21,7 @@ namespace Sisk.BuildColors.UI {
     /// </summary>
     internal static class ReorderInput {
         /// <summary>
-        /// Renamed away from "BuildColors" so the saved bind group that still carries the old gamepad
-        /// aliases is left behind rather than restored over these defaults.
+        /// Also the name the stored combos are kept under, so changing it drops every rebind.
         /// </summary>
         private const string GROUP_NAME = "BuildColorsReorder";
 
@@ -36,11 +35,19 @@ namespace Sisk.BuildColors.UI {
         private static IBind _deeper;
 
         /// <summary>
+        /// Stores the combos as they are set right now.
+        /// </summary>
+        public static void SaveBinds() {
+            if (_binds != null) {
+                HotkeyStore.Capture(GROUP_NAME, _binds);
+            }
+        }
+
+        /// <summary>
         /// Drops the cached handles so the binds are rebuilt after the framework resets.
         /// </summary>
         public static void Reset() {
             _binds = null;
-            _defaultBinds = null;
             _grab = null;
             _cancel = null;
             _previous = null;
@@ -130,16 +137,22 @@ namespace Sisk.BuildColors.UI {
                 return;
             }
 
-            _binds.RegisterBinds(new BindGroupInitializer {
-                { "reorderGrab", RichHudControls.Space },
-                { "reorderCancel", RichHudControls.Escape },
-                { "reorderPrevious", RichHudControls.Up },
-                { "reorderNext", RichHudControls.Down },
-                { "reorderShallower", RichHudControls.Left },
-                { "reorderDeeper", RichHudControls.Right },
-            });
+            if (_binds.Count == 0) {
+                _binds.RegisterBinds(new BindGroupInitializer {
+                    { "reorderGrab", RichHudControls.Space },
+                    { "reorderCancel", RichHudControls.Escape },
+                    { "reorderPrevious", RichHudControls.Up },
+                    { "reorderNext", RichHudControls.Down },
+                    { "reorderShallower", RichHudControls.Left },
+                    { "reorderDeeper", RichHudControls.Right },
+                });
+            }
 
-            _defaultBinds = _binds.GetBindDefinitions();
+            if (_defaultBinds == null) {
+                _defaultBinds = _binds.GetBindDefinitions();
+            }
+
+            HotkeyStore.Apply(GROUP_NAME, _binds);
 
             _grab = _binds["reorderGrab"];
             _cancel = _binds["reorderCancel"];

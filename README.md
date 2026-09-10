@@ -83,10 +83,14 @@ One job is the **active** one, whatever you last selected on the Paint Jobs page
 
 | Default | Does |
 | --- | --- |
-| `Alt` + `P` | Apply the active paint job to the grid you are looking at |
+| `Alt` + your color change key (`P`) | Apply the active paint job to the grid you are looking at |
 | `Alt` + `Z` | Undo the last application |
-| `Alt` + `.` | Next paint job |
-| `Alt` + `,` | Previous paint job |
+| `Alt` + your cycle color right key (`.`) | Next paint job |
+| `Alt` + your cycle color left key (`,`) | Previous paint job |
+
+The defaults follow the keys you have the game's own color controls on, so they land where your keyboard and your control setup put them.
+
+Undo is the one exception: if you walk with `Z`, as a ZQSD player does, it starts on `Alt` + `Shift` + your apply key (`Alt` + `Shift` + `P` with the game's own defaults) instead.
 
 Two keys on purpose, repainting a whole grid should not happen from a stray keypress. They stay quiet while you are typing.
 

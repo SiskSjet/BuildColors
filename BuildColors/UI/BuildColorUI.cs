@@ -12,6 +12,7 @@ namespace Sisk.BuildColors.UI {
     /// </summary>
     public sealed class BuildColorUI {
         private MainWindow _mainWindow;
+        private bool _terminalWasOpen;
 
         public BuildColorUI() { }
 
@@ -23,6 +24,7 @@ namespace Sisk.BuildColors.UI {
             }
 
             PaintJobInput.Update();
+            SaveHotkeysOnTerminalClose();
 
             if (_mainWindow == null) {
                 return;
@@ -46,9 +48,10 @@ namespace Sisk.BuildColors.UI {
         }
 
         /// <summary>
-        /// Hands any control the binds took over back to the game before the mod goes away.
+        /// Writes the binds out and hands any control they took over back to the game.
         /// </summary>
         public void Close() {
+            SaveHotkeys();
             ClientReset();
         }
 
@@ -73,6 +76,30 @@ namespace Sisk.BuildColors.UI {
             _mainWindow = null;
             ReorderInput.Reset();
             PaintJobInput.Reset();
+        }
+
+        /// <summary>
+        /// Stores the binds once the terminal that changed them is closed.
+        /// </summary>
+        private void SaveHotkeysOnTerminalClose() {
+            var isOpen = RichHudTerminal.Open;
+
+            if (_terminalWasOpen && !isOpen) {
+                SaveHotkeys();
+                _mainWindow?.RefreshPaintJobs();
+            }
+
+            _terminalWasOpen = isOpen;
+        }
+
+        private void SaveHotkeys() {
+            if (!RichHudClient.Registered) {
+                return;
+            }
+
+            PaintJobInput.SaveBinds();
+            ReorderInput.SaveBinds();
+            HotkeyStore.Save();
         }
 
         private void HudInit() {
