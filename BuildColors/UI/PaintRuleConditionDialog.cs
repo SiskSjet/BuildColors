@@ -44,6 +44,7 @@ namespace Sisk.BuildColors.UI {
         private readonly ColorPaletteSelector _palette;
 
         private readonly HudChain _definitionSection;
+        private readonly GameInputBlockingTextField _definitionFilterField;
         private readonly Dropdown<DefinitionCatalog.BlockDefinitionOption> _definitionDropdown;
         private readonly TextField _definitionTypeField;
         private readonly TextField _definitionSubtypeField;
@@ -116,6 +117,7 @@ namespace Sisk.BuildColors.UI {
                 Height = LABEL_HEIGHT * 2f + ROW_SPACING * 3f + LayoutMetrics.COLOR_PICKER_HEIGHT + ColorPaletteSelector.TOTAL_HEIGHT,
             };
 
+            _definitionFilterField = CreateFullWidthTextField();
             _definitionDropdown = CreateFullWidthDropdown<DefinitionCatalog.BlockDefinitionOption>();
             foreach (var option in DefinitionCatalog.BlockDefinitions) {
                 _definitionDropdown.Add(option.DisplayLabel, option);
@@ -128,6 +130,7 @@ namespace Sisk.BuildColors.UI {
                 CollectionContainer = {
                     CreateFullWidthCaption(ModText.BC_UI_ConditionHint_Definition.GetString()),
                     CreateFullWidthCaption(ModText.BC_UI_ConditionHint_Wildcards.GetString()),
+                    CreateFieldRow(ModText.BC_UI_Filter.GetString(), _definitionFilterField, contentWidth),
                     _definitionDropdown,
                     CreateFieldRow("TypeId", _definitionTypeField, contentWidth),
                     CreateFieldRow("SubtypeId", _definitionSubtypeField, contentWidth)
@@ -135,7 +138,7 @@ namespace Sisk.BuildColors.UI {
                 Spacing = ROW_SPACING,
                 SizingMode = HudChainSizingModes.FitMembersOffAxis,
                 Width = contentWidth,
-                Height = LABEL_HEIGHT * 2f + CONTROL_HEIGHT * 3f + ROW_SPACING * 4f,
+                Height = LABEL_HEIGHT * 2f + CONTROL_HEIGHT * 4f + ROW_SPACING * 5f,
             };
 
             _skinDropdown = DefinitionCatalog.CreateSkinDropdown(CONTROL_HEIGHT);
@@ -253,6 +256,7 @@ namespace Sisk.BuildColors.UI {
             _conditionTypeDropdown.ValueChanged += OnConditionTypeChanged;
             _integrityDropdown.ValueChanged += OnIntegrityStateChanged;
             _definitionDropdown.ValueChanged += OnDefinitionSelected;
+            _definitionFilterField.TextChanged += OnDefinitionFilterChanged;
             saveButton.MouseInput.LeftClicked += OnSaveClicked;
 
             LoadCondition();
@@ -358,6 +362,28 @@ namespace Sisk.BuildColors.UI {
 
             _definitionTypeField.Text = selected.TypeId;
             _definitionSubtypeField.Text = selected.SubtypeId;
+        }
+
+        /// <summary>
+        /// Hides the block entries that miss any word of the filter, so the list never shrinks under its scroll range.
+        /// </summary>
+        private void OnDefinitionFilterChanged(string text) {
+            var words = text.Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var entry in _definitionDropdown.EntryList) {
+                entry.Enabled = MatchesAllWords(entry.AssocMember, words);
+            }
+        }
+
+        private static bool MatchesAllWords(DefinitionCatalog.BlockDefinitionOption option, string[] words) {
+            foreach (var word in words) {
+                if (option.DisplayLabel.IndexOf(word, StringComparison.OrdinalIgnoreCase) < 0
+                    && option.TypeId.IndexOf(word, StringComparison.OrdinalIgnoreCase) < 0) {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private void OnSaveClicked(object sender, EventArgs e) {
