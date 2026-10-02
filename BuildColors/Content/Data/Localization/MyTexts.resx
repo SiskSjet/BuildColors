@@ -1288,4 +1288,31 @@
   <data name="BC_UI_Restore" xml:space="preserve">
     <value>Restore</value>
   </data>
+  <data name="BC_UI_Confirm_RemoveRule" xml:space="preserve">
+    <value>Remove the rule '{0}' and all of its conditions?</value>
+  </data>
+  <data name="BC_UI_RuleEnabled" xml:space="preserve">
+    <value>Rule enabled</value>
+  </data>
+  <data name="BC_UI_RuleOff" xml:space="preserve">
+    <value>{0} (off)</value>
+  </data>
+  <data name="BC_Description_CopyRule" xml:space="preserve">
+    <value>Copies a rule of a paint job, the copy lands right below it.</value>
+  </data>
+  <data name="BC_Description_EnableRule" xml:space="preserve">
+    <value>Switches a rule of a paint job on or off.</value>
+  </data>
+  <data name="BC_Cmd_Usage_CopyRule" xml:space="preserve">
+    <value>Usage: /{0} CopyRule "&lt;job&gt;" "&lt;rule&gt;" ["&lt;new name&gt;"]</value>
+  </data>
+  <data name="BC_Cmd_Usage_EnableRule" xml:space="preserve">
+    <value>Usage: /{0} EnableRule "&lt;job&gt;" "&lt;rule&gt;" [on|off|toggle]</value>
+  </data>
+  <data name="BC_Cmd_RuleCopied" xml:space="preserve">
+    <value>Rule '{0}' copied to '{1}' at position {2}.</value>
+  </data>
+  <data name="BC_Cmd_RuleEnabledSet" xml:space="preserve">
+    <value>Rule '{0}' of paint job '{1}' is now {2}.</value>
+  </data>
 </root>

@@ -31,6 +31,13 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
         [XmlElement(Order = 4)]
         public PaintRuleAction Action { get; set; }
 
+        /// <summary>
+        /// Kept as an off flag so a missing value reads as on in old saves and in protobuf, which skips false.
+        /// </summary>
+        [ProtoMember(5)]
+        [XmlAttribute("disabled")]
+        public bool Disabled { get; set; }
+
         public static PaintRule CreateDefault(string name = null) {
             var rule = new PaintRule();
             if (!string.IsNullOrWhiteSpace(name)) {
@@ -52,7 +59,8 @@ namespace Sisk.BuildColors.Settings.Models.PaintJobs {
                 Id = Id,
                 Name = Name,
                 ConditionGroup = ConditionGroup != null ? ConditionGroup.Clone() : PaintRuleConditionGroup.CreateDefault(),
-                Action = Action != null ? Action.Clone() : new PaintRuleAction()
+                Action = Action != null ? Action.Clone() : new PaintRuleAction(),
+                Disabled = Disabled
             };
         }
 

@@ -138,6 +138,31 @@ namespace Sisk.BuildColors.Services {
             return candidate;
         }
 
+        /// <summary>
+        /// Puts an independent copy of a rule right below it, under a name no other rule of the job uses.
+        /// </summary>
+        public static PaintRule CopyRule(PaintJob job, PaintRule rule, string name = null) {
+            var copy = rule.Clone();
+            copy.Id = Guid.NewGuid();
+            copy.Name = string.IsNullOrWhiteSpace(name) ? UniqueRuleName(job, rule.Name) : name.Trim();
+
+            job.Rules.Insert(job.Rules.IndexOf(rule) + 1, copy);
+
+            return copy;
+        }
+
+        private static string UniqueRuleName(PaintJob job, string name) {
+            var candidate = ModText.BC_UI_CopyOfName.GetString(name);
+            var index = 2;
+
+            while (job.Rules.Exists(rule => string.Equals(rule.Name, candidate, StringComparison.InvariantCultureIgnoreCase))) {
+                candidate = string.Format("{0} {1}", ModText.BC_UI_CopyOfName.GetString(name), index);
+                index++;
+            }
+
+            return candidate;
+        }
+
         public IReadOnlyCollection<PaintJob> GetJobs() {
             if (_mod.PaintJobs == null) {
                 return new PaintJob[0];

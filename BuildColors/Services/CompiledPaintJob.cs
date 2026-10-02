@@ -34,7 +34,7 @@ namespace Sisk.BuildColors.Services {
             }
 
             foreach (var rule in job.Rules) {
-                if (rule == null || rule.Action == null || !rule.Action.ApplyColor && !rule.Action.ApplySkin) {
+                if (rule == null || rule.Disabled || rule.Action == null || !rule.Action.ApplyColor && !rule.Action.ApplySkin) {
                     continue;
                 }
 

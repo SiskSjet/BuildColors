@@ -1308,4 +1308,31 @@
   <data name="BC_UI_Restore" xml:space="preserve">
     <value>Wiederherstellen</value>
   </data>
+  <data name="BC_UI_Confirm_RemoveRule" xml:space="preserve">
+    <value>Die Regel '{0}' mit allen Bedingungen entfernen?</value>
+  </data>
+  <data name="BC_UI_RuleEnabled" xml:space="preserve">
+    <value>Regel aktiv</value>
+  </data>
+  <data name="BC_UI_RuleOff" xml:space="preserve">
+    <value>{0} (aus)</value>
+  </data>
+  <data name="BC_Description_CopyRule" xml:space="preserve">
+    <value>Kopiert eine Regel eines Lackierauftrags, die Kopie landet direkt darunter.</value>
+  </data>
+  <data name="BC_Description_EnableRule" xml:space="preserve">
+    <value>Schaltet eine Regel eines Lackierauftrags an oder aus.</value>
+  </data>
+  <data name="BC_Cmd_Usage_CopyRule" xml:space="preserve">
+    <value>Verwendung: /{0} CopyRule "&lt;Auftrag&gt;" "&lt;Regel&gt;" ["&lt;neuer Name&gt;"]</value>
+  </data>
+  <data name="BC_Cmd_Usage_EnableRule" xml:space="preserve">
+    <value>Verwendung: /{0} EnableRule "&lt;Auftrag&gt;" "&lt;Regel&gt;" [on|off|toggle]</value>
+  </data>
+  <data name="BC_Cmd_RuleCopied" xml:space="preserve">
+    <value>Regel '{0}' als '{1}' auf Position {2} kopiert.</value>
+  </data>
+  <data name="BC_Cmd_RuleEnabledSet" xml:space="preserve">
+    <value>Regel '{0}' von Lackierauftrag '{1}' ist jetzt {2}.</value>
+  </data>
 </root>

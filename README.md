@@ -77,6 +77,8 @@ The same job on the same build always gives the same result, so applying it twic
 
 Jobs are edited on the **Paint Jobs** page: jobs, the rules of the selected job, and the details of the selected rule side by side. Edits are saved as you make them, there is no save button.
 
+Copy a rule to build a variant of it, or untick **Rule enabled** to try the job without it. Looking for a block in the condition editor? Type into the filter above the block list.
+
 ### Hotkeys
 
 One job is the **active** one, whatever you last selected on the Paint Jobs page. These work with no menu open and can be rebound in the Rich HUD terminal under Build Colors ▸ Controls:

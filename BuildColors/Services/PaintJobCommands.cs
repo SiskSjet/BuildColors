@@ -29,6 +29,8 @@ namespace Sisk.BuildColors.Services {
             handler.Register(new Command { Name = "AddRule", Description = ModText.BC_Description_AddRule.GetString(), Execute = AddRule });
             handler.Register(new Command { Name = "RemoveRule", Description = ModText.BC_Description_RemoveRule.GetString(), Execute = RemoveRule });
             handler.Register(new Command { Name = "RenameRule", Description = ModText.BC_Description_RenameRule.GetString(), Execute = RenameRule });
+            handler.Register(new Command { Name = "CopyRule", Description = ModText.BC_Description_CopyRule.GetString(), Execute = CopyRule });
+            handler.Register(new Command { Name = "EnableRule", Description = ModText.BC_Description_EnableRule.GetString(), Execute = EnableRule });
             handler.Register(new Command { Name = "MoveRule", Description = ModText.BC_Description_MoveRule.GetString(), Execute = MoveRule });
             handler.Register(new Command { Name = "RuleAction", Description = ModText.BC_Description_RuleAction.GetString(), Execute = SetRuleAction });
             handler.Register(new Command { Name = "AddCondition", Description = ModText.BC_Description_AddCondition.GetString(), Execute = AddCondition });
@@ -347,6 +349,54 @@ namespace Sisk.BuildColors.Services {
 
             Persist(job);
             Show(ModText.BC_Cmd_RuleRenamed.GetString(previousName, rule.Name));
+        }
+
+        private static void CopyRule(string arguments) {
+            var tokens = CommandArguments.Split(arguments);
+
+            if (tokens.Count < 2 || tokens.Count > 3) {
+                Show(ModText.BC_Cmd_Usage_CopyRule.GetString(Mod.Acronym));
+                return;
+            }
+
+            PaintJob job;
+            PaintRule rule;
+            if (!TryResolveRule(tokens[0], tokens[1], out job, out rule)) {
+                return;
+            }
+
+            var copy = PaintJobService.CopyRule(job, rule, tokens.Count == 3 ? tokens[2] : null);
+
+            Persist(job);
+            Show(ModText.BC_Cmd_RuleCopied.GetString(rule.Name, copy.Name, job.Rules.IndexOf(copy) + 1));
+        }
+
+        private static void EnableRule(string arguments) {
+            var tokens = CommandArguments.Split(arguments);
+
+            if (tokens.Count < 2 || tokens.Count > 3) {
+                Show(ModText.BC_Cmd_Usage_EnableRule.GetString(Mod.Acronym));
+                return;
+            }
+
+            PaintJob job;
+            PaintRule rule;
+            if (!TryResolveRule(tokens[0], tokens[1], out job, out rule)) {
+                return;
+            }
+
+            var requested = tokens.Count == 3 ? tokens[2] : "toggle";
+
+            bool enabled;
+            if (!CommandArguments.TryParseFlag(requested, !rule.Disabled, out enabled)) {
+                Show(ModText.BC_Cmd_InvalidValue.GetString(requested, rule.Name));
+                return;
+            }
+
+            rule.Disabled = !enabled;
+
+            Persist(job);
+            Show(ModText.BC_Cmd_RuleEnabledSet.GetString(rule.Name, job.Name, PaintJobReport.DescribeFlag(enabled)));
         }
 
         private static void MoveRule(string arguments) {

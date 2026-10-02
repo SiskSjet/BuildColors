@@ -31,7 +31,7 @@ namespace Sisk.BuildColors.Services {
                 var rule = job.Rules[i];
 
                 builder.AppendLine();
-                builder.AppendLine(ModText.BC_Cmd_RuleLine.GetString(i + 1, rule.Name));
+                builder.AppendLine(ModText.BC_Cmd_RuleLine.GetString(i + 1, rule.Disabled ? ModText.BC_UI_RuleOff.GetString(rule.Name) : rule.Name));
                 builder.AppendLine(ModText.BC_Cmd_WhenLine.GetString());
 
                 foreach (var node in PaintRulePath.Flatten(rule.ConditionGroup)) {
