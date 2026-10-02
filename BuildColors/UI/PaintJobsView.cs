@@ -41,6 +41,8 @@ namespace Sisk.BuildColors.UI {
         private readonly RangeClampedListBox<PaintRule> _ruleList;
         private readonly TextField _ruleNameField;
         private readonly ActionButton _addRuleButton;
+        private readonly ActionButton _copyRuleButton;
+        private readonly BorderedCheckBox _ruleEnabledCheckbox;
         private readonly ActionButton _removeRuleButton;
         private readonly ActionButton _moveRuleUpButton;
         private readonly ActionButton _moveRuleDownButton;
@@ -164,13 +166,16 @@ namespace Sisk.BuildColors.UI {
             var rulesListHeight = Card.ContentHeight(rulesHeight)
                 - LayoutMetrics.LABEL_HEIGHT
                 - LayoutMetrics.CONTROL_HEIGHT
+                - LayoutMetrics.CHECKBOX_SIZE
                 - LayoutMetrics.BUTTON_HEIGHT * 2f
-                - LayoutMetrics.ROW_SPACING * 4f;
+                - LayoutMetrics.ROW_SPACING * 5f;
 
             _ruleList = ControlFactory.CreateList<PaintRule>(rulesContentWidth, Math.Max(rulesListHeight, LayoutMetrics.CONTROL_HEIGHT));
             _ruleNameField = ControlFactory.CreateTextField(rulesContentWidth);
 
             _addRuleButton = ControlFactory.CreateButton(ModText.BC_UI_AddRule.GetString());
+            _copyRuleButton = ControlFactory.CreateButton(ModText.BC_UI_Copy.GetString());
+            _ruleEnabledCheckbox = ControlFactory.CreateCheckbox();
             _removeRuleButton = ControlFactory.CreateButton(ModText.BC_UI_RemoveRule.GetString(), role: ButtonRole.Danger);
             _moveRuleUpButton = ControlFactory.CreateButton(ModText.BC_UI_MoveUp.GetString());
             _moveRuleDownButton = ControlFactory.CreateButton(ModText.BC_UI_MoveDown.GetString());
@@ -178,7 +183,8 @@ namespace Sisk.BuildColors.UI {
             _rulesCard.Content.Add(_ruleList, 0f);
             _rulesCard.Content.Add(ControlFactory.CreateCaption(ModText.BC_UI_RuleName.GetString(), rulesContentWidth), 0f);
             _rulesCard.Content.Add(_ruleNameField, 0f);
-            _rulesCard.Content.Add(ControlFactory.CreateButtonRow(rulesContentWidth, _addRuleButton, _removeRuleButton), 0f);
+            _rulesCard.Content.Add(ControlFactory.CreateCheckboxRow(_ruleEnabledCheckbox, ModText.BC_UI_RuleEnabled.GetString(), rulesContentWidth), 0f);
+            _rulesCard.Content.Add(ControlFactory.CreateButtonRow(rulesContentWidth, _addRuleButton, _copyRuleButton, _removeRuleButton), 0f);
             _rulesCard.Content.Add(ControlFactory.CreateButtonRow(rulesContentWidth, _moveRuleUpButton, _moveRuleDownButton), 0f);
 
             _inspectorCard = new Card(ModText.BC_UI_RuleDetails.GetString(), inspectorWidth, inspectorHeight);
@@ -341,6 +347,8 @@ namespace Sisk.BuildColors.UI {
             _removeJobButton.MouseInput.LeftClicked += OnRemoveJob;
 
             _addRuleButton.MouseInput.LeftClicked += OnAddRule;
+            _copyRuleButton.MouseInput.LeftClicked += OnCopyRule;
+            _ruleEnabledCheckbox.MouseInput.LeftClicked += OnRuleEnabledClicked;
             _removeRuleButton.MouseInput.LeftClicked += OnRemoveRule;
             _moveRuleUpButton.MouseInput.LeftClicked += (sender, args) => MoveRule(-1);
             _moveRuleDownButton.MouseInput.LeftClicked += (sender, args) => MoveRule(1);
@@ -571,7 +579,7 @@ namespace Sisk.BuildColors.UI {
                 _rulesCard.Title = ModText.BC_UI_RulesOf.GetString(_loadedJob.Name);
 
                 for (var i = 0; i < _loadedJob.Rules.Count; i++) {
-                    _ruleList.Add(string.Format("{0}. {1}", i + 1, _loadedJob.Rules[i].Name), _loadedJob.Rules[i]);
+                    _ruleList.Add(GetRuleLabel(i), _loadedJob.Rules[i]);
                 }
             } else {
                 _rulesCard.Title = ModText.BC_UI_Rules.GetString();
@@ -587,6 +595,13 @@ namespace Sisk.BuildColors.UI {
 
             var index = selection != null ? _loadedJob.Rules.IndexOf(selection) : 0;
             _ruleList.SetSelectionAt(index >= 0 && index < _ruleList.Count ? index : 0);
+        }
+
+        private string GetRuleLabel(int index) {
+            var rule = _loadedJob.Rules[index];
+            var label = string.Format("{0}. {1}", index + 1, rule.Name);
+
+            return rule.Disabled ? ModText.BC_UI_RuleOff.GetString(label) : label;
         }
 
         private void OnRuleSelected(object sender, EventArgs e) {
@@ -617,6 +632,29 @@ namespace Sisk.BuildColors.UI {
             HudSoundUtils.PlaySound("HudMouseClick");
         }
 
+        private void OnCopyRule(object sender, EventArgs e) {
+            if (_loadedJob == null || _loadedRule == null) {
+                return;
+            }
+
+            var copy = PaintJobService.CopyRule(_loadedJob, _loadedRule);
+
+            Service?.Save();
+            RefreshRules(copy);
+            HudSoundUtils.PlaySound("HudMouseClick");
+        }
+
+        private void OnRuleEnabledClicked(object sender, EventArgs e) {
+            if (_suppressWrites || _loadedJob == null || _loadedRule == null) {
+                return;
+            }
+
+            _loadedRule.Disabled = !_ruleEnabledCheckbox.Value;
+
+            Service?.Save();
+            RefreshRules(_loadedRule);
+        }
+
         private void OnRemoveRule(object sender, EventArgs e) {
             if (_loadedJob == null || _loadedRule == null) {
                 return;
@@ -627,12 +665,23 @@ namespace Sisk.BuildColors.UI {
                 return;
             }
 
-            _loadedJob.Rules.Remove(_loadedRule);
-            _loadedRule = null;
+            var job = _loadedJob;
+            var rule = _loadedRule;
+            var dialog = new ConfirmDialog(ModText.BC_UI_Remove.GetString(), ModText.BC_UI_Confirm_RemoveRule.GetString(rule.Name));
 
-            Service?.Save();
-            RefreshRules();
-            HudSoundUtils.PlaySound("HudLockingLost");
+            dialog.Confirmed += (s, args) => {
+                job.Rules.Remove(rule);
+
+                if (_loadedRule == rule) {
+                    _loadedRule = null;
+                }
+
+                Service?.Save();
+                RefreshRules();
+                UpdateButtonState();
+            };
+
+            OpenDialog(dialog);
         }
 
         /// <summary>
@@ -672,6 +721,7 @@ namespace Sisk.BuildColors.UI {
             if (_loadedRule == null) {
                 _inspectorCard.Title = ModText.BC_UI_RuleDetails.GetString();
                 _ruleNameField.Text = string.Empty;
+                _ruleEnabledCheckbox.Value = false;
                 _conditionTree.ClearEntries();
                 _sourceSummaryLabel.Text = string.Empty;
                 _suppressWrites = false;
@@ -681,6 +731,7 @@ namespace Sisk.BuildColors.UI {
 
             _inspectorCard.Title = ModText.BC_UI_RuleDetailsOf.GetString(_loadedRule.Name);
             _ruleNameField.Text = _loadedRule.Name;
+            _ruleEnabledCheckbox.Value = !_loadedRule.Disabled;
 
             if (_loadedRule.Action == null) {
                 _loadedRule.Action = new PaintRuleAction();
@@ -903,6 +954,8 @@ namespace Sisk.BuildColors.UI {
             _shareJobButton.InputEnabled = hasJob;
             _applyButton.InputEnabled = hasJob;
             _addRuleButton.InputEnabled = hasJob;
+            _copyRuleButton.InputEnabled = hasRule;
+            _ruleEnabledCheckbox.InputEnabled = hasRule;
 
             _removeRuleButton.InputEnabled = hasRule && _loadedJob != null && _loadedJob.Rules.Count > 1;
             _moveRuleUpButton.InputEnabled = hasRule;

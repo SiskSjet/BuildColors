@@ -40,6 +40,8 @@ namespace Sisk.BuildColors.Localization {
         public static readonly MyStringId BC_Cmd_PathNotGroup = MyStringId.GetOrCompute(nameof(BC_Cmd_PathNotGroup));
         public static readonly MyStringId BC_Cmd_RootProtected = MyStringId.GetOrCompute(nameof(BC_Cmd_RootProtected));
         public static readonly MyStringId BC_Cmd_RuleAdded = MyStringId.GetOrCompute(nameof(BC_Cmd_RuleAdded));
+        public static readonly MyStringId BC_Cmd_RuleCopied = MyStringId.GetOrCompute(nameof(BC_Cmd_RuleCopied));
+        public static readonly MyStringId BC_Cmd_RuleEnabledSet = MyStringId.GetOrCompute(nameof(BC_Cmd_RuleEnabledSet));
         public static readonly MyStringId BC_Cmd_RuleLine = MyStringId.GetOrCompute(nameof(BC_Cmd_RuleLine));
         public static readonly MyStringId BC_Cmd_RuleMoved = MyStringId.GetOrCompute(nameof(BC_Cmd_RuleMoved));
         public static readonly MyStringId BC_Cmd_RuleNotFound = MyStringId.GetOrCompute(nameof(BC_Cmd_RuleNotFound));
@@ -57,6 +59,8 @@ namespace Sisk.BuildColors.Localization {
         public static readonly MyStringId BC_Cmd_Usage_AddGroup = MyStringId.GetOrCompute(nameof(BC_Cmd_Usage_AddGroup));
         public static readonly MyStringId BC_Cmd_Usage_AddRule = MyStringId.GetOrCompute(nameof(BC_Cmd_Usage_AddRule));
         public static readonly MyStringId BC_Cmd_Usage_CopyJob = MyStringId.GetOrCompute(nameof(BC_Cmd_Usage_CopyJob));
+        public static readonly MyStringId BC_Cmd_Usage_CopyRule = MyStringId.GetOrCompute(nameof(BC_Cmd_Usage_CopyRule));
+        public static readonly MyStringId BC_Cmd_Usage_EnableRule = MyStringId.GetOrCompute(nameof(BC_Cmd_Usage_EnableRule));
         public static readonly MyStringId BC_Cmd_Usage_JobOption = MyStringId.GetOrCompute(nameof(BC_Cmd_Usage_JobOption));
         public static readonly MyStringId BC_Cmd_Usage_MoveCondition = MyStringId.GetOrCompute(nameof(BC_Cmd_Usage_MoveCondition));
         public static readonly MyStringId BC_Cmd_Usage_MoveRule = MyStringId.GetOrCompute(nameof(BC_Cmd_Usage_MoveRule));
@@ -91,6 +95,8 @@ namespace Sisk.BuildColors.Localization {
         public static readonly MyStringId BC_Description_AddRule = MyStringId.GetOrCompute(nameof(BC_Description_AddRule));
         public static readonly MyStringId BC_Description_ApplyJob = MyStringId.GetOrCompute(nameof(BC_Description_ApplyJob));
         public static readonly MyStringId BC_Description_CopyJob = MyStringId.GetOrCompute(nameof(BC_Description_CopyJob));
+        public static readonly MyStringId BC_Description_CopyRule = MyStringId.GetOrCompute(nameof(BC_Description_CopyRule));
+        public static readonly MyStringId BC_Description_EnableRule = MyStringId.GetOrCompute(nameof(BC_Description_EnableRule));
         public static readonly MyStringId BC_Description_Decline = MyStringId.GetOrCompute(nameof(BC_Description_Decline));
         public static readonly MyStringId BC_Description_Generate = MyStringId.GetOrCompute(nameof(BC_Description_Generate));
         public static readonly MyStringId BC_Description_Help = MyStringId.GetOrCompute(nameof(BC_Description_Help));
@@ -227,6 +233,7 @@ namespace Sisk.BuildColors.Localization {
         public static readonly MyStringId BC_UI_Confirm_Overwrite = MyStringId.GetOrCompute(nameof(BC_UI_Confirm_Overwrite));
         public static readonly MyStringId BC_UI_Confirm_RemoveColorSet = MyStringId.GetOrCompute(nameof(BC_UI_Confirm_RemoveColorSet));
         public static readonly MyStringId BC_UI_Confirm_RemoveJob = MyStringId.GetOrCompute(nameof(BC_UI_Confirm_RemoveJob));
+        public static readonly MyStringId BC_UI_Confirm_RemoveRule = MyStringId.GetOrCompute(nameof(BC_UI_Confirm_RemoveRule));
         public static readonly MyStringId BC_UI_Controls = MyStringId.GetOrCompute(nameof(BC_UI_Controls));
         public static readonly MyStringId BC_UI_Copy = MyStringId.GetOrCompute(nameof(BC_UI_Copy));
         public static readonly MyStringId BC_UI_CopyOfName = MyStringId.GetOrCompute(nameof(BC_UI_CopyOfName));
@@ -345,6 +352,8 @@ namespace Sisk.BuildColors.Localization {
         public static readonly MyStringId BC_UI_RuleDetails = MyStringId.GetOrCompute(nameof(BC_UI_RuleDetails));
         public static readonly MyStringId BC_UI_RuleDetailsOf = MyStringId.GetOrCompute(nameof(BC_UI_RuleDetailsOf));
         public static readonly MyStringId BC_UI_RuleName = MyStringId.GetOrCompute(nameof(BC_UI_RuleName));
+        public static readonly MyStringId BC_UI_RuleEnabled = MyStringId.GetOrCompute(nameof(BC_UI_RuleEnabled));
+        public static readonly MyStringId BC_UI_RuleOff = MyStringId.GetOrCompute(nameof(BC_UI_RuleOff));
         public static readonly MyStringId BC_UI_Rules = MyStringId.GetOrCompute(nameof(BC_UI_Rules));
         public static readonly MyStringId BC_UI_RulesOf = MyStringId.GetOrCompute(nameof(BC_UI_RulesOf));
         public static readonly MyStringId BC_UI_Save = MyStringId.GetOrCompute(nameof(BC_UI_Save));
