@@ -31,7 +31,7 @@ A paint job is a list of rules applied to the grid you are looking at. Each rule
 
 Besides a flat color a rule can paint a [b]gradient[/b] along an axis, [b]camo[/b] patches, [b]scatter[/b] (random per block, with weights) or a [b]pattern[/b] of stripes or checkers. The same job on the same build always gives the same result.
 
-Jobs, rules and rule details sit side by side on the [b]Paint Jobs[/b] page. Edits save themselves.
+Jobs, rules and rule details sit side by side on the [b]Paint Jobs[/b] page. Edits save themselves. Copy a rule to build a variant, untick [b]Rule enabled[/b] to try the job without it, and type into the filter above the block list to find a block fast.
 
 [h3]Hotkeys[/h3]
 The [b]active[/b] job is the one you last selected. These work with no menu open and can be rebound in the Rich HUD terminal under Build Colors ▸ Controls.
@@ -120,7 +120,7 @@ Ein Paint Job ist eine Liste von Regeln für das Grid vor dir. Jede Regel sagt, 
 
 Statt einer einfarbigen Fläche malt eine Regel auch einen [b]Verlauf[/b] entlang einer Achse, [b]Camo[/b]-Flecken, [b]Scatter[/b] (zufällig pro Block, mit Gewichtung) oder ein [b]Muster[/b] aus Streifen oder Schachbrett. Derselbe Job ergibt auf demselben Bau immer dasselbe Ergebnis.
 
-Jobs, Regeln und Regeldetails liegen auf der Seite [b]Paint Jobs[/b] nebeneinander. Änderungen werden sofort gespeichert.
+Jobs, Regeln und Regeldetails liegen auf der Seite [b]Paint Jobs[/b] nebeneinander. Änderungen werden sofort gespeichert. Kopiere eine Regel für eine Variante, nimm den Haken bei [b]Regel aktiv[/b] raus, um den Job ohne sie zu testen, und tippe ins Filterfeld über der Blockliste, um einen Block schnell zu finden.
 
 [h3]Tastenbelegung[/h3]
 Der [b]aktive[/b] Job ist der, den du zuletzt ausgewählt hast. Die Tasten wirken ohne offenes Menü und lassen sich im Rich HUD Terminal unter Build Colors ▸ Controls neu belegen.

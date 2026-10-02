@@ -1,4 +1,21 @@
-﻿# [3.0.6](https://github.com/SiskSjet/BuildColors/compare/v3.0.5...3.0.6) (2026-09-10)
+﻿# [3.0.7](https://github.com/SiskSjet/BuildColors/compare/v3.0.6...3.0.7) (2026-10-02)
+
+
+### Features
+
+* block list in the condition editor has a filter, so a block no longer has to be scrolled for among a thousand entries; every typed word has to appear in the block's name, subtype or type
+* rules can be copied, the copy lands right below the original, for a variant without rebuilding its conditions
+* rules can be switched off to try a job without them instead of deleting them, and show as off in the list
+* chat commands CopyRule and EnableRule do the same from chat
+
+
+### Bug Fixes
+
+* removing a rule asked nothing, one misclick took the rule and all its conditions for good
+
+
+
+# [3.0.6](https://github.com/SiskSjet/BuildColors/compare/v3.0.5...3.0.6) (2026-09-10)
 
 
 ### Bug Fixes
